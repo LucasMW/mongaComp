@@ -10,6 +10,11 @@ typedef enum token
 
 int main (void)
 {
-	yylex();
-	printf("hi\n");
+	int control;
+	while(control)
+	{
+		control = yylex();
+	}
+	
+	printf("FINISHED READING FILE\n");
 }
