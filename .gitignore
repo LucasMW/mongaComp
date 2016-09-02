@@ -1,2 +1,3 @@
 src/lex.c
 comp
+src/linecounter.lex

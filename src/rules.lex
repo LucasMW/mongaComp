@@ -1,9 +1,9 @@
 %option noyywrap
 
+int lex_lines = 0;
 %%
-
-"\t"	{printf("FOUND\\t\n"); return '\t' ;}
-">"		{
-		printf("FOUND>\n");return '>';}
+"\n"	{ return '\n';}
+"\t"	{ return '\t' ;}
+">"		{return '>';}
 ">="	{return 10;}
-[0-9]+	{printf("Number\n");return 9;}
+[0-9]+	{return 400;}
