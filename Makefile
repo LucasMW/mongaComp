@@ -9,3 +9,5 @@ clean:
 	rm src/lex.c
 	rm -r bin
 	mkdir bin
+	rm -r temp
+	mkdir temp
