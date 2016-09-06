@@ -1,6 +1,11 @@
-%option noyywrap
 
-int lex_lines = 0;
+%option noyywrap
+%{
+   #if !defined(lex_h)
+	#include "lex.h"
+	#define lex_h
+   #endif
+%}
 %%
 "char"	{return 301;}
 "else"	{return 302; }
@@ -14,14 +19,18 @@ int lex_lines = 0;
 "\n"	{ return '\n';}
 "\t"	{ return '\t' ;}
 ">="	{return 258;}
-">"		{return '>';}
+">"		{return TK_GT;}
 "<=" 	{return 257;}
 "<"		{return '<';}
 "="		{return '=';}
 ";"		{return ';';}
 "{"		{return '{';}
 "}"		{return '}';}
-[0-9]+	{return 401;}
-[0-9]+.[0-9]+ {return 402;}
+[0-9]+	{ seminfo.i = atoi( yytext );
+		return TK_INT;}
+[0-9]+.[0-9]+ {seminfo.d = strtod(yytext,NULL);
+				return TK_FLOAT;}
 \".*\" {return 501;}
+
+
 

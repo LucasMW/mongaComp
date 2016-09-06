@@ -3,3 +3,4 @@ comp
 src/linecounter.lex
 src/example.lex
 bin/
+src/*.o

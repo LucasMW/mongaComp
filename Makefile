@@ -11,3 +11,9 @@ clean:
 	mkdir bin
 	rm -r temp
 	mkdir temp
+src/main.o: 
+	cc -o temp/main.o -Wall -02 -c main.c
+src/lex.o:
+	cc -o temp/lex.o	-Wall -02 -c lex.c
+bin/comp: temp/main.o temp/lex.o
+	ld -o bin/comp main.o temp/lex.o

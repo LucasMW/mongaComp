@@ -1,18 +1,28 @@
 #include <stdio.h>
-#include "lex.h"
-
-typedef enum token 
-{
-	TK_GT = 256,
-	TK_GE
-} Token;
+#if !defined(lex_h)
+	#include "lex.h"
+	#define lex_h
+#endif
+#include <string.h>
 
 
-int main (void)
+#define NORMALMODE 0;
+#define TESTMODE 1;
+Seminfo_t seminfo;
+int main (int argc, char** argv)
 {
 	int lines=1; //save one for EOF
 	int tokens=-1;
 	int control=1; //Grants it enters the while
+	char mode = 0;
+	FILE* testout = NULL;
+	if(argc == 2) {
+		if(strcmp(argv[1],"-test")==0)
+		{
+			mode = TESTMODE;
+			testout = fopen("test_output.txt","wt");
+		}
+	}
 	while(control)
 	{
 		control = yylex();
@@ -39,11 +49,11 @@ int main (void)
 			case ';':
 				printf("Statement\n");
 			break;
-			case 401:
-				printf("Int\n");
+			case TK_INT:
+				printf("Int %d\n",seminfo.i);
 			break;
-			case 402:
-				printf("Float\n");
+			case TK_FLOAT:
+				printf("Float %f\n",seminfo.d);
 			break;
 			case 301:
 				printf("reserved word\n");
