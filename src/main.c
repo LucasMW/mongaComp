@@ -16,7 +16,8 @@ int main (int argc, char** argv)
 	int control=1; //Grants it enters the while
 	char mode = 0;
 	FILE* testout = NULL;
-	if(argc == 2) {
+	if(argc == 2) 
+	{
 		if(strcmp(argv[1],"-test")==0)
 		{
 			mode = TESTMODE;
@@ -35,7 +36,7 @@ int main (int argc, char** argv)
 				lines++;
 			break;
 			case '\t':
-				printf("tab \n");
+				printf("tab\n");
 			break;
 			case '>':
 				printf("Greater ");
@@ -55,35 +56,44 @@ int main (int argc, char** argv)
 			case TK_FLOAT:
 				printf("Float %f\n",seminfo.d);
 			break;
-			case 301:
-				printf("reserved word\n");
+			case TK_HEXA:
+				printf("Hexa %d\n",seminfo.i);
 			break;
-			case 302:
-				printf("reserved word\n");
+			case TK_WCHAR:
+				printf("reserved word char\n");
 			break;
-			case 303:
-				printf("reserved word\n");
+			case TK_WELSE:
+				printf("reserved word else\n");
 			break;
-			case 304:
-				printf("reserved word\n");
+			case TK_WFLOAT:
+				printf("reserved word float\n");
 			break;
-			case 305:
-				printf("reserved word\n");
+			case TK_WIF:
+				printf("reserved word if\n");
 			break;
-			case 306:
-				printf("reserved word\n");
+			case TK_WINT:
+				printf("reserved word int\n");
 			break;
-			case 307:
-				printf("reserved word\n");
+			case TK_WNEW:
+				printf("reserved word new\n");
 			break;
-			case 308:
-				printf("reserved word\n");
+			case TK_WRETURN:
+				printf("reserved word return\n");
 			break;
-			case 309:
-				printf("reserved word\n");
+			case TK_WVOID:
+				printf("reserved word void\n");
 			break;
-			case 501:
+			case TK_WWHILE:
+				printf("reserved word while\n");
+			break;
+			case TK_STR:
 				printf("String\n");
+			break;
+			case TK_VAR:
+				printf("var\n");
+			break;
+			case TK_COMMENT:
+				printf("Comment\n");
 			break;
 
 		}

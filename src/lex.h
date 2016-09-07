@@ -9,13 +9,27 @@ typedef enum token
 	TK_EQ,
 	TK_STATEMENT,
 	TK_INT,
-	TK_FLOAT
+	TK_FLOAT,
+	TK_HEXA,
+	TK_WCHAR = 301, //Reserved words start at 300
+	TK_WELSE,
+	TK_WFLOAT,
+	TK_WIF,
+	TK_WINT,
+	TK_WNEW,
+	TK_WRETURN,
+	TK_WVOID,
+	TK_WWHILE,
+	TK_STR = 501,
+	TK_VAR,
+	TK_COMMENT
 
 } Token;
 
 typedef union seminfo_t
 {
 	int i;
+	unsigned int u;
 	double d;
 	const char *s;
 
