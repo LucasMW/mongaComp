@@ -39,7 +39,7 @@ int main (int argc, char** argv)
 				printf("tab\n");
 			break;
 			case '>':
-				printf("Greater ");
+				printf("Greater");
 			break;
 			case '<':
 				printf("Lesser ");
@@ -94,6 +94,10 @@ int main (int argc, char** argv)
 			break;
 			case TK_COMMENT:
 				printf("Comment\n");
+			break;
+			case TK_ERROR:
+				printf("Lexical error detected in source.\n");
+				printf("ERROR:%s\n", seminfo.s );
 			break;
 
 		}

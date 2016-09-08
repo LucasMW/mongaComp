@@ -4,9 +4,14 @@ typedef enum token
 {
 	TK_GT = 256,
 	TK_GE,
-	TK_LT,
+	TK_LS,
 	TK_LE,
 	TK_EQ,
+	TK_PLUS,
+	TK_MINUS,
+	TK_ASTERISK,
+	TK_SLASH,
+	TK_COMMA,
 	TK_STATEMENT,
 	TK_INT,
 	TK_FLOAT,
@@ -20,11 +25,16 @@ typedef enum token
 	TK_WRETURN,
 	TK_WVOID,
 	TK_WWHILE,
+	TK_AND = 401,
+	TK_OR,
+	TK_EQEQ,
 	TK_STR = 501,
 	TK_VAR,
-	TK_COMMENT
+	TK_COMMENT,
+	TK_ERROR
 
 } Token;
+
 
 typedef union seminfo_t
 {
