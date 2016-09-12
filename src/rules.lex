@@ -47,9 +47,9 @@
 				return TK_FLOAT;}
 
 ([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { return TK_VAR;}
-\"([^\"])*\" { seminfo.s = yytext;
+\"(([\\][\"])|[^\"])*\" { seminfo.s = yytext;
 		 return TK_STR;}
-\"[^\"]*	{ seminfo.s = "Unfinished String"; 
+\"[^"\""]*	{ seminfo.s = "Unfinished String"; 
 		return TK_ERROR;}	
 \'.\' 	{seminfo.i = *(yytext+1);
 		return TK_INT;}
