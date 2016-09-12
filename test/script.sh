@@ -12,6 +12,7 @@ do
 	result=$(cmp $f.output $name.answer)
 	if($result) then
 		echo "OK"
+		rm $f.output
 	else
 		echo "Wrong"
 		diff $f.output $name.answer
