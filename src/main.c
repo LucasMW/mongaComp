@@ -87,7 +87,7 @@ int main (int argc, char** argv)
 				printf("reserved word while\n");
 			break;
 			case TK_STR:
-				printf("String\n");
+				printf("String: %s\n",seminfo.s);
 			break;
 			case TK_VAR:
 				printf("var\n");
