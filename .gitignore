@@ -4,3 +4,4 @@ src/linecounter.lex
 src/example.lex
 bin/
 src/*.o
+*.output
