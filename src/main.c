@@ -9,6 +9,7 @@
 #define NORMALMODE 0;
 #define TESTMODE 1;
 Seminfo_t seminfo;
+int tklen;
 int main (int argc, char** argv)
 {
 	int lines=1; //save one for EOF
@@ -93,6 +94,11 @@ int main (int argc, char** argv)
 				printf("var\n");
 			break;
 			case TK_COMMENT:
+				for(int i = 0; i < strlen(seminfo.s); i++)
+				{
+					if(seminfo.s[i]== '\n')
+						lines++;
+				}
 				printf("Comment\n");
 			break;
 			case TK_ERROR:
