@@ -41,24 +41,32 @@
 
 "0x"([0-9]|[A-F])+	{seminfo.i = strtol(yytext, NULL, 0);
 				return TK_HEXA;}
-[0-9]+	{ seminfo.i = atoi( yytext );
+-?[0-9]+	{ seminfo.i = atoi( yytext );
 		return TK_INT;}
-[0-9]+.[0-9]+ {seminfo.d = strtod(yytext,NULL);
+-?[0-9]+"."[0-9]+ {seminfo.d = strtod(yytext,NULL);
 				return TK_FLOAT;}
 
 ([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { return TK_VAR;}
 \".*\" {return TK_STR;}
 \".*	{ seminfo.s = "Unfinished String"; 
 		return TK_ERROR;}	
-\'.\' 	{seminfo.i = *yytext;
+\'.\' 	{seminfo.i = *(yytext+1);
 		return TK_INT;}
+\'"\\n"\' { seminfo.i = '\n';
+		return TK_INT;}
+\'"\\t"\' { seminfo.i = '\t';
+		return TK_INT;}
+\'"\\"\"\' { seminfo.i = '\"';
+		return TK_INT;}
+
 \'.*	{seminfo.s = "Unfinished Character";
 		 return TK_ERROR;}
 "/*"([^*]|"*"+[^*/])*"*"+"*/"	{ return TK_COMMENT;}
 [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]       { return TK_COMMENT;}
 [/][*]                                    { seminfo.s = "Unfinished Comment"; //from http://stackoverflow.com/questions/25395251/detecting-and-skipping-line-comments-with-flex
 											return TK_ERROR; }
-[ ] { }
+[ ] {//ignore spaces in flex output
+	 }
 
 
 
