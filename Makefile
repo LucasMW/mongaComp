@@ -1,5 +1,8 @@
 test/comp: src/main.c src/lex.c
 	cc -o comp src/main.c src/lex.c
+testlexical:
+	sh test/script.sh
+	rm test/simple/*.output
 src/lex.c: src/rules.lex
 	flex src/rules.lex
 	mv lex.yy.c src/lex.c
