@@ -1,8 +1,9 @@
 test/comp: src/main.c src/lex.c
 	cc -o comp src/main.c src/lex.c
-testlexical:
+comp: src/main.c src/lex.c
+	cc -o comp src/main.c src/lex.c
+testlexical: comp
 	sh test/script.sh
-	rm test/simple/*.output
 src/lex.c: src/rules.lex
 	flex src/rules.lex
 	mv lex.yy.c src/lex.c
@@ -14,6 +15,7 @@ clean:
 	mkdir bin
 	rm -r temp
 	mkdir temp
+	rm test/simple/*.output
 src/main.o: 
 	cc -o temp/main.o -Wall -02 -c main.c
 src/lex.o:
