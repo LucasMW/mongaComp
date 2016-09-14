@@ -48,7 +48,7 @@
 "/"		{return '/';}
 ","		{return ',';}
 
-"0x"([0-9]|[A-F])+	{seminfo.i = strtol(yytext, NULL, 0);
+"0x"([0-9]|[A-F]|[a-f])+	{seminfo.i = strtol(yytext, NULL, 0);
 				return TK_INT;}
 [0-9]+	{ seminfo.i = atoi( yytext );
 		return TK_INT;}
