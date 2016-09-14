@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #if !defined(lex_h)
 	#include "lex.h"
 	#define lex_h
@@ -9,10 +10,16 @@
 #define NORMALMODE 0;
 #define TESTMODE 1;
 Seminfo_t seminfo;
-int tklen;
+int yy_lines=1; //save one for EOF
+
+void lexError(const char* message, int ret)
+{
+	printf("Lexical error detected in source:\n");
+	printf("ERROR: %s\t\t#line %d\n", message, yy_lines);
+	exit( ret ? ret : 1);
+}
 int main (int argc, char** argv)
 {
-	int lines=1; //save one for EOF
 	int tokens=-1;
 	int control=1; //Grants it enters the while
 	char mode = 0;
@@ -32,13 +39,13 @@ int main (int argc, char** argv)
 		//printf("%s ",yytext);
 		switch(control)
 		{
-			case '\n':
-				printf("Line Break\n");
-				lines++;
-			break;
-			case '\t':
-				printf("tab\n");
-			break;
+			// case '\n':
+			// 	printf("Line Break\n");
+			// 	lines++;
+			// break;
+			// case '\t':
+			// 	printf("tab\n");
+			// break;
 			case '>':
 				printf("Greater");
 			break;
@@ -93,14 +100,6 @@ int main (int argc, char** argv)
 			case TK_VAR:
 				printf("var\n");
 			break;
-			case TK_COMMENT:
-				for(int i = 0; i < strlen(seminfo.s); i++)
-				{
-					if(seminfo.s[i]== '\n')
-						lines++;
-				}
-				printf("Comment\n");
-			break;
 			case TK_ERROR:
 				printf("Lexical error detected in source.\n");
 				printf("ERROR:%s\n", seminfo.s );
@@ -109,5 +108,6 @@ int main (int argc, char** argv)
 		}
 	}
 	printf("FINISHED READING FILE\n");
-	printf("Proccessed %d tokens in %d lines\n",tokens,lines);
+	printf("Proccessed %d tokens in %d lines\n",tokens,yy_lines);
 }
+

@@ -45,6 +45,8 @@ typedef union seminfo_t
 
 } Seminfo_t;
 extern Seminfo_t seminfo;
+extern int yy_lines;
+void lexError(const char* message, int ret);
 
 // char *yytext;
 // /*holds the text of the current token. It may be modified but not lengthened (you cannot append characters to the end).
