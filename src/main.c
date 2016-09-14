@@ -46,17 +46,68 @@ int main (int argc, char** argv)
 			// case '\t':
 			// 	printf("tab\n");
 			// break;
-			case '>':
-				printf("Greater");
+			case TK_GT:
+				printf("Greater\n");
 			break;
-			case '<':
-				printf("Lesser ");
+			case TK_GE:
+				printf("Greater or Equal\n");
 			break;
-			case '=':
-				printf("Equal ");
+			case TK_LS:
+				printf("Lesser\n");
+			break;
+			case TK_LE:
+				printf("Lesser or Equal\n");
+			break;
+			case TK_EQ:
+				printf("Equal\n");
 			break;
 			case ';':
 				printf("Statement\n");
+			break;
+			case ',':
+				printf("Comma\n");
+			break;
+			case '+':
+				printf("Plus\n");
+			break;
+			case '-':
+				printf("Minus\n");
+			break;
+			case '*':
+				printf("Asterisk\n");
+			break;
+			case '/':
+				printf("Slash\n");
+			break;
+			case '!':
+				printf("Exclamation\n");
+			break;
+			case '{':
+				printf("Braces Open\n");
+			break;
+			case '}':
+				printf("Braces Close\n");
+			break;
+			case '[':
+				printf("Brackets Open\n");
+			break;
+			case ']':
+				printf("Brackets Close\n");
+			break;
+			case '(':
+				printf("Parenthesis Open\n");
+			break;
+			case ')':
+				printf("Parenthesis Close\n");
+			break;
+			case TK_EQEQ:
+				printf("Equal-Equal\n");
+			break;
+			case TK_OR:
+				printf("OR\n");
+			break;
+			case TK_AND:
+				printf("AND\n");
 			break;
 			case TK_INT:
 				printf("Int %d\n",seminfo.i);
@@ -100,10 +151,10 @@ int main (int argc, char** argv)
 			case TK_VAR:
 				printf("var\n");
 			break;
-			case TK_ERROR:
-				printf("Lexical error detected in source.\n");
-				printf("ERROR:%s\n", seminfo.s );
-			break;
+			// case TK_ERROR:
+			// 	printf("Lexical error detected in source.\n");
+			// 	printf("ERROR:%s\n", seminfo.s );
+			// break;
 
 		}
 	}

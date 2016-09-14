@@ -29,9 +29,7 @@ typedef enum token
 	TK_OR,
 	TK_EQEQ,
 	TK_STR = 501,
-	TK_VAR,
-	TK_COMMENT,
-	TK_ERROR
+	TK_VAR
 
 } Token;
 

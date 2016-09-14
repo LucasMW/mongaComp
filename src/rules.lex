@@ -8,7 +8,7 @@
 
 	static void countlinesintoken()
 	{
-		for(int i = 0; i < yyleng; i++) //comments can be multi-line
+		for(int i = 0; i < yyleng; i++)  
 		{
 			if(yytext[i] == '\n')
 				yy_lines++;
@@ -30,9 +30,9 @@
 ">"		{return TK_GT;}
 "<=" 	{return TK_LE;}
 "<"		{return TK_LS;}
-"="		{return TK_EQ;}
 ";"		{return TK_STATEMENT;}
 "=="	{return TK_EQEQ;}
+"="		{return TK_EQ;}
 "{"		{return '{';}
 "}"		{return '}';}
 "["		{return '[';}
@@ -79,9 +79,9 @@
 		 							countlinesintoken();
 		 							}
 [/][*]                          { //from http://stackoverflow.com/questions/25395251/detecting-and-skipping-line-comments-with-flex
-											 lexError("Unfinished Comment",1); }
+								lexError("Unfinished Comment",1); }
 
-[\n] 	{  printf("Line Break\n");
+[\n] 	{  	//printf("Line Break\n");
 			yy_lines++; }
 [ ]|[\t] {//ignore spaces and tabs in flex output
 	 }
