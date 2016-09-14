@@ -1,0 +1,7 @@
+String: "this is a string"
+String: "stringWithNoSpaces"
+String: "the number is %d\n"
+String: "\"MyString\""
+String: "\t that string"
+FINISHED READING FILE
+Proccessed 5 tokens in 1 lines
