@@ -2,9 +2,12 @@ Float 1.000000
 Float 2.000000
 Float 0.001000
 Float 2.010000
-Float -2.000000
-Float -0.010000
+Minus
+Float 2.000000
+Minus
+Float 0.010000
 Float 0.000000
-Float -0.000000
+Minus
+Float 0.000000
 FINISHED READING FILE
-Proccessed 8 tokens in 1 lines
+Proccessed 11 tokens in 1 lines
