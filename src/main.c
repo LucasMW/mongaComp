@@ -35,7 +35,7 @@ int main (int argc, char** argv)
 	while(control)
 	{
 		control = yylex();
-		tokens++;
+		tokens++; //tokens shall only be incremented when yylex() returns
 		//printf("%s ",yytext);
 		switch(control)
 		{
@@ -114,9 +114,6 @@ int main (int argc, char** argv)
 			break;
 			case TK_FLOAT:
 				printf("Float %f\n",seminfo.d);
-			break;
-			case TK_HEXA:
-				printf("Hexa %d\n",seminfo.i);
 			break;
 			case TK_WCHAR:
 				printf("reserved word char\n");

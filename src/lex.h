@@ -15,7 +15,6 @@ typedef enum token
 	TK_STATEMENT,
 	TK_INT,
 	TK_FLOAT,
-	TK_HEXA,
 	TK_WCHAR = 301, //Reserved words start at 300
 	TK_WELSE,
 	TK_WFLOAT,

@@ -49,7 +49,7 @@
 ","		{return ',';}
 
 "0x"([0-9]|[A-F])+	{seminfo.i = strtol(yytext, NULL, 0);
-				return TK_HEXA;}
+				return TK_INT;}
 [0-9]+	{ seminfo.i = atoi( yytext );
 		return TK_INT;}
 [0-9]+"."[0-9]+ {seminfo.d = strtod(yytext,NULL);
