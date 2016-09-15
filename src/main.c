@@ -53,8 +53,8 @@ int main (int argc, char** argv)
 			case TK_EQ:
 				printf("Equal\n");
 			break;
-			case ';':
-				printf("Statement\n");
+			case TK_STATEMENT:
+				printf("Semicolon\n");
 			break;
 			case ',':
 				printf("Comma\n");
@@ -105,7 +105,7 @@ int main (int argc, char** argv)
 				printf("Int %d\n",seminfo.i);
 			break;
 			case TK_FLOAT:
-				printf("Float %f\n",seminfo.d);
+				printf("Float %g\n",seminfo.d);
 			break;
 			case TK_WCHAR:
 				printf("reserved word char\n");

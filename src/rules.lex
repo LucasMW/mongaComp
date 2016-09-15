@@ -72,7 +72,6 @@
 "("		{return '(';}
 ")"		{return ')';}
 "!"		{return '!';}
-';'		{return ';';}
 "&&"	{return TK_AND;}
 "||"	{return TK_OR;}
 "+"		{return '+';}
