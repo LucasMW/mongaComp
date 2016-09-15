@@ -15,7 +15,7 @@ int yy_lines=1; //save one for EOF
 void lexError(const char* message, int ret)
 {
 	printf("Lexical error detected in source:\n");
-	printf("ERROR: %s\t\t#line %d\n", message, yy_lines);
+	fprintf(stderr,"ERROR: %s\t\t#line %d\n", message, yy_lines);
 	exit( ret ? ret : 1);
 }
 int main (int argc, char** argv)
@@ -36,16 +36,8 @@ int main (int argc, char** argv)
 	{
 		control = yylex();
 		tokens++; //tokens shall only be incremented when yylex() returns
-		//printf("%s ",yytext);
 		switch(control)
 		{
-			// case '\n':
-			// 	printf("Line Break\n");
-			// 	lines++;
-			// break;
-			// case '\t':
-			// 	printf("tab\n");
-			// break;
 			case TK_GT:
 				printf("Greater\n");
 			break;
@@ -146,12 +138,8 @@ int main (int argc, char** argv)
 				printf("String: %s\n",seminfo.s);
 			break;
 			case TK_VAR:
-				printf("var\n");
+				printf("Var %s\n",seminfo.s);
 			break;
-			// case TK_ERROR:
-			// 	printf("Lexical error detected in source.\n");
-			// 	printf("ERROR:%s\n", seminfo.s );
-			// break;
 
 		}
 	}

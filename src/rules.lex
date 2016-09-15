@@ -13,7 +13,39 @@
 			if(yytext[i] == '\n')
 				yy_lines++;
 		}
-		printf("Comment\n");	
+	}
+	static char * translatescape()
+	{
+		char flag = 0;
+		char* newStr = (char*)malloc(yyleng);
+		int j = 0;
+		for(int i = 1; i < yyleng-1; i++) //limits for discard quotes  
+		{
+			if(flag == 1)
+			{
+				if(yytext[i] == 'n')
+					newStr[j++]='\n';
+				if(yytext[i] == 't')
+					newStr[j++]='\t';
+				if(yytext[i] == '\"')
+					newStr[j++]='\"';
+				if(yytext[i] == '\\')
+					newStr[j++]='\\';
+
+				flag = 0;
+			}
+			else
+			{
+				if(yytext[i] == '\\' )
+					flag = 1;
+				else
+					newStr[j++] = yytext[i];
+			}
+		}
+		newStr[j]= '\0';
+		return newStr;
+
+
 	}
 %}
 %%
@@ -40,6 +72,7 @@
 "("		{return '(';}
 ")"		{return ')';}
 "!"		{return '!';}
+';'		{return ';';}
 "&&"	{return TK_AND;}
 "||"	{return TK_OR;}
 "+"		{return '+';}
@@ -52,12 +85,12 @@
 				return TK_INT;}
 [0-9]+	{ seminfo.i = atoi( yytext );
 		return TK_INT;}
-[0-9]+"."[0-9]+ {seminfo.d = strtod(yytext,NULL);
+[0-9]+"."[0-9]+([Ee][-+]?[0-9]+)? {seminfo.d = strtod(yytext,NULL);
 				return TK_FLOAT;}
 
 ([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { seminfo.s = yytext;
 									return TK_VAR;}
-\"(([\\][\"])|[^\"])*\" { seminfo.s = yytext;
+\"(([\\][\"])|[^\"])*\" { seminfo.s = translatescape();
 		 return TK_STR;}
 \"[^"\""]*	{ lexError("Unfinished String",3); 
 			}	
@@ -81,9 +114,9 @@
 [/][*]                          { //from http://stackoverflow.com/questions/25395251/detecting-and-skipping-line-comments-with-flex
 								lexError("Unfinished Comment",1); }
 
-[\n] 	{  	//printf("Line Break\n");
+[\n] 	{  	//count lines;
 			yy_lines++; }
-[ ]|[\t] {//ignore spaces and tabs in flex output
+[ ]|[\t] {//ignore spaces and tabs
 	 }
 
 
