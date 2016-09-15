@@ -6,9 +6,6 @@
 #endif
 #include <string.h>
 
-
-#define NORMALMODE 0;
-#define TESTMODE 1;
 Seminfo_t seminfo;
 int yy_lines=1; //save one for EOF
 
@@ -22,16 +19,6 @@ int main (int argc, char** argv)
 {
 	int tokens=-1;
 	int control=1; //Grants it enters the while
-	char mode = 0;
-	FILE* testout = NULL;
-	if(argc == 2) 
-	{
-		if(strcmp(argv[1],"-test")==0)
-		{
-			mode = TESTMODE;
-			testout = fopen("test_output.txt","wt");
-		}
-	}
 	while(control)
 	{
 		control = yylex();
