@@ -6,7 +6,7 @@
 	#define lex_h
    #endif
 
-	static void countlinesintoken()
+	static void countlinesintoken() //Legacy
 	{
 		for(int i = 0; i < yyleng; i++)  
 		{
@@ -14,25 +14,32 @@
 				yy_lines++;
 		}
 	}
+	// transforms scapes of yytext to ascii characters
 	static char * translatescape()
 	{
 		char flag = 0;
 		char* newStr = (char*)malloc(yyleng);
 		int j = 0;
-		for(int i = 1; i < yyleng-1; i++) //limits for discard quotes  
+		for(int i = 1; i < yyleng-1; i++) //limits to discard quotes  
 		{
-			if(flag == 1)
+			if(flag == 1) //means last character was '\\'
 			{
-				if(yytext[i] == 'n')
+				switch(yytext[i])
+				{
+					case 'n':
 					newStr[j++]='\n';
-				if(yytext[i] == 't')
+					break;
+					case 't':
 					newStr[j++]='\t';
-				if(yytext[i] == '\"')
+					break;
+					case '\"':
 					newStr[j++]='\"';
-				if(yytext[i] == '\\')
+					break;
+					case '\\': //convenience
 					newStr[j++]='\\';
-
-				flag = 0;
+					break;
+				}
+				flag = 0; 
 			}
 			else
 			{
@@ -44,10 +51,10 @@
 		}
 		newStr[j]= '\0';
 		return newStr;
-
-
 	}
 %}
+
+%x IN_COMMENT 
 %%
 "char"	{return TK_WCHAR;}
 "else"	{return TK_WELSE; }
@@ -89,11 +96,23 @@
 
 ([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { seminfo.s = yytext;
 									return TK_VAR;}
-\"(([\\][\"])|[^\"])*\" { seminfo.s = translatescape();
+
+<INITIAL>{ //state machine based on the example of flex manual: http://flex.sourceforge.net/manual/How-can-I-match-C_002dstyle-comments_003f.html
+     "/*"      BEGIN(IN_COMMENT); 
+     }
+     <IN_COMMENT>{
+     "*/"      BEGIN(INITIAL); // finished comment; Return to the original state
+     [^*\n]+   // eat comment in chunks
+     "*"       // eat the lone star
+     \n        yy_lines++; //comments can be mult-line
+     <<EOF>>	   lexError("Unfinished Comment",1); //reached EOF 
+     }
+
+
+\"(([\\][\"])|[^\"])*\" { seminfo.s = translatescape(); //gives scape processed string
 		 return TK_STR;}
-\"[^"\""]*	{ lexError("Unfinished String",3); 
-			}	
-\'.\' 	{seminfo.i = *(yytext+1);
+
+\'.\' 	{seminfo.i = *(yytext+1); //no multi-char character constants
 		return TK_INT;}
 \'"\\n"\' { seminfo.i = '\n';
 		return TK_INT;}
@@ -104,14 +123,10 @@
 
 \'.[^\']	{
 		 lexError("Unfinished Character",2);}
-"/*"([^*]|"*"+[^*/])*"*"+"*/"	{ 
-		 							countlinesintoken(); //comments can be mult-line
-		 						}
-[/][*][^*]*[*]+([^*/][^*]*[*]+)*[/] { 
-		 							countlinesintoken();
-		 							}
-[/][*]                          { //from http://stackoverflow.com/questions/25395251/detecting-and-skipping-line-comments-with-flex
-								lexError("Unfinished Comment",1); }
+
+\"[^"\""]*	{ lexError("Unfinished String",3); 
+			}	
+
 
 [\n] 	{  	//count lines;
 			yy_lines++; }
