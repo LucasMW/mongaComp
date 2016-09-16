@@ -1,4 +1,5 @@
-test/comp: src/main.c src/lex.c
+#always compiles when using just make
+test/comp: src/main.c src/lex.c 
 	cc -o comp src/main.c src/lex.c
 comp: src/main.c src/lex.c
 	cc -o comp src/main.c src/lex.c
