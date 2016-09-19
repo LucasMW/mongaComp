@@ -25,22 +25,22 @@ int main (int argc, char** argv)
 		tokens++; //tokens shall only be incremented when yylex() returns
 		switch(control)
 		{
-			case TK_GT:
+			case '>':
 				printf("Greater\n");
 			break;
 			case TK_GE:
 				printf("Greater or Equal\n");
 			break;
-			case TK_LS:
+			case '<':
 				printf("Lesser\n");
 			break;
 			case TK_LE:
 				printf("Lesser or Equal\n");
 			break;
-			case TK_EQ:
+			case '=':
 				printf("Equal\n");
 			break;
-			case TK_STATEMENT:
+			case ';':
 				printf("Semicolon\n");
 			break;
 			case ',':

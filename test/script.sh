@@ -1,5 +1,5 @@
 #!/bin/bash
-FILES="test/simple/*.monga"
+FILES="test/*/*.monga"
 COUNT="0"
 OK=0
 Wrongs=0
@@ -8,14 +8,25 @@ do
 	let COUNT=COUNT+1
 	name=$(echo $f | cut -f 1 -d '.')
 	echo "Testing $name"
-	cat $f | ./comp > $f.output
+	cat $f | ./comp > $f.output 2> $f.err
 	if [ ! -f $name.answer ]; then
     	echo "no answer associated"
     	continue
 	fi
 	if(cmp $f.output $name.answer) then
-		echo "OK"
 		rm $f.output
+		if [ ! -f $name.experr ]; then
+    		rm $f.err
+	    else
+	    	if(cmp $f.err $name.experr) then
+				rm $f.err
+			else
+				echo "error message wrong"
+				diff $f.err $name.experr
+				continue
+			fi
+		fi
+		echo "OK"
 		let OK=OK+1
 	else
 		echo "Wrong"

@@ -1,0 +1,18 @@
+/* This is a closed 
+multi-line
+comment.
+And it works very weel */
+int main (void)
+{
+	
+
+/* This comment is an example about what happens if comments aren't closed
+
+
+
+	printf("Ldsafdnn  nDLN \n");
+	fprintf(stderr,"ERROR: %s\t\t#line %d\n", message, yy_lines);
+	exit( ret ? ret : 1);
+return 0;
+}
+

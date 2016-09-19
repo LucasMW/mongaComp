@@ -11,12 +11,13 @@ src/lex.c: src/rules.lex
 bin/lexical:
 	cc -o bin/lexical src/lex.c -ll
 clean: 
-	rm src/lex.c
+	rm -f src/lex.c
 	rm -r bin
 	mkdir bin
 	rm -r temp
 	mkdir temp
-	rm test/simple/*.output
+	rm -rf comp.dSYM
+	rm -f test/*/*.output
 src/main.o: 
 	cc -o temp/main.o -Wall -02 -c main.c
 src/lex.o:

@@ -1,0 +1,7 @@
+reserved word int
+Var main
+Parenthesis Open
+reserved word void
+Parenthesis Close
+Braces Open
+Lexical error detected in source:

@@ -66,12 +66,12 @@
 "void"	{return TK_WVOID;}
 "while"	{return TK_WWHILE;}
 ">="	{return TK_GE;}
-">"		{return TK_GT;}
+">"		{return '>';}
 "<=" 	{return TK_LE;}
-"<"		{return TK_LS;}
-";"		{return TK_STATEMENT;}
+"<"		{return '<';}
+";"		{return ';';}
 "=="	{return TK_EQEQ;}
-"="		{return TK_EQ;}
+"="		{return '=';}
 "{"		{return '{';}
 "}"		{return '}';}
 "["		{return '[';}
@@ -109,7 +109,7 @@
      }
 
 
-\"(([\\][\"])|[^\"])*\" { seminfo.s = translatescape(); //gives scape processed string
+\"(([\\][\"])|([^\"\n])+)*\" { seminfo.s = translatescape(); //gives scape processed string
 		 return TK_STR;}
 
 \'.\' 	{seminfo.i = *(yytext+1); //no multi-char character constants
@@ -124,7 +124,7 @@
 \'.[^\']	{
 		 lexError("Unfinished Character",2);}
 
-\"[^"\""]*	{ lexError("Unfinished String",3); 
+\"[^"\""]*[\n]?	{ lexError("Unfinished String",3); 
 			}	
 
 
