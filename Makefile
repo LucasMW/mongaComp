@@ -1,17 +1,23 @@
 #always compiles when using just make
-test/comp: src/main.c src/lex.c 
-	cc -o comp src/main.c src/lex.c
-comp: src/main.c src/lex.c
-	cc -o comp src/main.c src/lex.c
+test/comp: src/main.c src/lex.c src/grammar.c
+	cc -o comp src/main.c src/lex.c src/grammar.c
+bin/lexical: src/main.c src/lex.c
+	cc -o bin/lexical src/lexmain.c src/lex.c
 testlexical: comp
 	sh test/script.sh
-src/lex.c: src/rules.lex
+
+src/grammar.c: src/grammar.y
+	bison -d src/grammar.y
+	mv grammar.tab.c src/grammar.c
+	mv grammar.tab.h src/grammar.h
+src/lex.c: src/rules.lex src/grammar.c
 	flex src/rules.lex
 	mv lex.yy.c src/lex.c
-bin/lexical:
-	cc -o bin/lexical src/lex.c -ll
+bin/lexical2:
+	cc -o bin/lexical2 src/lex.c -ll
 clean: 
 	rm -f src/lex.c
+	rm -f src/grammar.c
 	rm -r bin
 	mkdir bin
 	rm -r temp

@@ -6,3 +6,5 @@ bin/
 src/*.o
 *.output
 .DS_Store
+src/grammar.c
+src/grammar.h
