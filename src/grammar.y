@@ -117,8 +117,7 @@ NUMERAL: TK_INT
 program : exp
         | command     
 ;
-command : commandIF
-        | block
+command : command1
 ;
 
 defVar : type nameList ';'
@@ -146,9 +145,20 @@ commandList2: command commandList
 
 commandIF: TK_WIF '(' exp ')' command 
 
-commandElse: TK_WIF '(' exp ')' command TK_WELSE command
+commandElse: TK_WIF '(' exp ')' command2 TK_WELSE command2
 
-command
+command1: TK_WRETURN ';'
+        | TK_WRETURN exp ';'
+        | expCall ';'
+        | block
+        | commandIF
+        | commandElse
+
+command2 : TK_WRETURN ';'
+        | TK_WRETURN exp ';'
+        | expCall ';'
+        | block
+        | commandElse
 
 //exps
 exp: expCall
