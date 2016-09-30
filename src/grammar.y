@@ -38,6 +38,7 @@ int yylex(void);
 
 
 %%
+/*
 program : definition {printf("program\n");}
         | definition program
 ;
@@ -101,9 +102,7 @@ exp : NUMERAL | TK_STR {printf("exp\n");}
   | exp '||' exp
 ;
 
-expArith: ExpAdd
-        | ExpMul
-        |
+
 call : TK_VAR '(' expList ')' {printf("Function\n");}
 ;
 expList: exp
@@ -114,6 +113,30 @@ expList: exp
 NUMERAL: TK_INT
         | TK_FLOAT
 ;
+*/
+
+program : exp
+      
+;
+exp: expAdd
+;
+expAdd: expAdd '+' expMul
+      | expAdd '-' expMul
+      | expMul
+;
+expMul: expMul '*' primary
+      | expMul '/' primary
+      | primary
+primary: constant
+      | ID
+      | '(' exp ')'
+;
+constant: TK_INT
+      | TK_FLOAT
+;
+ID: TK_VAR
+;
+
 %%
 
 int yyerror(char* s)
