@@ -98,8 +98,8 @@ exp : NUMERAL | TK_STR {printf("exp\n");}
   | exp '<' exp
   | exp '>' exp
   | '!' exp
-  | exp '&&' exp
-  | exp '||' exp
+  | exp TK_AND exp
+  | exp TK_OR exp
 ;
 
 
@@ -119,7 +119,15 @@ program : exp
       
 ;
 exp: expAdd
+    | expAnd
 ;
+
+expAnd: expAnd TK_AND expOr
+      | expOr
+expOr: expOr TK_OR primary
+      | expOr TK_OR primary
+      | primary
+//arith
 expAdd: expAdd '+' expMul
       | expAdd '-' expMul
       | expMul
