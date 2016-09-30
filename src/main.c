@@ -29,14 +29,7 @@ int main (int argc, char** argv)
 	int control=1; //Grants it enters the while
 
 	yyparse();
-	while(control)
-	{
-		control = yylex();
-		tokens++; //tokens shall only be incremented when yylex() returns
-		
-
-	}
-	printf("FINISHED READING FILE\n");
-	printf("Proccessed %d tokens in %d lines\n",tokens,yy_lines);
+	
+	printf("Syntax OK\n");
 }
 

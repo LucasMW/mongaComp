@@ -2,21 +2,7 @@ extern int yylex(void);
 
 typedef enum token 
 {
-	TK_LE,
-	TK_INT,
-	TK_FLOAT,
-	TK_WCHAR = 301, //Reserved words start at 300
-	TK_WELSE,
-	TK_WFLOAT,
-	TK_WIF,
-	TK_WINT,
-	TK_WNEW,
-	TK_WRETURN,
-	TK_WVOID,
-	TK_WWHILE,
-	TK_AND = 401,
-	TK_OR,
-	TK_EQEQ,
+	
 	TK_STR = 501,
 	TK_VAR
 

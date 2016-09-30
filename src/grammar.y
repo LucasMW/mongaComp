@@ -16,23 +16,42 @@ int yylex(void);
 
 %start	input 
 
-%token	<int_val>	INTEGER_LITERAL
 %token TK_GE
+%token TK_LE
+%token TK_INT
+%token TK_FLOAT
+%token TK_WCHAR
+%token TK_WELSE
+%token TK_WFLOAT
+%token TK_WIF
+%token TK_WINT
+%token TK_WNEW
+%token TK_WRETURN
+%token TK_WVOID
+%token TK_WWHILE
+%token TK_AND
+%token TK_OR
+%token TK_EQEQ
 
-%type	<int_val>	exp
-%left	PLUS
-%left	MULT
 
 %%
 
 input:		/* empty */
-		| exp	{ printf("Approved\n");  }
+		| exp	{   }
 		;
+exp: expAdd
+  | expMul
+  | primary
+expAdd: exp '+' exp 
+;
+primary:
+  constant
+| '(' exp ')'
+;
+constant: TK_INT
+        | TK_FLOAT
+expMul: exp '*' exp
 
-exp:		INTEGER_LITERAL	{ $$ = $1; }
-		| exp PLUS exp	{ $$ = $1 + $3; }
-		| exp MULT exp	{ $$ = $1 * $3; }
-		;
 
 %%
 
@@ -41,9 +60,7 @@ int yyerror(char* s)
   extern int yylineno;	// defined and maintained in lex.c
   extern char *yytext;	// defined and maintained in lex.c
   
-  //cerr << "ERROR: " << s << " at symbol \"" << yytext;
-  //cerr << "\" on line " << yylineno << endl;
-  printf("Deu erro na linha %d \n",yylineno);
+  printf("Syntax Error at token \"%s\" at line %d \n",yytext,yylineno);
   exit(1);
 }
 
