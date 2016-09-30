@@ -38,84 +38,26 @@ int yylex(void);
 
 
 %%
-/*
-program : definition {printf("program\n");}
-        | definition program
-;
-definition: defVar
-          | defFunc
-
-defVar : type nameList ';'
-;
-nameList : TK_VAR 
-          | TK_VAR nameList {//not finished
-}
-;
-type : baseType
-    | type '[' ']'
-;
-baseType : TK_WINT | TK_WCHAR | TK_WFLOAT
-;
-defFunc : returnType TK_VAR '(' parameters ')' block
-;
-returnType : type 
-          | TK_WVOID
-;
-parameters :  parameter
-;
-parameter : type TK_VAR
+program : definitionList   
 ;
 
-block : '{'  defVar   command  '}' {printf("block\n");}
+definitionList: 
+            | definition definitionList
 ;
-command : TK_WIF '(' exp ')' command 
-        | TK_WIF  TK_WELSE command 
-        | TK_WWHILE '(' exp ')' command
-        | var '=' exp ';'
-        | TK_WRETURN ';'
-        | TK_WRETURN exp ';'
-        | call ';'
-        | block
-;
-var : TK_VAR 
-    | exp '[' ']'
+definition : defVar 
+| defFunc
 ;
 
-exp : NUMERAL | TK_STR {printf("exp\n");}
-  | var
-  | '(' exp ')'
-  | call
-  | TK_WNEW type '[' exp ']'
-  | '-' exp
-  | exp '+' exp
-  | exp '-' exp
-  | exp '*' exp
-  | exp '/' exp
-  | exp TK_EQEQ exp
-  | exp TK_LE exp
-  | exp TK_GE exp
-  | exp '<' exp
-  | exp '>' exp
-  | '!' exp
-  | exp TK_AND exp
-  | exp TK_OR exp
+defFunc : returnType ID '(' parameters ')' block
+
+returnType : TK_WVOID
 ;
 
-
-call : TK_VAR '(' expList ')' {printf("Function\n");}
-;
-expList: exp
-        | expLis
-;
-
-
-NUMERAL: TK_INT
-        | TK_FLOAT
-;
-*/
-
-program : exp
-        | command     
+parameters : 
+        | parameter ',' parameterList
+parameterList:
+        | parameter ',' parameters
+parameter : type ID
 ;
 command : command1
 ;
@@ -153,6 +95,7 @@ command1: TK_WRETURN ';'
         | block
         | commandIF
         | commandElse
+        | expVar '=' exp ';'
 
 command2 : TK_WRETURN ';'
         | TK_WRETURN exp ';'
@@ -233,7 +176,7 @@ int yyerror(char* s)
   extern int yylineno;	// defined and maintained in lex.c
   extern char *yytext;	// defined and maintained in lex.c
   
-  printf("Syntax Error at token \"%s\" at line %d \n",yytext,yylineno);
+  printf("Syntax Error at token \"%s\" at line %d \n",yytext,yy_lines);
   exit(1);
 }
 
