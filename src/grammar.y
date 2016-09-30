@@ -78,8 +78,7 @@ command : TK_WIF '(' exp ')' command
         | block
 ;
 var : TK_VAR 
-    | exp 
-    | exp exp
+    | exp '[' ']'
 ;
 
 exp : NUMERAL | TK_STR {printf("exp\n");}
@@ -115,8 +114,39 @@ NUMERAL: TK_INT
 ;
 */
 
-program : exp      
+program : exp
+        | command     
 ;
+command : commandIF
+        | block
+;
+
+defVar : type nameList ';'
+;
+
+nameList: ID ',' idList
+
+idList: 
+    |idList2
+idList2: ID
+    | ID ',' idList
+
+block : '{'  defVarList   commandList  '}'
+
+
+defVarList :
+| defVarList2
+
+defVarList2: defVar defVarList
+
+commandList: 
+| commandList2
+
+commandList2: command commandList
+
+commandIF: TK_WIF '(' exp ')' command 
+
+//exps
 exp: expCall
 ;
 
