@@ -106,7 +106,7 @@ exp : NUMERAL | TK_STR {printf("exp\n");}
 call : TK_VAR '(' expList ')' {printf("Function\n");}
 ;
 expList: exp
-        | exp expList
+        | expLis
 ;
 
 
@@ -115,32 +115,64 @@ NUMERAL: TK_INT
 ;
 */
 
-program : exp
-      
+program : exp      
 ;
-exp: expAdd
-    | expAnd
+exp: expCall
 ;
 
+expCall: TK_VAR '(' expList ')' 
+      | expNew
+;
+expList: 
+      | expList2
+;
+expList2: exp
+      | exp ',' expList
+;
+
+
+expNew: TK_WNEW type '[' exp ']'
+      | expCmp
+;
+type : baseType
+    | type '[' ']'
+;
+baseType : TK_WINT | TK_WCHAR | TK_WFLOAT
+;
+expCmp: expCmp TK_EQEQ expAnd
+      | expCmp TK_GE expAnd
+      | expCmp TK_LE expAnd
+      | expCmp '>' expAnd
+      | expCmp '<' expAnd
+      | expAnd
+;
 expAnd: expAnd TK_AND expOr
       | expOr
-expOr: expOr TK_OR primary
-      | expOr TK_OR primary
-      | primary
+;
+expOr: expOr TK_OR expAdd
+      | expAdd
+;
 //arith
 expAdd: expAdd '+' expMul
       | expAdd '-' expMul
       | expMul
 ;
-expMul: expMul '*' primary
-      | expMul '/' primary
+expMul: expMul '*' expUnary
+      | expMul '/' expUnary
+      | expUnary
+
+expUnary: '!' primary
+      | '-' primary
       | primary
+;
+
 primary: constant
       | ID
       | '(' exp ')'
 ;
 constant: TK_INT
       | TK_FLOAT
+      | TK_STR
 ;
 ID: TK_VAR
 ;
