@@ -146,9 +146,14 @@ commandList2: command commandList
 
 commandIF: TK_WIF '(' exp ')' command 
 
+commandElse: TK_WIF '(' exp ')' command TK_WELSE command
+
+command
+
 //exps
 exp: expCall
 ;
+
 
 expCall: TK_VAR '(' expList ')' 
       | expNew
@@ -169,6 +174,7 @@ type : baseType
 ;
 baseType : TK_WINT | TK_WCHAR | TK_WFLOAT
 ;
+
 expCmp: expCmp TK_EQEQ expAnd
       | expCmp TK_GE expAnd
       | expCmp TK_LE expAnd
@@ -191,13 +197,16 @@ expMul: expMul '*' expUnary
       | expMul '/' expUnary
       | expUnary
 
-expUnary: '!' primary
-      | '-' primary
-      | primary
+expUnary: '!' expVar
+      | '-' expVar
+      | expVar
 ;
 
-primary: constant
+expVar: expVar '[' exp ']'
       | ID
+      | primary
+
+primary: constant
       | '(' exp ')'
 ;
 constant: TK_INT
