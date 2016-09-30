@@ -5,7 +5,7 @@
 	#include "lex.h"
 	#define lex_h
    #endif
-	#if !defined(grammar_h)
+   #if !defined(grammar_h)
 	#include "grammar.h"
 	#define grammar_h
    #endif

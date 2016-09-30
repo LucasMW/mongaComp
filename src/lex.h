@@ -1,12 +1,11 @@
 extern int yylex(void);
 
-typedef enum token 
-{
+// typedef enum token 
+// {
 	
-	TK_STR = 501,
-	TK_VAR
+	
 
-} Token;
+// } Token;
 
 
 typedef union seminfo_t
