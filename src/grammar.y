@@ -2,17 +2,20 @@
 /* grammar.y */
 
 %error-verbose /* instruct bison to generate verbose error messages*/
+
 %{
 #include "lex.h"
 int yyerror(char *s);
 int yylex(void);
 #include <stdio.h>
 #include <stdlib.h>
+#define YYDEBUG 1
 %}
 
 %union{
-  int		int_val;
-  char*	op_val;
+  int		i;
+  char*	s;
+  double d;
 }
 
 %start program
@@ -38,26 +41,26 @@ int yylex(void);
 
 
 %%
-program : definitionList   
+program : definitionList
 ;
 
 definitionList: 
             | definition definitionList
 ;
 definition : defVar 
-| defFunc
+| defFunc {yydebug=1;}
 ;
 
-defFunc : returnType ID '(' parameters ')' block
+defFunc : type ID '(' parameters ')' block
+        | TK_WVOID ID '(' parameters ')' block
 
-returnType : TK_WVOID
 ;
 
-parameters : 
-        | parameter ',' parameterList
-parameterList:
+parameters :  
+        | parameter 
         | parameter ',' parameters
-parameter : type ID
+
+parameter : type ID {yydebug=1;}
 ;
 command : command1
 ;
@@ -89,6 +92,8 @@ commandIF: TK_WIF '(' exp ')' command
 
 commandElse: TK_WIF '(' exp ')' command2 TK_WELSE command2
 
+commandWhile: TK_WWHILE '(' exp ')' command
+
 command1: TK_WRETURN ';'
         | TK_WRETURN exp ';'
         | expCall ';'
@@ -96,6 +101,7 @@ command1: TK_WRETURN ';'
         | commandIF
         | commandElse
         | expVar '=' exp ';'
+        | commandWhile
 
 command2 : TK_WRETURN ';'
         | TK_WRETURN exp ';'
@@ -125,7 +131,9 @@ expNew: TK_WNEW type '[' exp ']'
 type : baseType
     | type '[' ']'
 ;
-baseType : TK_WINT | TK_WCHAR | TK_WFLOAT
+baseType : TK_WINT 
+| TK_WCHAR 
+| TK_WFLOAT
 ;
 
 expCmp: expCmp TK_EQEQ expAnd
@@ -162,11 +170,13 @@ expVar: expVar '[' exp ']'
 primary: constant
       | '(' exp ')'
 ;
-constant: TK_INT
+constant: TK_INT {//printf("%d %d\n",yyval.i,yy_lines);
+}
       | TK_FLOAT
       | TK_STR
 ;
-ID: TK_VAR
+ID: TK_VAR {//printf("ID: %s\n",yylval.s);
+}
 ;
 
 %%
@@ -177,6 +187,8 @@ int yyerror(char* s)
   extern char *yytext;	// defined and maintained in lex.c
   
   printf("Syntax Error at token \"%s\" at line %d \n",yytext,yy_lines);
+  printf("yyval.s = %s\n",yylval.s);
+
   exit(1);
 }
 
