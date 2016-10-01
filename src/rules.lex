@@ -91,14 +91,14 @@
 "/"		{return '/';}
 ","		{return ',';}
 
-"0x"([0-9]|[A-F]|[a-f])+	{seminfo.i = strtol(yytext, NULL, 0);
+"0x"([0-9]|[A-F]|[a-f])+	{yylval.i = strtol(yytext, NULL, 0);
 				return TK_INT;}
-[0-9]+	{ seminfo.i = atoi( yytext );
+[0-9]+	{ yylval.i = atoi( yytext );
 		return TK_INT;}
-[0-9]+"."[0-9]+([Ee][-+]?[0-9]+)? {seminfo.d = strtod(yytext,NULL);
+[0-9]+"."[0-9]+([Ee][-+]?[0-9]+)? {yylval.d = strtod(yytext,NULL);
 				return TK_FLOAT;}
 
-([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { seminfo.s = yytext;
+([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { yylval.s = yytext;
 									return TK_VAR;}
 
 <INITIAL>{ //state machine based on the example of flex manual: http://flex.sourceforge.net/manual/How-can-I-match-C_002dstyle-comments_003f.html
@@ -113,16 +113,16 @@
      }
 
 
-\"(([\\][\"])|([^\"\n])+)*\" { seminfo.s = translatescape(); //gives scape processed string
+\"(([\\][\"])|([^\"\n])+)*\" { yylval.s = translatescape(); //gives scape processed string
 		 return TK_STR;}
 
-\'.\' 	{seminfo.i = *(yytext+1); //no multi-char character constants
+\'.\' 	{yylval.i = *(yytext+1); //no multi-char character constants
 		return TK_INT;}
-\'"\\n"\' { seminfo.i = '\n';
+\'"\\n"\' { yylval.i = '\n';
 		return TK_INT;}
-\'"\\t"\' { seminfo.i = '\t';
+\'"\\t"\' { yylval.i = '\t';
 		return TK_INT;}
-\'"\\"\"\' { seminfo.i = '\"';
+\'"\\"\"\' { yylval.i = '\"';
 		return TK_INT;}
 
 \'.[^\']	{
