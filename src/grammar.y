@@ -90,7 +90,7 @@ commandList2: command commandList
 
 commandIF: TK_WIF '(' exp ')' command 
 
-commandElse: TK_WIF '(' exp ')' command TK_WELSE command2
+commandElse: TK_WIF '(' exp ')' command2 TK_WELSE command2
 
 commandWhile: TK_WWHILE '(' exp ')' command
 
@@ -108,8 +108,6 @@ command2 : TK_WRETURN ';'
         | expCall ';'
         | block
         | commandElse
-        | expVar '=' exp ';'
-        | commandWhile
 
 //exps
 exp: expCall
