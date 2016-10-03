@@ -48,7 +48,7 @@ definitionList:
             | definition definitionList
 ;
 definition : defVar 
-| defFunc {yydebug=1;}
+| defFunc
 ;
 
 defFunc : type ID '(' parameters ')' block
@@ -60,7 +60,7 @@ parameters :
         | parameter 
         | parameter ',' parameters
 
-parameter : type ID {yydebug=1;}
+parameter : type ID 
 ;
 command : command1
 ;
@@ -68,12 +68,12 @@ command : command1
 defVar : type nameList ';'
 ;
 
-nameList: ID ',' idList
+nameList: ID idList 
 
 idList: 
     |idList2
 idList2: ID
-    | ID ',' idList
+    | ',' ID idList
 
 block : '{'  defVarList   commandList  '}'
 
@@ -90,7 +90,7 @@ commandList2: command commandList
 
 commandIF: TK_WIF '(' exp ')' command 
 
-commandElse: TK_WIF '(' exp ')' command2 TK_WELSE command2
+commandElse: TK_WIF '(' exp ')' command TK_WELSE command2
 
 commandWhile: TK_WWHILE '(' exp ')' command
 
@@ -108,6 +108,8 @@ command2 : TK_WRETURN ';'
         | expCall ';'
         | block
         | commandElse
+        | expVar '=' exp ';'
+        | commandWhile
 
 //exps
 exp: expCall
@@ -187,7 +189,7 @@ int yyerror(char* s)
   extern char *yytext;	// defined and maintained in lex.c
   
   printf("Syntax Error at token \"%s\" at line %d \n",yytext,yy_lines);
-  printf("yyval.s = %s\n",yylval.s);
+  //printf("yyval.s = %s\n",yylval.s);
 
   exit(1);
 }

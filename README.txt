@@ -1,32 +1,43 @@
 1310844
-Lucas Menezes, T1 1715
+Lucas Menezes, T2 1715
 —————————————————————
-
-Use make to compile:
-make
 
 Description of monga language:
 http://www.inf.puc-rio.br/~roberto/comp/lang.html
 
-To run the tests for the lexical, use
-make testlexical
+First, use must use make to compile:
+make
+
+To run the tests for the syntax, use
+make testsyntax
+
 
 To clean builds, use
 make clean
+
+
+make testlexical is currently unavaible
+
+All testlexical exclusive parts are currently unavaible
 
 Requirements:
 C compiler
 make
 flex
+bison
 bash
 
 rules.lex was developed using flex. 
 Although, it was written to also work in lex, it was never tested.
 
+grammar.y was developed using bison.
+If bison and yacc differ, bison output should be considered correct for this project
+
 
 Folder structure:
 src/ contains the source code: rules.lex,lex.h and main.c.
 lex.c is generated form rules.lex by using flex.
+grammar.c & grammar.h are generated using bison
 
 test/ contains test suites. Each folder is a collection of test cases.
 For instance, take the simple folder which contains most of the tests

@@ -3,9 +3,12 @@ test/comp: src/main.c src/lex.c src/grammar.c
 	cc -o comp src/main.c src/lex.c src/grammar.c
 bin/lexical: src/main.c src/lex.c
 	cc -o bin/lexical src/lexmain.c src/lex.c
+testsyntax: comp
+	cat test/test1.monga |./comp 
+	cat test/test2.monga |./comp
+#testlexical is unavaible
 testlexical: comp
 	sh test/script.sh
-
 src/grammar.c: src/grammar.y
 	bison -d src/grammar.y
 	mv grammar.tab.c src/grammar.c
