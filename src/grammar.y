@@ -110,12 +110,11 @@ command2 : TK_WRETURN ';'
         | commandElse
 
 //exps
-exp: expCall
+exp: expNew
 ;
 
 
 expCall: TK_VAR '(' expList ')' 
-      | expNew
 ;
 expList: 
       | expList2
@@ -166,6 +165,7 @@ expUnary: '!' expVar
 expVar: expVar '[' exp ']'
       | ID
       | primary
+      | expCall
 
 primary: constant
       | '(' exp ')'

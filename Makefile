@@ -6,6 +6,9 @@ bin/lexical: src/main.c src/lex.c
 testsyntax: comp
 	cat test/test1.monga |./comp 
 	cat test/test2.monga |./comp
+	cat test/test3.monga |./comp 
+	cat test/test4.monga |./comp
+	cat test/test5.monga |./comp 
 #testlexical is unavaible
 testlexical: comp
 	sh test/script.sh
