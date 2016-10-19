@@ -1,3 +1,4 @@
-float a() {
-vector = new float[f(a)];
+float a() 
+{
+	vector = new float[f(a)];
 }
