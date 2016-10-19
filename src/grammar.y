@@ -13,35 +13,41 @@ int yylex(void);
 %}
 
 %union{
-  int		i;
-  char*	s;
-  double d;
+  int		int_val;
+  char*	str_val;
+  double double_val;
 }
 
 %start program
 
-%token TK_GE
-%token TK_LE
-%token TK_INT
-%token TK_FLOAT
-%token TK_WCHAR
-%token TK_WELSE
-%token TK_WFLOAT
-%token TK_WIF
-%token TK_WINT
-%token TK_WNEW
-%token TK_WRETURN
-%token TK_WVOID
-%token TK_WWHILE
-%token TK_AND
-%token TK_OR
-%token TK_EQEQ
-%token TK_VAR
-%token TK_STR
+%token <int_val> TK_GE
+%token <int_val> TK_LE
+%token <int_val> TK_INT
+%token <double_val> TK_FLOAT
+%token <int_val> TK_WCHAR
+%token <int_val> TK_WELSE
+%token <int_val> TK_WFLOAT
+%token <int_val> TK_WIF
+%token <int_val> TK_WINT
+%token <int_val> TK_WNEW
+%token <int_val> TK_WRETURN
+%token <int_val> TK_WVOID
+%token <int_val> TK_WWHILE
+%token <int_val> TK_AND
+%token <int_val> TK_OR
+%token <int_val> TK_EQEQ
+%token <str_val> TK_VAR
+%token <str_val> TK_STR
 
 
+
+%type<program> program
+%type<definition_list> definitionList
+%type<int_val> expUnary expVar constant
+%type<str_val> ID
 %%
-program : definitionList
+program : definitionList {//$$=$1;
+}
 ;
 
 definitionList: 
@@ -149,17 +155,19 @@ expOr: expOr TK_OR expAdd
       | expAdd
 ;
 //arith
-expAdd: expAdd '+' expMul
-      | expAdd '-' expMul
+expAdd: expAdd '+' expMul { //$$ = $1 + $2;
+}
+      | expAdd '-' expMul { //$$ = $1 - $2;
+      }
       | expMul
 ;
 expMul: expMul '*' expUnary
       | expMul '/' expUnary
       | expUnary
 
-expUnary: '!' expVar
-      | '-' expVar
-      | expVar
+expUnary: '!' expVar { $$ = !$2; }
+      | '-' expVar {$$ = -$2;}
+      | expVar 
 ;
 
 expVar: expVar '[' exp ']'
@@ -170,12 +178,11 @@ expVar: expVar '[' exp ']'
 primary: constant
       | '(' exp ')'
 ;
-constant: TK_INT {//printf("%d %d\n",yyval.i,yy_lines);
-}
-      | TK_FLOAT
-      | TK_STR
+constant: TK_INT  {$$=$1;}
+      | TK_FLOAT  {$$=$1;}
+      | TK_STR    {$$=$1;}
 ;
-ID: TK_VAR {//printf("ID: %s\n",yylval.s);
+ID: TK_VAR { $$=$1;
 }
 ;
 
@@ -187,7 +194,7 @@ int yyerror(char* s)
   extern char *yytext;	// defined and maintained in lex.c
   
   printf("Syntax Error at token \"%s\" at line %d \n",yytext,yy_lines);
-  //printf("yyval.s = %s\n",yylval.s);
+  //printf("yyval.str_val = %s\n",yylval.str_val);
 
   exit(1);
 }

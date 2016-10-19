@@ -91,17 +91,17 @@
 "/"		{return '/';}
 ","		{return ',';}
 
-"0x"([0-9]|[A-F]|[a-f])+	{yylval.i = strtol(yytext, NULL, 0);
+"0x"([0-9]|[A-F]|[a-f])+	{yylval.int_val = strtol(yytext, NULL, 0);
 				return TK_INT;}
-[0-9]+	{ yylval.i = atoi( yytext );
+[0-9]+	{ yylval.int_val = atoi( yytext );
 		return TK_INT;}
-[0-9]+"."[0-9]+([Ee][-+]?[0-9]+)? {yylval.d = strtod(yytext,NULL);
+[0-9]+"."[0-9]+([Ee][-+]?[0-9]+)? {yylval.double_val = strtod(yytext,NULL);
 				return TK_FLOAT;}
 
-([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { yylval.s = yytext;
+([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { yylval.str_val = yytext;
 									return TK_VAR;}
 
-<INITIAL>{ //state machine based on the example of flex manual: http://flex.sourceforge.net/manual/How-can-I-match-C_002dstyle-comments_003f.html
+<INITIAL>{ //state machine based on the example of flex manual: http://flex.str_valourceforge.net/manual/How-can-I-match-C_002dstyle-comments_003f.html
      "/*"      BEGIN(IN_COMMENT); 
      }
      <IN_COMMENT>{
@@ -113,16 +113,16 @@
      }
 
 
-\"(([\\][\"])|([^\"\n])+)*\" { yylval.s = translatescape(); //gives scape processed string
+\"(([\\][\"])|([^\"\n])+)*\" { yylval.str_val = translatescape(); //gives scape processed string
 		 return TK_STR;}
 
-\'.\' 	{yylval.i = *(yytext+1); //no multi-char character constants
+\'.\' 	{yylval.int_val = *(yytext+1); //no multi-char character constants
 		return TK_INT;}
-\'"\\n"\' { yylval.i = '\n';
+\'"\\n"\' { yylval.int_val = '\n';
 		return TK_INT;}
-\'"\\t"\' { yylval.i = '\t';
+\'"\\t"\' { yylval.int_val = '\t';
 		return TK_INT;}
-\'"\\"\"\' { yylval.i = '\"';
+\'"\\"\"\' { yylval.int_val = '\"';
 		return TK_INT;}
 
 \'.[^\']	{
