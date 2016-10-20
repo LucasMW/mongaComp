@@ -23,6 +23,8 @@ int yylex(void);
   progNode* prog;
   Def* def;
   void* exp;
+  Type* type;
+
 
 }
 
@@ -52,7 +54,8 @@ int yylex(void);
 %type<prog> program constant parameters parameter command command1 command2 defVarList defVarList2 
 %type <def> definitionList defFunc definition defVar
 %type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew
-%type <ival> baseType 
+%type <type> type;
+%type <int_val> baseType 
 
 %%
 program : definitionList  {
@@ -82,15 +85,17 @@ defFunc : type ID '(' parameters ')' block
 ;
 
 parameters :  
-        | parameter  { }
-        | parameter ',' parameters
+        | parameter  { $$=$1;}
+        | parameter ',' parameters { 
+        }
 
 parameter : type ID 
 ;
 command : command1
 ;
 
-defVar : type nameList ';'
+defVar : type nameList ';' { 
+}
 ;
 
 nameList: ID idList 
@@ -201,12 +206,18 @@ constant: TK_INT  {     $$=makeConstant(KInt);
 ID: TK_VAR { //$$=$1;
 }
 ;
-type : baseType
-    | type '[' ']'
+type : baseType { $$ = (Type*)malloc(sizeof(Type));
+                  $$->tag = base; 
+                 $$->b = $1; }
+    | type '[' ']' {
+      $$ = (Type*)malloc(sizeof(Type)); 
+      $$->tag =array;
+      $$->of = $1;
+    }
 ;
-baseType : TK_WINT 
-| TK_WCHAR 
-| TK_WFLOAT
+baseType : TK_WINT { $$ = WInt;}
+| TK_WCHAR  { $$ = WChar;}
+| TK_WFLOAT {$$ = WFloat;}
 ;
 %%
 

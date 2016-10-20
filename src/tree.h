@@ -22,8 +22,13 @@ typedef struct DefFunc
 
 } DefFunc;
 
+typedef enum BType { WInt, WFloat, WChar} BType;
+typedef enum Types { base, array} Types;
 typedef struct Type
 {
+	Types tag;
+	BType b;
+	struct Type* of; //array of
 	
 } Type;
 typedef struct NameL
