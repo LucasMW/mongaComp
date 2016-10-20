@@ -12,6 +12,11 @@
 	#include "grammar.h"
 	#define grammar_h
 #endif
+#if !defined(tree_h)
+	#include "tree.h"
+	#define tree_h
+#endif
+
 #include <string.h>
 
 Seminfo_t seminfo;
@@ -31,5 +36,7 @@ int main (int argc, char** argv)
 	yyparse();
 	
 	printf("Syntax OK\n");
+	printf("tree:\n");
+	printTree();
 }
 

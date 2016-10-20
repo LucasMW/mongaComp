@@ -10,12 +10,14 @@ int yylex(void);
 #include <stdio.h>
 #include <stdlib.h>
 #define YYDEBUG 1
+#include "tree.h"
 %}
 
 %union{
   int		int_val;
   char*	str_val;
   double double_val;
+  void* pNode;
 }
 
 %start program
@@ -41,12 +43,12 @@ int yylex(void);
 
 
 
-%type<program> program
-%type<definition_list> definitionList
-%type<int_val> expUnary expVar constant
-%type<str_val> ID
+%type<pNode> program definitionList expUnary expVar constant definition defFunc parameters parameter command command1 command2 defVarList defVarList2
+%type <ival> baseType 
+
 %%
-program : definitionList {//$$=$1;
+program : definitionList  {
+  globalTree = (pNode*)$1;
 }
 ;
 
@@ -133,13 +135,7 @@ expList2: exp
 expNew: TK_WNEW type '[' exp ']'
       | expCmp
 ;
-type : baseType
-    | type '[' ']'
-;
-baseType : TK_WINT 
-| TK_WCHAR 
-| TK_WFLOAT
-;
+
 
 expCmp: expCmp TK_EQEQ expAnd
       | expCmp TK_GE expAnd
@@ -165,8 +161,8 @@ expMul: expMul '*' expUnary
       | expMul '/' expUnary
       | expUnary
 
-expUnary: '!' expVar { $$ = !$2; }
-      | '-' expVar {$$ = -$2;}
+expUnary: '!' expVar { $$ = $2; }
+      | '-' expVar {$$ = $2;}
       | expVar 
 ;
 
@@ -178,14 +174,23 @@ expVar: expVar '[' exp ']'
 primary: constant
       | '(' exp ')'
 ;
-constant: TK_INT  {$$=$1;}
-      | TK_FLOAT  {$$=$1;}
-      | TK_STR    {$$=$1;}
+constant: TK_INT  {     $$=makeConstant(KInt);
+           }
+      | TK_FLOAT  {//$$=(double)$1;
+      }
+      | TK_STR    {//$$=(char*)$1;
+      }
 ;
-ID: TK_VAR { $$=$1;
+ID: TK_VAR { //$$=$1;
 }
 ;
-
+type : baseType
+    | type '[' ']'
+;
+baseType : TK_WINT 
+| TK_WCHAR 
+| TK_WFLOAT
+;
 %%
 
 int yyerror(char* s)
@@ -195,7 +200,6 @@ int yyerror(char* s)
   
   printf("Syntax Error at token \"%s\" at line %d \n",yytext,yy_lines);
   //printf("yyval.str_val = %s\n",yylval.str_val);
-
   exit(1);
 }
 

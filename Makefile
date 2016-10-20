@@ -1,6 +1,6 @@
 #always compiles when using just make
 test/comp: src/main.c src/lex.c src/grammar.c
-	cc -o comp src/main.c src/lex.c src/grammar.c
+	cc -o comp src/main.c src/lex.c src/grammar.c src/tree.c
 bin/lexical: src/main.c src/lex.c
 	cc -o bin/lexical src/lexmain.c src/lex.c
 testsyntax: comp
@@ -10,6 +10,8 @@ testsyntax: comp
 	cat test/test4.monga |./comp
 	cat test/test5.monga |./comp 
 #testlexical is unavaible
+tree:
+	cc -o src/tree.o -Wall -O2 -c tree.c
 testlexical: comp
 	sh test/script.sh
 src/grammar.c: src/grammar.y
@@ -31,8 +33,8 @@ clean:
 	rm -rf comp.dSYM
 	rm -f test/*/*.output
 src/main.o: 
-	cc -o temp/main.o -Wall -02 -c main.c
+	cc -o temp/main.o -Wall -O2 -c main.c
 src/lex.o:
-	cc -o temp/lex.o	-Wall -02 -c lex.c
+	cc -o temp/lex.o	-Wall -O2 -c lex.c
 bin/comp: temp/main.o temp/lex.o
 	ld -o bin/comp main.o temp/lex.o
