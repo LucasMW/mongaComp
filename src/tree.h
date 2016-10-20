@@ -1,8 +1,5 @@
 
-typedef struct pNode {
-	int i;
-	double v;
-} pNode;
+
 
 
 typedef enum constantType { KFloat, KInt, KStr } constantType;
@@ -25,10 +22,19 @@ typedef struct DefFunc
 
 } DefFunc;
 
+typedef struct Type
+{
+	
+} Type;
+typedef struct NameL
+{
+	const char* name;
+	struct NameL* next;
+} NameL;
 typedef struct DefVar
 {
-
-
+	Type t;
+	NameL* next;
 } DefVar;
 
 typedef struct Def {
@@ -39,7 +45,13 @@ typedef struct Def {
 	} u;
 	struct Def* next;
 } Def;
-extern pNode* globalTree;
+
+typedef struct progNode {
+	int i;
+	double v;
+	Def* next;
+} progNode;
+extern progNode* globalTree;
 void printTree();
 Constant* makeConstant(constantType t);
 void notConst();

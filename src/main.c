@@ -8,14 +8,15 @@
 	#include "bison.h"
 	#define bison_h
 #endif
-#if !defined(grammar_h)
-	#include "grammar.h"
-	#define grammar_h
-#endif
 #if !defined(tree_h)
 	#include "tree.h"
 	#define tree_h
 #endif
+#if !defined(grammar_h)
+	#include "grammar.h"
+	#define grammar_h
+#endif
+
 
 #include <string.h>
 

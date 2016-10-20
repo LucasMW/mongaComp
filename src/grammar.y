@@ -10,14 +10,19 @@ int yylex(void);
 #include <stdio.h>
 #include <stdlib.h>
 #define YYDEBUG 1
-#include "tree.h"
+#if !defined(tree_h)
+  #include "tree.h"
+  #define tree_h
+   #endif
 %}
 
 %union{
   int		int_val;
   char*	str_val;
   double double_val;
-  void* pNode;
+  progNode* prog;
+  void* exp;
+
 }
 
 %start program
@@ -43,12 +48,13 @@ int yylex(void);
 
 
 
-%type<pNode> program definitionList expUnary expVar constant definition defFunc parameters parameter command command1 command2 defVarList defVarList2
+%type<prog> program definitionList  constant definition defFunc parameters parameter command command1 command2 defVarList defVarList2
+%type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew
 %type <ival> baseType 
 
 %%
 program : definitionList  {
-  globalTree = (pNode*)$1;
+  globalTree = (progNode*)$1;
 }
 ;
 

@@ -8,7 +8,7 @@
 #include <stdio.h> 
 #include <stdlib.h>
 
-pNode* globalTree;
+progNode* globalTree;
 
 void printTree() {
 	printf("Tree\n");
