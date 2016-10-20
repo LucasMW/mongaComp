@@ -21,6 +21,7 @@ int yylex(void);
   char*	str_val;
   double double_val;
   progNode* prog;
+  Def* def;
   void* exp;
 
 }
@@ -48,7 +49,8 @@ int yylex(void);
 
 
 
-%type<prog> program definitionList  constant definition defFunc parameters parameter command command1 command2 defVarList defVarList2
+%type<prog> program constant parameters parameter command command1 command2 defVarList defVarList2 
+%type <def> definitionList defFunc definition defVar
 %type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew
 %type <ival> baseType 
 
@@ -58,11 +60,20 @@ program : definitionList  {
 }
 ;
 
-definitionList: 
-            | definition definitionList
+definitionList: {$$ = NULL;}
+            | definition definitionList {
+              $2->next = $1;
+              $$ = $2;
+            }
 ;
-definition : defVar 
-| defFunc
+definition : defVar {
+  $$ = $1;
+  $$->tag = DVar;
+}
+| defFunc {
+  $$ = $1;
+  $$ -> tag = DFunc;
+}
 ;
 
 defFunc : type ID '(' parameters ')' block
@@ -71,7 +82,7 @@ defFunc : type ID '(' parameters ')' block
 ;
 
 parameters :  
-        | parameter 
+        | parameter  { }
         | parameter ',' parameters
 
 parameter : type ID 
