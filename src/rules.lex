@@ -23,6 +23,13 @@
 				yy_lines++;
 		}
 	}
+	static char* makeNewStr()
+	{
+		char* newStr = (char*)malloc(yyleng+1);
+		strcpy(newStr,yytext);
+		newStr[yyleng] = '\0';
+		return newStr;
+	}
 	// transforms scapes of yytext to ascii characters
 	static char * translatescape()
 	{
@@ -103,7 +110,7 @@
 [0-9]+"."[0-9]+([Ee][-+]?[0-9]+)? {yylval.double_val = strtod(yytext,NULL);
 				return TK_FLOAT;}
 
-([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { yylval.str_val = yytext;
+([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])* { yylval.str_val = makeNewStr();
 									return TK_VAR;}
 
 <INITIAL>{ //state machine based on the example of flex manual: http://flex.str_valourceforge.net/manual/How-can-I-match-C_002dstyle-comments_003f.html
