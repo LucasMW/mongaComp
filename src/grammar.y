@@ -72,7 +72,9 @@ int yylex(void);
 
 %%
 program : definitionList  {
-  globalTree = (progNode*)$1;
+  $$ = (progNode*)malloc(sizeof(progNode));
+  $$->next = $1;
+  globalTree = $$;
 }
 ;
 

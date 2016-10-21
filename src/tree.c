@@ -12,7 +12,49 @@ progNode* globalTree;
 
 void printTree() {
 	printf("Tree\n");
+	if(globalTree->next == NULL) {
+		printf("Null\n");
+	}
+	else {
+		printf("root\n|\n");
+		printDefList(globalTree->next);
+	}
 }
+void printDefList(Def* d)
+{
+	Def* df = d->next;
+
+	while(df!=NULL) {
+		switch(d->tag) {
+			case DVar:
+				printf("defVar\n");
+			break;
+			case DFunc:
+				printf("defFunc\n");
+			break;
+		}
+		df = df->next;
+	}
+}
+void printType(Type* t){
+
+}
+void printNameList(NameL* nl) {
+
+}
+void printDefVar(DefVar* dv){
+	printType(dv->t);
+	printNameList(dv->nl);
+}
+void printType(Type* t) {
+	switch(t->tag) {
+		case base:
+		break;
+		case array:
+		break;
+	}
+}
+
 
 void notConst()
 {

@@ -1,0 +1,7 @@
+int a,b,c;
+float d,e;
+char r,s,t;
+int ab;
+int cd;
+int[] vi;
+int[][] vvi;

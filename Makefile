@@ -9,6 +9,8 @@ testsyntax: comp
 	cat test/test3.monga |./comp 
 	cat test/test4.monga |./comp
 	cat test/test5.monga |./comp 
+	cat test/test6.monga |./comp 
+
 #testlexical is unavaible
 tree:
 	cc -o src/tree.o -Wall -O2 -c tree.c
