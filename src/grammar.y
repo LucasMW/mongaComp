@@ -72,17 +72,17 @@ program : definitionList  {
 
 definitionList: {$$ = NULL;}
             | definition definitionList {
-              $2->next = $1;
+              //$2->next = $1;
               $$ = $2;
             }
 ;
 definition : defVar {
-  $$->u.v = $1;
-  $$->tag = DVar;
+  //$$->u.v = $1;
+  //$$->tag = DVar;
 }
 | defFunc {
-  $$->u.f = $1;
-  $$ -> tag = DFunc;
+  //$$->u.f = $1;
+  //$$ -> tag = DFunc;
 }
 ;
 
@@ -124,8 +124,8 @@ idList: {$$ = NULL;}
 idList2: ID {$$->name = $1;
              $$->next = NULL;}
     | ',' ID idList {
-      $$->name = $2;
-      $$->next = $3;
+      // $$->name = $2;
+      // $$->next = $3;
     }
 
 block : '{'  defVarList   commandList  '}'
