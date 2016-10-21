@@ -78,26 +78,20 @@ program : definitionList  {
 }
 ;
 
-definitionList: {$$ = NULL;}
+definitionList: {$$ = NULL; printf("Null\n");}
             | definition definitionList {
-              // $$ = (Def*)malloc(sizeof(Def));
+              //printf(" x ");
+              //$$=(Def*)malloc(sizeof(Def));
               $$ = $1;
-              switch($$->tag)
-              {
-                case DVar:
-                  printf("dv\n");
-                break;
-                case DFunc:
-                  printf("df\n");
-                break;
-              }
-               $$->next = $2;
+              $$->next = $2;
             }
+
 ;
 definition : defVar {
   $$ = (Def*)malloc(sizeof(Def));
   $$->u.v = $1;
   $$->tag = DVar;
+  printDefVar($$->u.v);
 }
 | defFunc {
   $$ = (Def*)malloc(sizeof(Def));
@@ -146,14 +140,16 @@ nameList: ID idList {
   printf("namelist\n");
    $$ = (NameL*)malloc(sizeof(NameL));
    $$->name = $1;
-   $$->next = $2;
+   $$->next = NULL;
+   //printNameList($$);
 }
 
 idList: {$$ = NULL;}
     |idList2 { $$ = $1;}
 idList2: ID { $$ = (NameL*)malloc(sizeof(NameL));
               $$->name = $1;
-             $$->next = NULL;}
+             $$->next = NULL;
+             printf("<nl null>");}
     | ',' ID idList {
       $$ = (NameL*)malloc(sizeof(NameL));
       $$->name = $2;
@@ -163,13 +159,19 @@ idList2: ID { $$ = (NameL*)malloc(sizeof(NameL));
 block : '{'  defVarList   commandList  '}'
 {
   $$ = (Block*) malloc (sizeof(Block));
+};
+
+
+defVarList : {
+  $$ = NULL;
+}
+| defVarList2 {
+  $$ = $1;
 }
 
+defVarList2: defVar defVarList {
 
-defVarList :
-| defVarList2
-
-defVarList2: defVar defVarList
+}
 
 commandList: 
 | commandList2
@@ -261,11 +263,12 @@ constant: TK_INT  {     $$=makeConstant(KInt);
       | TK_STR    {//$$=(char*)$1;
       }
 ;
-ID: TK_VAR { //$$=$1;
+ID: TK_VAR { $$=$1;
 }
 ;
 type : baseType { $$ = (Type*)malloc(sizeof(Type));
                   $$->tag = base; 
+                  //printf("base %d\n",$1); 
                  $$->b = $1; }
     | type '[' ']' {
       $$ = (Type*)malloc(sizeof(Type)); 

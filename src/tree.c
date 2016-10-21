@@ -27,20 +27,24 @@ void printDefList(Def* d)
 	while(df!=NULL) {
 		switch(d->tag) {
 			case DVar:
-				printf("defVar\n");
+				printf("defVar \t");
+				printDefVar(d->u.v);
 			break;
 			case DFunc:
-				printf("defFunc\n");
+				printf("defFunc \t");
 			break;
 		}
 		df = df->next;
+		printf("\n");
 	}
 }
-void printType(Type* t){
 
-}
 void printNameList(NameL* nl) {
-
+	NameL* p = nl;
+	do  {
+		printf("name %s",p->name);
+		p = nl->next;
+	} while(p);
 }
 void printDefVar(DefVar* dv){
 	printType(dv->t);
@@ -49,8 +53,21 @@ void printDefVar(DefVar* dv){
 void printType(Type* t) {
 	switch(t->tag) {
 		case base:
+			//printf("b: %d ",t->b);
+			switch(t->b) {
+				case WInt:
+				printf("int ");
+				break;
+				case WFloat:
+				printf("float ");
+				case WChar:
+				printf("char ");
+			}
+			
 		break;
 		case array:
+			printf("array of ");
+			printType(t->of);
 		break;
 	}
 }

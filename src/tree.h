@@ -129,9 +129,12 @@ typedef struct progNode {
 	double v;
 	Def* next;
 } progNode;
+void printDefVar(DefVar* dv);
 extern progNode* globalTree;
 void printTree();
 void printDefList(Def* d);
+void printNameList(NameL* nl);
+void printType(Type* t);
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();
