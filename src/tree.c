@@ -22,7 +22,7 @@ void printTree() {
 }
 void printDefList(Def* d)
 {
-	Def* df = d->next;
+	Def* df = d;
 
 	while(df!=NULL) {
 		switch(d->tag) {
@@ -42,8 +42,8 @@ void printDefList(Def* d)
 void printNameList(NameL* nl) {
 	NameL* p = nl;
 	do  {
-		printf("name %s",p->name);
-		p = nl->next;
+		printf("name %s ",p->name);
+		p = p->next;
 	} while(p);
 }
 void printDefVar(DefVar* dv){
