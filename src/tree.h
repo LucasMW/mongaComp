@@ -14,6 +14,9 @@ typedef struct Constant
 
 } Constant;
 
+
+
+
 typedef enum defType { DFunc, DVar} defType;
 
 typedef struct DefFunc
@@ -31,6 +34,14 @@ typedef struct Type
 	struct Type* of; //array of
 	
 } Type;
+
+typedef struct Parameter
+{
+	Type* t;
+	char* id;
+	struct Parameter* next;
+} Parameter;
+
 typedef struct NameL
 {
 	const char* name;

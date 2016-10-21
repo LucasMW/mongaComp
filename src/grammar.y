@@ -24,6 +24,7 @@ int yylex(void);
   Def* def;
   DefVar* dVar;
   DefFunc* dFunc;
+  Parameter* param;
   void* exp;
   Type* type;
   NameL* namelist;
@@ -54,7 +55,8 @@ int yylex(void);
 
 
 
-%type<prog> program constant parameters parameter command command1 command2 defVarList defVarList2 
+%type<prog> program constant  command command1 command2  
+%type <param> parameters parameter defVarList defVarList2
 %type <def> definitionList  definition 
 %type <dVar> defVar 
 %type <dFunc> defFunc
@@ -72,35 +74,54 @@ program : definitionList  {
 
 definitionList: {$$ = NULL;}
             | definition definitionList {
-              //$2->next = $1;
-              $$ = $2;
+              // $$ = (Def*)malloc(sizeof(Def));
+              $$ = $1;
+              switch($$->tag)
+              {
+                case DVar:
+                  printf("dv\n");
+                break;
+                case DFunc:
+                  printf("df\n");
+                break;
+              }
+               $$->next = $2;
             }
 ;
 definition : defVar {
-  //$$->u.v = $1;
-  //$$->tag = DVar;
+  $$ = (Def*)malloc(sizeof(Def));
+  $$->u.v = $1;
+  $$->tag = DVar;
 }
 | defFunc {
-  //$$->u.f = $1;
-  //$$ -> tag = DFunc;
+  $$ = (Def*)malloc(sizeof(Def));
+  $$->u.f = $1;
+  $$ -> tag = DFunc;
 }
 ;
 
-defFunc : type ID '(' parameters ')' block {printf("typed %s ",$2);}
+defFunc : type ID '(' parameters ')' block {printf("typed %s ",$2);
+        }
         | TK_WVOID ID '(' parameters ')' block {printf("untyped %s ",$2);}
 
 ;
 
 parameters :   {
-          //$$ = NULL;
+          $$ = NULL;
 }
         | parameter  { 
-          //$$=$1;
+          $$=$1;
         }
-        | parameter ',' parameters { //$$ 
+        | parameter ',' parameters { 
+          $$ =  $1;
+          $$->next = $3;
         }
 
-parameter : type ID 
+parameter : type ID {
+    $$ = (Parameter*)malloc(sizeof(Parameter));
+    $$->t = $1;
+    $$->id = $2;
+}
 ;
 command : command1
 ;
