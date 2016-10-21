@@ -117,15 +117,18 @@ nameList: ID idList {
   printf("namelist\n");
    $$ = (NameL*)malloc(sizeof(NameL));
    $$->name = $1;
+   $$->next = $2;
 }
 
 idList: {$$ = NULL;}
     |idList2 { $$ = $1;}
-idList2: ID {$$->name = $1;
+idList2: ID { $$ = (NameL*)malloc(sizeof(NameL));
+              $$->name = $1;
              $$->next = NULL;}
     | ',' ID idList {
-      // $$->name = $2;
-      // $$->next = $3;
+      $$ = (NameL*)malloc(sizeof(NameL));
+      $$->name = $2;
+      $$->next = $3;
     }
 
 block : '{'  defVarList   commandList  '}'
