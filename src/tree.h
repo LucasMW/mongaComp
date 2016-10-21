@@ -38,8 +38,8 @@ typedef struct NameL
 } NameL;
 typedef struct DefVar
 {
-	Type t;
-	NameL* next;
+	Type* t;
+	NameL* nl;
 } DefVar;
 
 typedef struct Def {

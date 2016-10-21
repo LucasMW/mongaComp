@@ -22,8 +22,11 @@ int yylex(void);
   double double_val;
   progNode* prog;
   Def* def;
+  DefVar* dVar;
+  DefFunc* dFunc;
   void* exp;
   Type* type;
+  NameL* namelist;
 
 
 }
@@ -52,10 +55,14 @@ int yylex(void);
 
 
 %type<prog> program constant parameters parameter command command1 command2 defVarList defVarList2 
-%type <def> definitionList defFunc definition defVar
+%type <def> definitionList  definition 
+%type <dVar> defVar 
+%type <dFunc> defFunc
 %type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew
 %type <type> type;
+%type <namelist> idList idList2 nameList
 %type <int_val> baseType 
+%type <str_val> ID
 
 %%
 program : definitionList  {
@@ -70,23 +77,27 @@ definitionList: {$$ = NULL;}
             }
 ;
 definition : defVar {
-  $$ = $1;
+  $$->u.v = $1;
   $$->tag = DVar;
 }
 | defFunc {
-  $$ = $1;
+  $$->u.f = $1;
   $$ -> tag = DFunc;
 }
 ;
 
-defFunc : type ID '(' parameters ')' block
-        | TK_WVOID ID '(' parameters ')' block
+defFunc : type ID '(' parameters ')' block {printf("typed %s ",$2);}
+        | TK_WVOID ID '(' parameters ')' block {printf("untyped %s ",$2);}
 
 ;
 
-parameters :  
-        | parameter  { $$=$1;}
-        | parameter ',' parameters { 
+parameters :   {
+          //$$ = NULL;
+}
+        | parameter  { 
+          //$$=$1;
+        }
+        | parameter ',' parameters { //$$ 
         }
 
 parameter : type ID 
@@ -95,15 +106,27 @@ command : command1
 ;
 
 defVar : type nameList ';' { 
+  printf("defVar\n");
+  $$ = (DefVar*)malloc(sizeof(DefVar));
+  $$->t = $1;
+  $$->nl = $2;
 }
 ;
 
-nameList: ID idList 
+nameList: ID idList {
+  printf("namelist\n");
+   $$ = (NameL*)malloc(sizeof(NameL));
+   $$->name = $1;
+}
 
-idList: 
-    |idList2
-idList2: ID
-    | ',' ID idList
+idList: {$$ = NULL;}
+    |idList2 { $$ = $1;}
+idList2: ID {$$->name = $1;
+             $$->next = NULL;}
+    | ',' ID idList {
+      $$->name = $2;
+      $$->next = $3;
+    }
 
 block : '{'  defVarList   commandList  '}'
 
