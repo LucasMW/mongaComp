@@ -28,6 +28,8 @@ int yylex(void);
   void* exp;
   Type* type;
   NameL* namelist;
+  CommandL* cmd;
+  Block* block;
 
 
 }
@@ -55,7 +57,9 @@ int yylex(void);
 
 
 
-%type<prog> program constant  command command1 command2  
+%type<prog> program constant  
+%type<cmd> command command1 command2  
+%type<block> block
 %type <param> parameters parameter defVarList defVarList2
 %type <def> definitionList  definition 
 %type <dVar> defVar 
@@ -100,9 +104,11 @@ definition : defVar {
 }
 ;
 
-defFunc : type ID '(' parameters ')' block {printf("typed %s ",$2);
+defFunc : type ID '(' parameters ')' block {//printf("typed %s ",$2);
+          $$ = (DefFunc*)malloc(sizeof(DefFunc));
         }
-        | TK_WVOID ID '(' parameters ')' block {printf("untyped %s ",$2);}
+        | TK_WVOID ID '(' parameters ')' block {//printf("untyped %s ",$2);
+      }
 
 ;
 
@@ -153,6 +159,9 @@ idList2: ID { $$ = (NameL*)malloc(sizeof(NameL));
     }
 
 block : '{'  defVarList   commandList  '}'
+{
+  $$ = (Block*) malloc (sizeof(Block));
+}
 
 
 defVarList :
