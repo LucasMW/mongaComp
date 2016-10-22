@@ -1,5 +1,5 @@
 1310844
-Lucas Menezes, T2 1715
+Lucas Menezes, T3 1715
 —————————————————————
 
 Description of monga language:
@@ -8,9 +8,12 @@ http://www.inf.puc-rio.br/~roberto/comp/lang.html
 First, use must use make to compile:
 make
 
-To run the tests for the syntax, use
+To run the tests for the tree, use
 make testsyntax
 
+After the message "Syntax OK",
+it will start printing the tree.
+These tests are not automated. 
 
 To clean builds, use
 make clean

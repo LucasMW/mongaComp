@@ -1,4 +1,4 @@
-float ppt (float a) 
+float ppt (float ar) 
 {
 	int result;
 	result = a*a*a/a+a;
