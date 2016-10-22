@@ -62,7 +62,7 @@ void printDefFunc(DefFunc* df)
 	printf("f <id : %s; rt: ", df->id);
 	printType(df->retType);
 	printf("; params: ");
-	//printParams(df->params);
+	printParams(df->params);
 	printf(">\n");
 }
 void printType(Type* t) {
@@ -94,11 +94,12 @@ void printType(Type* t) {
 void printParams(Parameter* params)
 {
 	//printf("params\n");
-	if(!params)
+	if(!params) {
+		printf("None ");
 		return;
+	}
 	Parameter* p = params;
 	while(p) {
-		printf(" .p ");
 		printType(p->t);
 		if(p->id)
 			printf("%s ", p->id);

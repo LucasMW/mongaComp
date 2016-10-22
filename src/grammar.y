@@ -131,6 +131,7 @@ parameters :   {
 }
         | parameter  { 
           $$=$1;
+          printf("jone\n");
         }
         | parameter ',' parameters { 
           $$ =  $1;
@@ -140,7 +141,10 @@ parameters :   {
 parameter : type ID {
     $$ = (Parameter*)malloc(sizeof(Parameter));
     $$->t = $1;
+    //printType($1);
     $$->id = $2;
+    $$->next = NULL;
+    //printParams($$);
 }
 ;
 command : command1
