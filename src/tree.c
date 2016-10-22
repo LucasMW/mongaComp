@@ -122,6 +122,11 @@ void printDefVarList(DefVarL* dvl) {
 	if(!dvl)
 		return;
 	printf("dvl");
+	DefVarL* d = dvl;
+	while(d){
+		printDefVar(dvl->dv);
+		d = d->next;
+	}
 }
 void printCommandList(CommandL* cl) {
 	if(!cl)

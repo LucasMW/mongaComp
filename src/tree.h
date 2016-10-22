@@ -93,7 +93,7 @@ typedef struct DefVar
 typedef struct DefVarL
 {
 	DefVar* dv;
-	struct DefVarl* next;
+	struct DefVarL* next;
 } DefVarL;
 
 typedef struct CommandL

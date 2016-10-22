@@ -216,7 +216,9 @@ defVarList : {
 }
 
 defVarList2: defVar defVarList {
-
+  $$ = (DefVarL*)malloc(sizeof(DefVarL));
+  $$->dv = $1;
+  $$->next = $2;
 }
 
 commandList: 
