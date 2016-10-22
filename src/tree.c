@@ -77,8 +77,10 @@ void printType(Type* t) {
 				break;
 				case WFloat:
 				printf("float ");
+				break;
 				case WChar:
 				printf("char ");
+				break;
 			}
 			
 		break;
@@ -91,6 +93,7 @@ void printType(Type* t) {
 
 void printParams(Parameter* params)
 {
+	//printf("params\n");
 	if(!params)
 		return;
 	Parameter* p = params;
