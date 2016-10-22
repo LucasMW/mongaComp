@@ -59,13 +59,13 @@ int yylex(void);
 
 
 %type<prog> program constant  
-%type<cmd> command command1 command2  commandList commandList2
-%type<block> block
+%type <cmd> command command1 command2  commandList commandList2 commandIF commandWhile commandElse
+%type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
 %type <dVar> defVar 
 %type <dFunc> defFunc
-%type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew
+%type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew exp
 %type <type> type;
 %type <namelist> idList idList2 nameList
 %type <int_val> baseType 
@@ -221,25 +221,77 @@ defVarList2: defVar defVarList {
   $$->next = $2;
 }
 
-commandList: 
-| commandList2
+commandList: {
+  $$=NULL;
+}
+| commandList2 {
+  $$ = $1;
+}
 
-commandList2: command commandList
+commandList2: command commandList {
+  $$= $1;
+  $$->next = $2;
+}
 
-commandIF: TK_WIF '(' exp ')' command 
+commandIF: TK_WIF '(' exp ')' command {
+   $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CIf;
+          $$->condExp = $3;
+          $$->cmdIf = $5;
+}
 
-commandElse: TK_WIF '(' exp ')' command2 TK_WELSE command2
+commandElse: TK_WIF '(' exp ')' command2 TK_WELSE command2 {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CIfElse;
+          $$->condExp = $3;
+          $$->cmdIf = $5;
+          $$->cmdElse = $7;
+}
 
-commandWhile: TK_WWHILE '(' exp ')' command
+commandWhile: TK_WWHILE '(' exp ')' command {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CBlock;
+          $$->condExp = $3;
+          $$->cmdIf = $5;
+}
 
-command1: TK_WRETURN ';'
-        | TK_WRETURN exp ';'
-        | expCall ';'
-        | block
-        | commandIF
-        | commandElse
-        | expVar '=' exp ';'
-        | commandWhile
+command1: TK_WRETURN  ';' {
+   $$ = (CommandL*)malloc(sizeof(CommandL));
+   $$->tag = CReturn;
+   $$->retExp = NULL;
+}
+        | TK_WRETURN exp ';' {
+           $$ = (CommandL*)malloc(sizeof(CommandL));
+           $$->tag = CReturn;
+           $$->retExp = $2;
+        }
+        | expCall ';' {
+           $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CCall;
+          $$->expRight = $1;
+        }
+        | block {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CBlock;
+          $$->expRight = $1; //abuse
+        }
+        | commandIF {
+         $$=$1;
+        }
+        | commandElse {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CBlock;
+          $$->condExp = $1;
+        }
+        | expVar '=' exp ';' {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CAssign;
+          $$->expLeft = $1;
+          $$->expRight = $1;
+        }
+        | commandWhile {
+          $$=$1;
+        }
 
 command2 : TK_WRETURN ';'
         | TK_WRETURN exp ';'

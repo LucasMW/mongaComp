@@ -132,6 +132,33 @@ void printCommandList(CommandL* cl) {
 	if(!cl)
 		return;
 	printf("cl");
+	CommandL* c = cl;
+	while(c) {
+		switch(c->tag) {
+			case CWhile:
+				printf("While");
+			break;
+			case CIf:
+				printf("If");
+			break;
+			case CIfElse:
+				printf("if/else");
+			break;
+			case CReturn:
+				printf("return");
+			break;
+			case CAssign:
+				printf("Assign");
+			break;
+			case CBlock:
+				printf("block");
+			break;
+			case CCall:
+				printf("call");
+			break;
+		}
+		c = c->next;
+	}
 }
 void notConst()
 {
