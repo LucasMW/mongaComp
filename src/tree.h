@@ -20,6 +20,7 @@ typedef enum defType { DFunc, DVar} defType;
 
 typedef struct DefFunc
 {
+	const char* id;
 
 
 } DefFunc;
@@ -125,11 +126,10 @@ typedef struct Def {
 } Def;
 
 typedef struct progNode {
-	int i;
-	double v;
 	Def* next;
 } progNode;
 void printDefVar(DefVar* dv);
+void printDefFunc(DefFunc* df);
 extern progNode* globalTree;
 void printTree();
 void printDefList(Def* d);

@@ -78,12 +78,22 @@ program : definitionList  {
 }
 ;
 
-definitionList: {$$ = NULL; printf("Null\n");}
-            | definition definitionList {
-              //printf(" x ");
-              //$$=(Def*)malloc(sizeof(Def));
-              $$ = $1;
-              $$->next = $2;
+definitionList: {
+        //$$ = NULL; //printf(">>>>Null\n");
+}
+            | definitionList definition  {
+              if(!$1)
+                printf("1 null ");
+              if(!$2)
+                printf("2 null ");
+              $$ = $2;
+              $$->next = $1;
+              // if($$->tag == DVar)
+              //   $$->u.v = $2->u.v;
+              // else {
+              //   $$->u.f = $2->u.f;
+              // }
+              // $$->next = $1;
             }
 
 ;
@@ -91,12 +101,12 @@ definition : defVar {
   $$ = (Def*)malloc(sizeof(Def));
   $$->u.v = $1;
   $$->tag = DVar;
-  printDefVar($$->u.v);
+  //printDefVar($$->u.v);
 }
 | defFunc {
   $$ = (Def*)malloc(sizeof(Def));
   $$->u.f = $1;
-  $$ -> tag = DFunc;
+  $$-> tag = DFunc;
 }
 ;
 
@@ -104,6 +114,7 @@ defFunc : type ID '(' parameters ')' block {//printf("typed %s ",$2);
           $$ = (DefFunc*)malloc(sizeof(DefFunc));
         }
         | TK_WVOID ID '(' parameters ')' block {//printf("untyped %s ",$2);
+        $$ = (DefFunc*)malloc(sizeof(DefFunc));
       }
 
 ;
@@ -128,28 +139,44 @@ parameter : type ID {
 command : command1
 ;
 
-defVar : type nameList ';' { 
+defVar : type nameList ';' {  //correct
   printf("defVar\n");
   $$ = (DefVar*)malloc(sizeof(DefVar));
   $$->t = $1;
   $$->nl = $2;
+  
 }
 ;
 
 nameList: ID idList {
-  printf("namelist\n");
-   $$ = (NameL*)malloc(sizeof(NameL));
-   $$->name = $1;
-   $$->next = NULL;
+  
+    if($2==NULL)
+   {
+     $$ = (NameL*)malloc(sizeof(NameL));
+     $$->name = $1;
+     $$->next = NULL;
+     printf("just one\n");
+   }
+   else {
+     $$ = $2;
+     $$->next = (NameL*)malloc(sizeof(NameL));
+     ($$->next)->next = NULL;
+     ($$->next)->name = $1;
+     //printf("some\n");
+   }
+   //printf(" namelist: ");
    //printNameList($$);
+   printf("\n");
 }
 
 idList: {$$ = NULL;}
-    |idList2 { $$ = $1;}
+    |idList2 { $$ = $1; //printf("ONE ID");
+  }
 idList2: ID { $$ = (NameL*)malloc(sizeof(NameL));
               $$->name = $1;
              $$->next = NULL;
-             printf("<nl null>");}
+             //printf("<nl null>");
+           }
     | ',' ID idList {
       $$ = (NameL*)malloc(sizeof(NameL));
       $$->name = $2;
@@ -263,7 +290,7 @@ constant: TK_INT  {     $$=makeConstant(KInt);
       | TK_STR    {//$$=(char*)$1;
       }
 ;
-ID: TK_VAR { $$=$1;
+ID: TK_VAR { $$=yyval.str_val;
 }
 ;
 type : baseType { $$ = (Type*)malloc(sizeof(Type));
