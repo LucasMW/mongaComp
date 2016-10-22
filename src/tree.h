@@ -36,14 +36,7 @@ typedef struct Parameter
 	struct Parameter* next;
 } Parameter;
 
-typedef struct DefFunc
-{
-	const char* id;
-	Type* retType;
-	Parameter* params;
 
-
-} DefFunc;
 
 
 typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock } CTypes;
@@ -89,12 +82,19 @@ typedef struct NameL
 	struct NameL* next;
 } NameL;
 
+
+
 typedef struct DefVar
 {
 	Type* t;
 	NameL* nl;
 } DefVar;
 
+typedef struct DefVarL
+{
+	DefVar* dv;
+	struct DefVarl* next;
+} DefVarL;
 
 typedef struct CommandL
 {
@@ -117,10 +117,19 @@ typedef struct CommandL
 // } CommandL;
 typedef struct Block
 {	
-	DefVar* dvarlist;
+	DefVarL* dvl;
 	CommandL* cl;
 	
 } Block;
+typedef struct DefFunc
+{
+	const char* id;
+	Type* retType;
+	Parameter* params;
+	Block* b;
+
+
+} DefFunc;
 typedef struct Def {
 	defType tag;
 	union {
@@ -137,10 +146,13 @@ void printDefVar(DefVar* dv);
 void printDefFunc(DefFunc* df);
 extern progNode* globalTree;
 void printTree();
+void printDefVarList(DefVarL* dvl);
 void printDefList(Def* d);
 void printNameList(NameL* nl);
 void printType(Type* t);
 void printParams(Parameter* params);
+void printCommandList(CommandL* cl);
+void printBlock(Block* b);
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();

@@ -30,6 +30,7 @@ int yylex(void);
   NameL* namelist;
   CommandL* cmd;
   Block* block;
+  DefVarL* dvl;
 
 
 }
@@ -58,9 +59,9 @@ int yylex(void);
 
 
 %type<prog> program constant  
-%type<cmd> command command1 command2  
+%type<cmd> command command1 command2  commandList commandList2
 %type<block> block
-%type <param> parameters parameter defVarList defVarList2
+%type <param> parameters parameter 
 %type <def> definitionList  definition 
 %type <dVar> defVar 
 %type <dFunc> defFunc
@@ -69,6 +70,7 @@ int yylex(void);
 %type <namelist> idList idList2 nameList
 %type <int_val> baseType 
 %type <str_val> ID
+%type <dvl> defVarList defVarList2
 
 %%
 program : definitionList  {
@@ -101,12 +103,14 @@ definition : defVar {
   $$ = (Def*)malloc(sizeof(Def));
   $$->u.v = $1;
   $$->tag = DVar;
+  $$->next = NULL;
   //printDefVar($$->u.v);
 }
 | defFunc {
   $$ = (Def*)malloc(sizeof(Def));
   $$->u.f = $1;
   $$-> tag = DFunc;
+  $$->next = NULL;
 }
 ;
 
@@ -115,6 +119,7 @@ defFunc : type ID '(' parameters ')' block {//printf("typed %s ",$2);
           $$->id = $2;
           $$->retType = $1;
           $$->params = $4;
+          $$->b = $6;
 
         }
         | TK_WVOID ID '(' parameters ')' block {//printf("untyped %s ",$2);
@@ -122,6 +127,7 @@ defFunc : type ID '(' parameters ')' block {//printf("typed %s ",$2);
         $$->id = $2;
         $$->retType = NULL;
         $$->params = $4;
+        $$->b = $6;
       }
 
 ;
@@ -197,6 +203,8 @@ idList2: ID { $$ = (NameL*)malloc(sizeof(NameL));
 block : '{'  defVarList   commandList  '}'
 {
   $$ = (Block*) malloc (sizeof(Block));
+  $$->dvl = $2;
+  $$->cl = $3;
 };
 
 

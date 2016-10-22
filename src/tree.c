@@ -64,10 +64,13 @@ void printDefFunc(DefFunc* df)
 	printf("; params: ");
 	printParams(df->params);
 	printf(">\n");
+	printBlock(df->b);
 }
 void printType(Type* t) {
-	if(!t)
+	if(!t) {
+		printf("void ");
 		return;
+	}
 	switch(t->tag) {
 		case base:
 			//printf("b: %d ",t->b);
@@ -105,6 +108,25 @@ void printParams(Parameter* params)
 			printf("%s ", p->id);
 		p = p->next; 
 	}
+}
+void printBlock(Block* b) {
+	if(!b)
+		return;
+
+	printf("{ ");
+	printDefVarList(b->dvl);
+	printCommandList(b->cl);
+	printf("} ");
+}
+void printDefVarList(DefVarL* dvl) {
+	if(!dvl)
+		return;
+	printf("dvl");
+}
+void printCommandList(CommandL* cl) {
+	if(!cl)
+		return;
+	printf("cl");
 }
 void notConst()
 {
