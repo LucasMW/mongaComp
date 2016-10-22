@@ -112,9 +112,16 @@ definition : defVar {
 
 defFunc : type ID '(' parameters ')' block {//printf("typed %s ",$2);
           $$ = (DefFunc*)malloc(sizeof(DefFunc));
+          $$->id = $2;
+          $$->retType = $1;
+          $$->params = $4;
+
         }
         | TK_WVOID ID '(' parameters ')' block {//printf("untyped %s ",$2);
         $$ = (DefFunc*)malloc(sizeof(DefFunc));
+        $$->id = $2;
+        $$->retType = NULL;
+        $$->params = $4;
       }
 
 ;
@@ -291,6 +298,7 @@ constant: TK_INT  {     $$=makeConstant(KInt);
       }
 ;
 ID: TK_VAR { $$=yyval.str_val;
+  //printf("id:%s\n",$$);
 }
 ;
 type : baseType { $$ = (Type*)malloc(sizeof(Type));

@@ -18,15 +18,33 @@ typedef struct Constant
 
 typedef enum defType { DFunc, DVar} defType;
 
+typedef enum BType { WInt, WFloat, WChar} BType;
+typedef enum Types { base, array} Types;
+
+typedef struct Type
+{
+	Types tag;
+	BType b;
+	struct Type* of; //array of
+	
+} Type;
+
+typedef struct Parameter
+{
+	Type* t;
+	char* id;
+	struct Parameter* next;
+} Parameter;
+
 typedef struct DefFunc
 {
 	const char* id;
+	Type* retType;
+	Parameter* params;
 
 
 } DefFunc;
 
-typedef enum BType { WInt, WFloat, WChar} BType;
-typedef enum Types { base, array} Types;
 
 typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock } CTypes;
 
@@ -63,20 +81,7 @@ struct Exp{
 		Var *var;
 	};
 };
-typedef struct Type
-{
-	Types tag;
-	BType b;
-	struct Type* of; //array of
-	
-} Type;
 
-typedef struct Parameter
-{
-	Type* t;
-	char* id;
-	struct Parameter* next;
-} Parameter;
 
 typedef struct NameL
 {
@@ -135,6 +140,7 @@ void printTree();
 void printDefList(Def* d);
 void printNameList(NameL* nl);
 void printType(Type* t);
+void printParams(Parameter* params);
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();
