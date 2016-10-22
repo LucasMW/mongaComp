@@ -63,7 +63,7 @@ typedef enum ExpE {
 	ExpPrim
 } ExpE;
 
-struct Exp{
+typedef struct Exp{
 	ExpE tag;
 	union {
 		struct {
@@ -73,7 +73,7 @@ struct Exp{
 		int ki;
 		Var *var;
 	};
-};
+} Exp;
 
 
 typedef struct NameL
@@ -100,12 +100,13 @@ typedef struct CommandL
 {
 	CTypes tag;
 	struct CommandL* next;
-	void* condExp;
+	Exp* condExp;
 	struct CommandL* cmdIf;
 	struct CommandL* cmdElse;
-	void* expLeft;
-	void* expRight;
-	void* retExp;
+	Exp* expLeft;
+	Exp* expRight;
+	Exp* retExp;
+	void* block;
 } CommandL;
 
 
@@ -154,6 +155,7 @@ void printType(Type* t);
 void printParams(Parameter* params);
 void printCommandList(CommandL* cl);
 void printBlock(Block* b);
+void printExp(Exp* e);
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();

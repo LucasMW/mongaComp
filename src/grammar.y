@@ -25,7 +25,7 @@ int yylex(void);
   DefVar* dVar;
   DefFunc* dFunc;
   Parameter* param;
-  void* exp;
+  Exp* exp;
   Type* type;
   NameL* namelist;
   CommandL* cmd;
@@ -273,15 +273,13 @@ command1: TK_WRETURN  ';' {
         | block {
           $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CBlock;
-          $$->expRight = $1; //abuse
+          $$->block = $1; //abuse
         }
         | commandIF {
-         $$=$1;
+          $$=$1;
         }
         | commandElse {
-          $$ = (CommandL*)malloc(sizeof(CommandL));
-          $$->tag = CBlock;
-          $$->condExp = $1;
+          $$ = $1;
         }
         | expVar '=' exp ';' {
           $$ = (CommandL*)malloc(sizeof(CommandL));
@@ -293,11 +291,29 @@ command1: TK_WRETURN  ';' {
           $$=$1;
         }
 
-command2 : TK_WRETURN ';'
-        | TK_WRETURN exp ';'
-        | expCall ';'
-        | block
-        | commandElse
+command2 : TK_WRETURN ';' {
+           $$ = (CommandL*)malloc(sizeof(CommandL));
+           $$->tag = CReturn;
+           $$->retExp = NULL;
+        }
+        | TK_WRETURN exp ';' {
+           $$ = (CommandL*)malloc(sizeof(CommandL));
+           $$->tag = CReturn;
+           $$->retExp = $2;
+        }
+        | expCall ';' {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CCall;
+          $$->expRight = $1;
+        }
+        | block {
+          $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$->tag = CBlock;
+          $$->block = $1; //abuse
+        }
+        | commandElse {
+          $$ = $1;
+        }
 
 //exps
 exp: expNew
