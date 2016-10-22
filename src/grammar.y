@@ -250,7 +250,7 @@ commandElse: TK_WIF '(' exp ')' command2 TK_WELSE command2 {
 
 commandWhile: TK_WWHILE '(' exp ')' command {
           $$ = (CommandL*)malloc(sizeof(CommandL));
-          $$->tag = CBlock;
+          $$->tag = CWhile;
           $$->condExp = $3;
           $$->cmdIf = $5;
 }
@@ -316,7 +316,9 @@ command2 : TK_WRETURN ';' {
         }
 
 //exps
-exp: expNew
+exp: expNew {
+  $$ = $1;
+}
 ;
 
 
@@ -330,23 +332,76 @@ expList2: exp
 ;
 
 
-expNew: TK_WNEW type '[' exp ']'
-      | expCmp
+expNew: TK_WNEW type '[' exp ']' {
+      $$ = (Exp*)malloc(sizeof(Exp));
+      $$->tag = ExpNew;
+      $$->eNew.t = $2;
+      $$->eNew.e = $4;
+}
+      | expCmp {
+        $$ = $1;
+      }
 ;
 
 
-expCmp: expCmp TK_EQEQ expAnd
-      | expCmp TK_GE expAnd
-      | expCmp TK_LE expAnd
-      | expCmp '>' expAnd
-      | expCmp '<' expAnd
-      | expAnd
+expCmp: expCmp TK_EQEQ expAnd {
+      $$ = (Exp*)malloc(sizeof(Exp));
+      $$->tag = ExpCmp;
+      $$->cmp.e1 = $1;
+      $$->cmp.e2 = $3;
+      $$->cmp.op = EqEq;
+}
+      | expCmp TK_GE expAnd {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpCmp; //>=
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = GTE;
+      }
+      | expCmp TK_LE expAnd {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpCmp; //<=
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = LSE;
+      }
+      | expCmp '>' expAnd {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpCmp; //>
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = GT;
+      }
+      | expCmp '<' expAnd {
+        $$->tag = ExpCmp; //<
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = LS;
+
+      }
+      | expAnd {
+        $$=$1;
+      }
 ;
-expAnd: expAnd TK_AND expOr
-      | expOr
+expAnd: expAnd TK_AND expOr {
+        $$->tag = ExpCmp; //<
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = AND;
+}
+      | expOr {
+        $$=$1;
+      }
 ;
-expOr: expOr TK_OR expAdd
-      | expAdd
+expOr: expOr TK_OR expAdd {
+        $$->tag = ExpCmp; //<
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = OR;
+}
+      | expAdd {
+        $$ =$1;
+      }
 ;
 //arith
 expAdd: expAdd '+' expMul { //$$ = $1 + $2;

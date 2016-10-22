@@ -10,6 +10,7 @@ testsyntax: comp
 	cat test/test4.monga |./comp
 	cat test/test5.monga |./comp 
 	cat test/test6.monga |./comp 
+	cat test/test7.monga |./comp 
 
 #testlexical is unavaible
 tree:

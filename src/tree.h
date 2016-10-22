@@ -54,14 +54,14 @@ typedef enum ExpE {
 	ExpMul,
 	ExpDiv,
 	ExpRet,
-	ExpOr,
-	ExpAnd,
-	ExpEq,
 	ExpNot,
 	ExpVar,
 	ExpCall,
-	ExpPrim
+	ExpPrim,
+	ExpCmp,
+	ExpNew
 } ExpE;
+
 
 typedef struct Exp{
 	ExpE tag;
@@ -72,6 +72,18 @@ typedef struct Exp{
 		struct Exp *unary;
 		int ki;
 		Var *var;
+		struct {
+			struct Exp *e;
+			Type* t;
+		} eNew;
+		struct {
+			struct Exp *e, *next;
+			const char* id;
+		} call;
+		struct {
+			struct Exp *e1, *e2;
+			enum {EqEq, GTE, GT, LSE, LS, AND, OR } op;
+		} cmp;
 	};
 } Exp;
 

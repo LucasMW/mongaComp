@@ -136,28 +136,40 @@ void printCommandList(CommandL* cl) {
 	while(c) {
 		switch(c->tag) {
 			case CWhile:
-				printf("While");
+				printf("While (");
+				printExp(c->condExp);
+				printf(") ");
+				//printf(" {");
+				printCommandList(c->cmdIf);
+				//printf("} ");
 			break;
 			case CIf:
-				printf("If");
+				printf("If ");
+				printExp(c->condExp);
+				printCommandList(c->cmdIf);
 			break;
 			case CIfElse:
-				printf("if/else");
+				printf("if/else ");
+				printExp(c->condExp);
+				printCommandList(c->cmdIf);
+				printCommandList(c->cmdElse);
 			break;
 			case CReturn:
-				printf("return");
+				printf("return ");
 				printExp(c->retExp);
 			break;
 			case CAssign:
-				printf("Assign");
+				printf("Assign ");
 				printExp(c->expLeft);
+				printf(" = ");
 				printExp(c->expRight);
 			break;
 			case CBlock:
-				printf("block");
+				printf("block ");
+				printBlock((Block*)c->block);
 			break;
 			case CCall:
-				printf("call");
+				printf("call ");
 			break;
 		}
 		c = c->next;
@@ -185,15 +197,6 @@ void printExp(Exp* e) {
 		case ExpRet:
 			printf("expRet ");
 		break;
-		case ExpOr:
-			printf("expOr ");
-		break;
-		case ExpAnd:
-			printf("expAnd ");
-		break;
-		case ExpEq:
-			printf("expEq ");
-		break;
 		case ExpVar:
 			printf("expVar ");
 		break;
@@ -202,6 +205,12 @@ void printExp(Exp* e) {
 		break;
 		case ExpPrim:
 			printf("expPrim ");
+		break;
+		case ExpNew:
+			printf("expNew ");
+		break;
+		case ExpCmp:
+			printf("expCmp ");
 		break;
 	}
 
