@@ -169,7 +169,9 @@ void printCommandList(CommandL* cl) {
 				printBlock((Block*)c->block);
 			break;
 			case CCall:
-				printf("call ");
+				printf("call" );
+				printExp(c->expRight);
+
 			break;
 		}
 		c = c->next;
@@ -180,16 +182,26 @@ void printExp(Exp* e) {
 		return;
 	switch(e->tag) {
 		case ExpAdd: 
-			printf("expAdd ");
+			//printf("expAdd ");
+			printExp(e->bin.e1);
+			printf("+");
+			printExp(e->bin.e2);
 		break;
 		case ExpSub:
-			printf("expSub ");
+			//printf("expSub ");
+			printExp(e->bin.e1);
+			printf("-");
+			printExp(e->bin.e2);
 		break;
 		case ExpMul:
-			printf("expMul ");
+			printExp(e->bin.e1);
+			printf("*");
+			printExp(e->bin.e2);
 		break;
 		case ExpDiv:
-			printf("expDiv ");
+			printExp(e->bin.e1);
+			printf("/");
+			printExp(e->bin.e2);
 		break;
 		case ExpCall:
 			printf("expCall ");
@@ -198,7 +210,7 @@ void printExp(Exp* e) {
 			printf("expRet ");
 		break;
 		case ExpVar:
-			printf("expVar ");
+			printVar(e->var);
 		break;
 		case ExpNot:
 			printf("expNot ");
@@ -212,8 +224,16 @@ void printExp(Exp* e) {
 		case ExpCmp:
 			printf("expCmp ");
 		break;
+		case ExpAccess:
+			printf("ExpAccess ");
+		break;
 	}
 
+}
+void printVar(Var* v) {
+	if(!v)
+		return;
+	printf("var %s ", v->id);
 }
 void notConst()
 {

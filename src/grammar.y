@@ -270,7 +270,7 @@ command1: TK_WRETURN  ';' {
            $$->retExp = $2;
         }
         | expCall ';' {
-           $$ = (CommandL*)malloc(sizeof(CommandL));
+          $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CCall;
           $$->expRight = $1;
         }
@@ -289,7 +289,7 @@ command1: TK_WRETURN  ';' {
           $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CAssign;
           $$->expLeft = $1;
-          $$->expRight = $1;
+          $$->expRight = $3;
         }
         | commandWhile {
           $$=$1;

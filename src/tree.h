@@ -79,7 +79,6 @@ typedef struct Exp{
 			Type* t;
 		} eNew;
 		struct {
-			struct Exp *e;
 			const char* id;
 			void* expList;
 		} call;
@@ -179,6 +178,7 @@ void printParams(Parameter* params);
 void printCommandList(CommandL* cl);
 void printBlock(Block* b);
 void printExp(Exp* e);
+void printVar(Var* v);
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();
