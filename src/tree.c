@@ -7,68 +7,86 @@
 #endif
 #include <stdio.h> 
 #include <stdlib.h>
+#include <string.h>
 
 progNode* globalTree;
 
+static int depth_level = 0;
+static void printDepthLevel(char* str,int x) {
+	int i =0;
+	printf("\n|");
+	for(i=0;i<x;i++) {
+		printf("  |");
+	}
+	printf("-%s",str);
+	//printf("$%d$",depth_level);
+}
 void printTree() {
 	printf("Tree");
 	if(globalTree->next == NULL) {
 		printf("is Null\n");
 	}
 	else {
-		printf("\nroot\n|\n");
-		printDefList(globalTree->next);
+		printf("\nroot\n|");
+		printDefList(globalTree->next,0);
+
 	}
+	printf("\n");
 }
-void printDefList(Def* d)
+void printDefList(Def* d,int x)
 {
 	Def* df = d;
-	printf("DEF LIST:\n");
+	printDepthLevel("DEF LIST",x);
 	while(df!=NULL) {
 		switch(df->tag) {
 			case DVar:
-				printf("defVar \t");
-				printDefVar(df->u.v);
+				//printf("defVar \t");
+				printDefVar(df->u.v,x+1);
 			break;
 			case DFunc:
-				printf("defFunc \t");
-				printDefFunc(df->u.f);
+				//printf("defFunc \t");
+				printDefFunc(df->u.f,x+1);
 			break;
 		}
 		df = df->next;
-		printf("\n");
+		
 	}
 }
 
-void printNameList(NameL* nl) {
+void printNameList(NameL* nl,int x) {
+	printDepthLevel("nl",x);
 	if(!nl)
 		return;
 	NameL* p = nl;
 	do  {
-		printf("name %s ",p->name);
+		printDepthLevel(p->name,x+1);
 		p = p->next;
 	} while(p);
 }
-void printDefVar(DefVar* dv){
+void printDefVar(DefVar* dv,int x){
+	
 	if(!dv)
 		return;
-	printType(dv->t);
-	printNameList(dv->nl);
+	printDepthLevel("defVar",x);
+	printType(dv->t,x+1);
+	printNameList(dv->nl,x+1);
 }
-void printDefFunc(DefFunc* df)
+void printDefFunc(DefFunc* df,int x)
 {
 	if(!df)
 		return;
-	printf("f <id : %s; rt: ", df->id);
-	printType(df->retType);
-	printf("; params: ");
-	printParams(df->params);
-	printf(">\n");
-	printBlock(df->b);
+	printDepthLevel("DefFunc",x);
+	//printf("f <id : %s; rt: ", df->id);
+	printType(df->retType,x+1);
+	//printf("; params: ");
+	printParams(df->params,x+1);
+	//printf(">\n");
+	printBlock(df->b,x+1);
 }
-void printType(Type* t) {
+void printType(Type* t,int x) {
+	
 	if(!t) {
-		printf("void ");
+		printDepthLevel("void ",x);
 		return;
 	}
 	switch(t->tag) {
@@ -76,217 +94,213 @@ void printType(Type* t) {
 			//printf("b: %d ",t->b);
 			switch(t->b) {
 				case WInt:
-				printf("int ");
+				printDepthLevel("int ",x);
 				break;
 				case WFloat:
-				printf("float ");
+				printDepthLevel("float ",x);
 				break;
 				case WChar:
-				printf("char ");
+				printDepthLevel("char ",x);
 				break;
 			}
 			
 		break;
 		case array:
-			printf("array of ");
-			printType(t->of);
+			printDepthLevel("array of ",x);
+			printType(t->of,x+1);
 		break;
 	}
 }
 
-void printParams(Parameter* params)
+void printParams(Parameter* params,int x)
 {
 	//printf("params\n");
 	if(!params) {
-		printf("None ");
+		printDepthLevel("None",x);
 		return;
 	}
 	Parameter* p = params;
 	while(p) {
-		printType(p->t);
+		printType(p->t,x);
 		if(p->id)
-			printf("%s ", p->id);
+			printDepthLevel(p->id,x+1);
 		p = p->next; 
 	}
 }
-void printBlock(Block* b) {
+void printBlock(Block* b,int x) {
 	if(!b)
 		return;
-
-	printf("{ ");
-	printDefVarList(b->dvl);
-	printCommandList(b->cl);
-	printf("} ");
+	printDepthLevel("block{}",x);
+	
+	printDefVarList(b->dvl,x+1);
+	printCommandList(b->cl,x+1);
 }
-void printDefVarList(DefVarL* dvl) {
+void printDefVarList(DefVarL* dvl,int x) {
+	printDepthLevel("DefVarL",x);
 	if(!dvl)
 		return;
-	printf("dvl");
 	DefVarL* d = dvl;
 	while(d){
-		printDefVar(dvl->dv);
+		printDefVar(dvl->dv,x+1);
 		d = d->next;
 	}
 }
-void printCommandList(CommandL* cl) {
+void printCommandList(CommandL* cl,int x) {
 	if(!cl)
 		return;
-	printf("cl");
 	CommandL* c = cl;
 	while(c) {
-		printf("\n\t");
 		switch(c->tag) {
 			case CWhile:
-				printf("While (");
-				printExp(c->condExp);
-				printf(") ");
-				//printf(" {");
-				printCommandList(c->cmdIf);
-				//printf("} ");
+				printDepthLevel("While",x);
+				printExp(c->condExp,x+1);
+				printCommandList(c->cmdIf,x+1);
 			break;
 			case CIf:
-				printf("If ");
-				printExp(c->condExp);
-				printCommandList(c->cmdIf);
+				printDepthLevel("If",x);
+				printExp(c->condExp,x+1);
+				printCommandList(c->cmdIf,x+1);
 			break;
 			case CIfElse:
-				printf("if/else ");
-				printExp(c->condExp);
-				printCommandList(c->cmdIf);
-				printCommandList(c->cmdElse);
+				printDepthLevel("if/else",x);
+				printExp(c->condExp,x+1);
+				printCommandList(c->cmdIf,x+1);
+				printCommandList(c->cmdElse,x+1);
 			break;
 			case CReturn:
-				printf("return ");
-				printExp(c->retExp);
+				printDepthLevel("return ",x);
+				printExp(c->retExp,x+1);
 			break;
 			case CAssign:
-				printf("Assign ");
-				printExp(c->expLeft);
-				printf(" = ");
-				printExp(c->expRight);
+				printDepthLevel("Assign",x);
+				printExp(c->expLeft,x+1);
+				printExp(c->expRight,x+1);
 			break;
 			case CBlock:
-				printf("block ");
-				printBlock((Block*)c->block);
+				printDepthLevel("block ",x);
+				printBlock((Block*)c->block,x+1);
 			break;
 			case CCall:
-				printf("call" );
-				printExp(c->expRight);
-
+				printDepthLevel("call",x);
+				printExp(c->expRight,x+1);
 			break;
 		}
 		c = c->next;
 	}
 }
-void printExp(Exp* e) {
+void printExp(Exp* e,int x) {
 	if(!e)
 		return;
+	depth_level++;
 	switch(e->tag) {
 		case ExpAdd: 
 			//printf("expAdd ");
-			printExp(e->bin.e1);
-			printf("+");
-			printExp(e->bin.e2);
+			printDepthLevel("+",x);
+			printExp(e->bin.e1,x+1);
+			printExp(e->bin.e2,x+1);
 		break;
 		case ExpSub:
-			//printf("expSub ");
-			printExp(e->bin.e1);
-			printf("-");
-			printExp(e->bin.e2);
+			printDepthLevel("-",x);
+			printExp(e->bin.e1,x+1);
+			printExp(e->bin.e2,x+1);
 		break;
 		case ExpMul:
-			printExp(e->bin.e1);
-			printf("*");
-			printExp(e->bin.e2);
+			printDepthLevel("*",x);
+			printExp(e->bin.e1,x+1);
+			printExp(e->bin.e2,x+1);
 		break;
 		case ExpDiv:
-			printExp(e->bin.e1);
-			printf("/");
-			printExp(e->bin.e2);
+			printDepthLevel("/",x);
+			printExp(e->bin.e1,x+1);
+			printExp(e->bin.e2,x+1);
 		break;
 		case ExpCall:
-			//printf("expCall ");
-			printf("id %s",e->call.id);
-			printExpList(e->call.expList);
+			printDepthLevel("call()",x);
+			printDepthLevel(e->call.id,x+1);
+			printExpList(e->call.expList,x+1);
 		break;
 		case ExpVar:
-			printVar(e->var);
+			printVar(e->var,x);
 		break;
 		case ExpNot:
-			printf("expNot ");
+			printDepthLevel("expNot",x);
 		break;
 		case ExpPrim:
-			//printf("expPrim ");
-			printConstant(e->c);
+			printDepthLevel("Prim",x);
+			printConstant(e->c,x+1);
 		break;
 		case ExpNew:
-			printf("New ");
-			printType(e->eNew.t);
-			printExp(e->eNew.e);
+			printDepthLevel("New",x);
+			printType(e->eNew.t,x+1);
+			printExp(e->eNew.e,x+1);
 		break;
 		case ExpCmp:
-			printExp(e->cmp.e1);
 			switch(e->cmp.op) {
 				case GT:
-					printf(">");
+					printDepthLevel(">",x);
 				break;
 				case GTE:
-					printf(">=");
+					printDepthLevel(">=",x);
 				break;
 				case LS:
-					printf("<");
+					printDepthLevel("<",x);
 				break;
 				case LSE:
-					printf("<=");
+					printDepthLevel("<=",x);
 				break;
 				case AND:
-					printf("&&");
+					printDepthLevel("&&",x);
 				break;
 				case OR:
-					printf("||");
+					printDepthLevel("||",x);
 				break;
 				case EqEq:
-					printf("==");
+					printDepthLevel("==",x);
 				break;
 			}
-			printExp(e->cmp.e2);
+			printExp(e->cmp.e1,x+1);
+			
+			printExp(e->cmp.e2,x+1);
 		break;
 		case ExpAccess:
-			printExp(e->access.varExp);
-			printf("[ ");
-			printExp(e->access.indExp);
-			printf(" ]");
+			printDepthLevel("[]",x);
+			printExp(e->access.varExp,x+1);
+			printExp(e->access.indExp,x+1);
 		break;
 	}
-
 }
-void printExpList(ExpList* el) {
+void printExpList(ExpList* el,int x) {
 	if(!el)
 		return;
 	ExpList *p = el;
+	printDepthLevel("expList",x);
 	while(p) {
-		printExp(p->e);
+		printExp(p->e,x+1);
 		p = p->next;
 	}
 
 }
-void printVar(Var* v) {
+void printVar(Var* v,int x) {
 	if(!v)
 		return;
-	printf("var %s ", v->id);
+	printDepthLevel("Var",x);
+	printDepthLevel(v->id,x+1);
 }
-void printConstant(Constant* c) {
+void printConstant(Constant* c,int x) {
+	char str[40];
 	if(!c)
 		return;
 	switch(c->tag) {
 		case KInt:
-			printf("%d", c->u.i);
+			sprintf(str, "%d", c->u.i);
+			printDepthLevel(str,x);
 		break;
 		case KFloat:
-			printf("%lf", c->u.d);
+			sprintf(str, "%lf", c->u.d);
+			printDepthLevel(str,x);
 		break;
 		case KStr:
-			printf("%s", c->u.str);
+			printDepthLevel(c->u.str,x);
 		break;
 
 	}
