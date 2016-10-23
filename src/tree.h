@@ -59,8 +59,10 @@ typedef enum ExpE {
 	ExpCall,
 	ExpPrim,
 	ExpCmp,
-	ExpNew
+	ExpNew,
+	ExpAccess
 } ExpE;
+
 
 
 typedef struct Exp{
@@ -70,23 +72,32 @@ typedef struct Exp{
 			struct Exp *e1, *e2;
 		} bin;
 		struct Exp *unary;
-		int ki;
+		Constant* c;
 		Var *var;
 		struct {
 			struct Exp *e;
 			Type* t;
 		} eNew;
 		struct {
-			struct Exp *e, *next;
+			struct Exp *e;
 			const char* id;
+			void* expList;
 		} call;
 		struct {
 			struct Exp *e1, *e2;
 			enum {EqEq, GTE, GT, LSE, LS, AND, OR } op;
 		} cmp;
+		struct {
+			struct Exp *varExp, *indExp;
+		} access;
 	};
 } Exp;
 
+typedef struct ExpList
+{
+	Exp* e;
+	struct ExpList* next; 
+} ExpList ;
 
 typedef struct NameL
 {

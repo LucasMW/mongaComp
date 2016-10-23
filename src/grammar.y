@@ -31,6 +31,8 @@ int yylex(void);
   CommandL* cmd;
   Block* block;
   DefVarL* dvl;
+  ExpList* el;
+  Constant* cons;
 
 
 }
@@ -58,19 +60,21 @@ int yylex(void);
 
 
 
-%type<prog> program constant  
+%type<prog> program  
 %type <cmd> command command1 command2  commandList commandList2 commandIF commandWhile commandElse
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
 %type <dVar> defVar 
 %type <dFunc> defFunc
-%type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew exp
+%type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew exp primary
 %type <type> type;
 %type <namelist> idList idList2 nameList
 %type <int_val> baseType 
 %type <str_val> ID
 %type <dvl> defVarList defVarList2
+%type <el> expList expList2
+%type <cons> constant;
 
 %%
 program : definitionList  {
@@ -322,13 +326,30 @@ exp: expNew {
 ;
 
 
-expCall: TK_VAR '(' expList ')' 
+expCall: TK_VAR '(' expList ')' {
+  $$ = (Exp*)malloc(sizeof(Exp));
+  $$->tag = ExpCall;
+  $$->call.id = $1;
+  $$->call.expList = $3;
+}
 ;
-expList: 
-      | expList2
+expList: {
+  $$=NULL;
+}
+      | expList2 {
+        $$=$1;
+      }
 ;
-expList2: exp
-      | exp ',' expList
+expList2: exp {
+  $$ = (ExpList*)malloc(sizeof(ExpList));
+  $$->e = $1;
+  $$->next = NULL;
+}
+      | exp ',' expList {
+        $$ = (ExpList*)malloc(sizeof(ExpList));
+        $$->e =$1;
+        $$->next = $3;
+      }
 ;
 
 
@@ -373,6 +394,7 @@ expCmp: expCmp TK_EQEQ expAnd {
         $$->cmp.op = GT;
       }
       | expCmp '<' expAnd {
+        $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //<
         $$->cmp.e1 = $1;
         $$->cmp.e2 = $3;
@@ -384,6 +406,7 @@ expCmp: expCmp TK_EQEQ expAnd {
       }
 ;
 expAnd: expAnd TK_AND expOr {
+        $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //<
         $$->cmp.e1 = $1;
         $$->cmp.e2 = $3;
@@ -394,6 +417,7 @@ expAnd: expAnd TK_AND expOr {
       }
 ;
 expOr: expOr TK_OR expAdd {
+        $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //<
         $$->cmp.e1 = $1;
         $$->cmp.e2 = $3;
@@ -404,34 +428,88 @@ expOr: expOr TK_OR expAdd {
       }
 ;
 //arith
-expAdd: expAdd '+' expMul { //$$ = $1 + $2;
+expAdd: expAdd '+' expMul { 
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpAdd; //<
+        $$->bin.e1 = $1;
+        $$->bin.e2 = $3;
 }
-      | expAdd '-' expMul { //$$ = $1 - $2;
+      | expAdd '-' expMul { 
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpSub; //<
+        $$->bin.e1 = $1;
+        $$->bin.e2 = $3;
       }
-      | expMul
+      | expMul {
+        $$=$1;
+      }
 ;
-expMul: expMul '*' expUnary
-      | expMul '/' expUnary
-      | expUnary
+expMul: expMul '*' expUnary {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpMul; //<
+        $$->bin.e1 = $1;
+        $$->bin.e2 = $3;
+}
+      | expMul '/' expUnary {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpDiv; //<
+        $$->bin.e1 = $1;
+        $$->bin.e2 = $3;
+      }
+      | expUnary {
+        $$=$1;
+      }
 
 expUnary: '!' expVar { $$ = $2; }
       | '-' expVar {$$ = $2;}
-      | expVar 
+      | expVar  {
+        $$=$1;
+      }
 ;
 
-expVar: expVar '[' exp ']'
-      | ID
-      | primary
-      | expCall
+expVar: expVar '[' exp ']' {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpAccess; 
+        $$->access.varExp = $1;
+        $$->access.indExp = $3;
 
-primary: constant
-      | '(' exp ')'
+}
+      | ID {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpVar; 
+        $$->var = (Var*)malloc(sizeof(Var));
+        $$->var->id = $1;
+      }
+      | primary {
+        $$ = $1;
+      }
+      | expCall {
+        $$=$1;
+      }
+
+primary: constant {
+  $$ = (Exp*)malloc(sizeof(Exp));
+  $$->tag = ExpPrim;
+  $$->c = $1;
+}
+      | '(' exp ')' {
+        $$ = $2; 
+      }
 ;
-constant: TK_INT  {     $$=makeConstant(KInt);
-           }
-      | TK_FLOAT  {//$$=(double)$1;
+constant: TK_INT  {     
+        $$ = (Constant*)malloc(sizeof(Constant));
+        $$->tag = KInt;
+        $$->u.i = yyval.int_val;
+      }
+      | TK_FLOAT  {
+        $$ = (Constant*)malloc(sizeof(Constant));
+        $$->tag = KInt;
+        $$->u.d = yyval.double_val;
       }
       | TK_STR    {//$$=(char*)$1;
+        $$ = (Constant*)malloc(sizeof(Constant));
+        $$->tag = KInt;
+        $$->u.str = yyval.str_val ;
       }
 ;
 ID: TK_VAR { $$=yyval.str_val;
