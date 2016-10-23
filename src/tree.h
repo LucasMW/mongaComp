@@ -179,6 +179,7 @@ void printBlock(Block* b);
 void printExp(Exp* e);
 void printVar(Var* v);
 void printConstant(Constant* c);
+void printExpList(ExpList* el);
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();

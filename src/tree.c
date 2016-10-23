@@ -205,6 +205,8 @@ void printExp(Exp* e) {
 		break;
 		case ExpCall:
 			printf("expCall ");
+			printf("id %s",e->call.id);
+			printExpList(e->call.expList);
 		break;
 		case ExpVar:
 			printVar(e->var);
@@ -218,6 +220,7 @@ void printExp(Exp* e) {
 		break;
 		case ExpNew:
 			printf("expNew ");
+
 		break;
 		case ExpCmp:
 			printExp(e->cmp.e1);
@@ -252,7 +255,16 @@ void printExp(Exp* e) {
 	}
 
 }
+void printExpList(ExpList* el) {
+	if(!el)
+		return;
+	ExpList *p = el;
+	while(p) {
+		printExp(p->e);
+		p = p->next;
+	}
 
+}
 void printVar(Var* v) {
 	if(!v)
 		return;

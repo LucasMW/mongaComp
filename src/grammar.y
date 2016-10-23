@@ -88,10 +88,10 @@ definitionList: {
         //$$ = NULL; //printf(">>>>Null\n");
 }
             | definitionList definition  {
-              if(!$1)
-                printf("1 null ");
-              if(!$2)
-                printf("2 null ");
+              // if(!$1)
+              //   printf("1 null ");
+              // if(!$2)
+              //   printf("2 null ");
               $$ = $2;
               $$->next = $1;
               // if($$->tag == DVar)
@@ -141,7 +141,7 @@ parameters :   {
 }
         | parameter  { 
           $$=$1;
-          printf("jone\n");
+          //printf("jone\n");
         }
         | parameter ',' parameters { 
           $$ =  $1;
@@ -161,7 +161,7 @@ command : command1
 ;
 
 defVar : type nameList ';' {  //correct
-  printf("defVar\n");
+  //printf("defVar\n");
   $$ = (DefVar*)malloc(sizeof(DefVar));
   $$->t = $1;
   $$->nl = $2;
@@ -176,7 +176,7 @@ nameList: ID idList {
      $$ = (NameL*)malloc(sizeof(NameL));
      $$->name = $1;
      $$->next = NULL;
-     printf("just one\n");
+     //printf("just one\n");
    }
    else {
      $$ = $2;
@@ -187,7 +187,7 @@ nameList: ID idList {
    }
    //printf(" namelist: ");
    //printNameList($$);
-   printf("\n");
+   //printf("\n");
 }
 
 idList: {$$ = NULL;}
@@ -491,7 +491,7 @@ primary: constant {
   $$ = (Exp*)malloc(sizeof(Exp));
   $$->tag = ExpPrim;
   $$->c = $1;
-  printConstant($$->c);
+  //printConstant($$->c);
 }
       | '(' exp ')' {
         $$ = $2; 
@@ -501,19 +501,19 @@ constant: TK_INT  {
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KInt;
         $$->u.i = yylval.int_val;
-        printf("%d\n", $$->u.i);
+        //printf("%d\n", $$->u.i);
       }
       | TK_FLOAT  {
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KFloat;
         $$->u.d = yylval.double_val;
-        printf("%lf\n", $$->u.d);
+        //printf("%lf\n", $$->u.d);
       }
       | TK_STR    {//$$=(char*)$1;
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KStr;
         $$->u.str = yylval.str_val ;
-        printf("%s\n", $$->u.str);
+        //printf("%s\n", $$->u.str);
       }
 ;
 ID: TK_VAR { $$=yylval.str_val;
