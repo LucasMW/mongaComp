@@ -134,6 +134,7 @@ void printCommandList(CommandL* cl) {
 	printf("cl");
 	CommandL* c = cl;
 	while(c) {
+		printf("\n\t");
 		switch(c->tag) {
 			case CWhile:
 				printf("While (");
@@ -204,7 +205,7 @@ void printExp(Exp* e) {
 			printExp(e->bin.e2);
 		break;
 		case ExpCall:
-			printf("expCall ");
+			//printf("expCall ");
 			printf("id %s",e->call.id);
 			printExpList(e->call.expList);
 		break;
@@ -219,8 +220,9 @@ void printExp(Exp* e) {
 			printConstant(e->c);
 		break;
 		case ExpNew:
-			printf("expNew ");
-
+			printf("New ");
+			printType(e->eNew.t);
+			printExp(e->eNew.e);
 		break;
 		case ExpCmp:
 			printExp(e->cmp.e1);
@@ -250,7 +252,10 @@ void printExp(Exp* e) {
 			printExp(e->cmp.e2);
 		break;
 		case ExpAccess:
-			printf("ExpAccess ");
+			printExp(e->access.varExp);
+			printf("[ ");
+			printExp(e->access.indExp);
+			printf(" ]");
 		break;
 	}
 
