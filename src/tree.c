@@ -206,9 +206,6 @@ void printExp(Exp* e) {
 		case ExpCall:
 			printf("expCall ");
 		break;
-		case ExpRet:
-			printf("expRet ");
-		break;
 		case ExpVar:
 			printVar(e->var);
 		break;
@@ -216,13 +213,38 @@ void printExp(Exp* e) {
 			printf("expNot ");
 		break;
 		case ExpPrim:
-			printf("expPrim ");
+			//printf("expPrim ");
+			printConstant(e->c);
 		break;
 		case ExpNew:
 			printf("expNew ");
 		break;
 		case ExpCmp:
-			printf("expCmp ");
+			printExp(e->cmp.e1);
+			switch(e->cmp.op) {
+				case GT:
+					printf(">");
+				break;
+				case GTE:
+					printf(">=");
+				break;
+				case LS:
+					printf("<");
+				break;
+				case LSE:
+					printf("<=");
+				break;
+				case AND:
+					printf("&&");
+				break;
+				case OR:
+					printf("||");
+				break;
+				case EqEq:
+					printf("==");
+				break;
+			}
+			printExp(e->cmp.e2);
 		break;
 		case ExpAccess:
 			printf("ExpAccess ");
@@ -230,10 +252,27 @@ void printExp(Exp* e) {
 	}
 
 }
+
 void printVar(Var* v) {
 	if(!v)
 		return;
 	printf("var %s ", v->id);
+}
+void printConstant(Constant* c) {
+	if(!c)
+		return;
+	switch(c->tag) {
+		case KInt:
+			printf("%d", c->u.i);
+		break;
+		case KFloat:
+			printf("%lf", c->u.d);
+		break;
+		case KStr:
+			printf("%s", c->u.str);
+		break;
+
+	}
 }
 void notConst()
 {

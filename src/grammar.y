@@ -42,7 +42,7 @@ int yylex(void);
 %token <int_val> TK_GE
 %token <int_val> TK_LE
 %token <int_val> TK_INT
-%token <double_val> TK_FLOAT
+%token <int_val> TK_FLOAT
 %token <int_val> TK_WCHAR
 %token <int_val> TK_WELSE
 %token <int_val> TK_WFLOAT
@@ -491,6 +491,7 @@ primary: constant {
   $$ = (Exp*)malloc(sizeof(Exp));
   $$->tag = ExpPrim;
   $$->c = $1;
+  printConstant($$->c);
 }
       | '(' exp ')' {
         $$ = $2; 
@@ -499,20 +500,23 @@ primary: constant {
 constant: TK_INT  {     
         $$ = (Constant*)malloc(sizeof(Constant));
         $$->tag = KInt;
-        $$->u.i = yyval.int_val;
+        $$->u.i = yylval.int_val;
+        printf("%d\n", $$->u.i);
       }
       | TK_FLOAT  {
         $$ = (Constant*)malloc(sizeof(Constant));
-        $$->tag = KInt;
-        $$->u.d = yyval.double_val;
+        $$->tag = KFloat;
+        $$->u.d = yylval.double_val;
+        printf("%lf\n", $$->u.d);
       }
       | TK_STR    {//$$=(char*)$1;
         $$ = (Constant*)malloc(sizeof(Constant));
-        $$->tag = KInt;
-        $$->u.str = yyval.str_val ;
+        $$->tag = KStr;
+        $$->u.str = yylval.str_val ;
+        printf("%s\n", $$->u.str);
       }
 ;
-ID: TK_VAR { $$=yyval.str_val;
+ID: TK_VAR { $$=yylval.str_val;
   //printf("id:%s\n",$$);
 }
 ;

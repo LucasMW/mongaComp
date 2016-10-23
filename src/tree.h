@@ -53,7 +53,6 @@ typedef enum ExpE {
 	ExpSub,
 	ExpMul,
 	ExpDiv,
-	ExpRet,
 	ExpNot,
 	ExpVar,
 	ExpCall,
@@ -179,6 +178,7 @@ void printCommandList(CommandL* cl);
 void printBlock(Block* b);
 void printExp(Exp* e);
 void printVar(Var* v);
+void printConstant(Constant* c);
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();
