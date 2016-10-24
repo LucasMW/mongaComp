@@ -85,21 +85,11 @@ program : definitionList  {
 ;
 
 definitionList: {
-        //$$ = NULL; //printf(">>>>Null\n");
+        $$ = NULL; //printf(">>>>Null\n");
 }
-            | definitionList definition  {
-              // if(!$1)
-              //   printf("1 null ");
-              // if(!$2)
-              //   printf("2 null ");
-              $$ = $2;
-              $$->next = $1;
-              // if($$->tag == DVar)
-              //   $$->u.v = $2->u.v;
-              // else {
-              //   $$->u.f = $2->u.f;
-              // }
-              // $$->next = $1;
+            | definition definitionList {
+              $$ = $1;
+              $$->next = $2;
             }
 
 ;

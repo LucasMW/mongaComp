@@ -139,7 +139,7 @@ void printDefVarList(DefVarL* dvl,int x) {
 		return;
 	DefVarL* d = dvl;
 	while(d){
-		printDefVar(dvl->dv,x+1);
+		printDefVar(d->dv,x+1);
 		d = d->next;
 	}
 }
