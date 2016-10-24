@@ -171,20 +171,9 @@ defVar : type nameList ';' {  //correct
 
 nameList: ID idList {
   
-    if($2==NULL)
-   {
-     $$ = (NameL*)malloc(sizeof(NameL));
-     $$->name = $1;
-     $$->next = NULL;
-     //printf("just one\n");
-   }
-   else {
-     $$ = $2;
-     $$->next = (NameL*)malloc(sizeof(NameL));
-     ($$->next)->next = NULL;
-     ($$->next)->name = $1;
-     //printf("some\n");
-   }
+   $$ = (NameL*)malloc(sizeof(NameL));
+   $$->name = $1;
+   $$->next = $2;
    //printf(" namelist: ");
    //printNameList($$);
    //printf("\n");
@@ -193,11 +182,12 @@ nameList: ID idList {
 idList: {$$ = NULL;}
     |idList2 { $$ = $1; //printf("ONE ID");
   }
-idList2: ID { $$ = (NameL*)malloc(sizeof(NameL));
-              $$->name = $1;
-             $$->next = NULL;
+idList2: ID { 
+    $$ = (NameL*)malloc(sizeof(NameL));
+    $$->name = $1;
+    $$->next = NULL;
              //printf("<nl null>");
-           }
+}
     | ',' ID idList {
       $$ = (NameL*)malloc(sizeof(NameL));
       $$->name = $2;
