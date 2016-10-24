@@ -12,7 +12,7 @@
 progNode* globalTree;
 
 static int depth_level = 0;
-static void printDepthLevel(char* str,int x) {
+static void printDepthLevel(const char* str,int x) {
 	int i =0;
 	printf("\n|");
 	for(i=0;i<x;i++) {
@@ -76,11 +76,9 @@ void printDefFunc(DefFunc* df,int x)
 	if(!df)
 		return;
 	printDepthLevel("DefFunc",x);
-	//printf("f <id : %s; rt: ", df->id);
+	printDepthLevel(df->id,x+1);
 	printType(df->retType,x+1);
-	//printf("; params: ");
 	printParams(df->params,x+1);
-	//printf(">\n");
 	printBlock(df->b,x+1);
 }
 void printType(Type* t,int x) {
@@ -300,7 +298,8 @@ void printConstant(Constant* c,int x) {
 			printDepthLevel(str,x);
 		break;
 		case KStr:
-			printDepthLevel(c->u.str,x);
+			sprintf(str, "\"%s\"", c->u.str);
+			printDepthLevel(str,x);
 		break;
 
 	}
