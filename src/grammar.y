@@ -5,7 +5,7 @@
 
 %{
 #include "lex.h"
-int yyerror(char *s);
+int yyerror(const char *s);
 int yylex(void);
 #include <stdio.h>
 #include <stdlib.h>
@@ -416,7 +416,7 @@ expAdd: expAdd '+' expMul {
 }
       | expAdd '-' expMul { 
         $$ = (Exp*)malloc(sizeof(Exp));
-        $$->tag = ExpSub; //<
+        $$->tag = ExpSub;
         $$->bin.e1 = $1;
         $$->bin.e2 = $3;
       }
@@ -440,8 +440,18 @@ expMul: expMul '*' expUnary {
         $$=$1;
       }
 
-expUnary: '!' expVar { $$ = $2; }
-      | '-' expVar {$$ = $2;}
+expUnary: '!' expVar {  
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpUnary;
+        $$->unary.op = MINUS;
+        $$->unary.e = $2;
+         } //!(exp) = 
+      | '-' expVar {  //-(exp) = (0 - exp)
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpUnary;
+        $$->unary.op = MINUS;
+        $$->unary.e = $2;
+      }
       | expVar  {
         $$=$1;
       }
@@ -516,7 +526,7 @@ baseType : TK_WINT { $$ = WInt;}
 ;
 %%
 
-int yyerror(char* s)
+int yyerror(const char* s)
 {
   extern int yylineno;	// defined and maintained in lex.c
   extern char *yytext;	// defined and maintained in lex.c

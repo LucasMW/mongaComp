@@ -53,7 +53,7 @@ typedef enum ExpE {
 	ExpSub,
 	ExpMul,
 	ExpDiv,
-	ExpNot,
+	ExpUnary,
 	ExpVar,
 	ExpCall,
 	ExpPrim,
@@ -70,7 +70,10 @@ typedef struct Exp{
 		struct {
 			struct Exp *e1, *e2;
 		} bin;
-		struct Exp *unary;
+		struct {
+			struct Exp *e;
+			enum {NOT, MINUS} op;
+		} unary;
 		Constant* c;
 		Var *var;
 		struct {

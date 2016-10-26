@@ -189,7 +189,6 @@ void printCommandList(CommandL* cl,int x) {
 void printExp(Exp* e,int x) {
 	if(!e)
 		return;
-	depth_level++;
 	switch(e->tag) {
 		case ExpAdd: 
 			//printf("expAdd ");
@@ -220,8 +219,16 @@ void printExp(Exp* e,int x) {
 		case ExpVar:
 			printVar(e->var,x);
 		break;
-		case ExpNot:
-			printDepthLevel("expNot",x);
+		case ExpUnary:
+			switch(e->unary.op) {
+				case MINUS:
+					printDepthLevel("-(unary)",x);
+				break;
+				case NOT:
+					printDepthLevel("!",x);
+				break; 
+			}
+			printExp(e->unary.e,x+1);
 		break;
 		case ExpPrim:
 			printDepthLevel("Prim",x);
@@ -285,7 +292,7 @@ void printVar(Var* v,int x) {
 	printDepthLevel(v->id,x+1);
 }
 void printConstant(Constant* c,int x) {
-	char str[40];
+	char str[40] = "no string given";
 	if(!c)
 		return;
 	switch(c->tag) {
@@ -301,7 +308,6 @@ void printConstant(Constant* c,int x) {
 			sprintf(str, "\"%s\"", c->u.str);
 			printDepthLevel(str,x);
 		break;
-
 	}
 }
 void notConst()
