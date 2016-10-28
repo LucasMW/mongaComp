@@ -481,6 +481,25 @@ primary: constant {
   $$ = (Exp*)malloc(sizeof(Exp));
   $$->tag = ExpPrim;
   $$->c = $1;
+  switch($1->tag) {
+    case KInt:
+    $$->type = (Type*)malloc(sizeof(Type));
+    $$->type->tag = base; 
+    $$->type->b = WInt;
+    break;
+    case KFloat:
+    $$->type = (Type*)malloc(sizeof(Type));
+    $$->type->tag = base; 
+    $$->type->b = WFloat;
+    break;
+    case KStr:
+    $$->type = (Type*)malloc(sizeof(Type));
+    $$->type->tag = base; 
+    $$->type->of = (Type*)malloc(sizeof(Type));
+    $$->type->of->tag = base;
+    $$->type->of->b = WChar;
+    break;
+  }
   //printConstant($$->c);
 }
       | '(' exp ')' {
