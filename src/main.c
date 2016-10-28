@@ -16,6 +16,10 @@
 	#include "grammar.h"
 	#define grammar_h
 #endif
+#if !defined(lextest_h)
+	#include "lextest.h"
+	#define lextest_h
+#endif
 
 
 #include <string.h>
@@ -39,6 +43,11 @@ int main (int argc, char** argv)
 	{
 		if(strcmp("-syntax",argv[1])==0)
 			noTree = 1;
+		if(strcmp("-lex",argv[1])==0)
+		{
+			testLex();
+			return 0;
+		}
 	}
 
 	yyparse();
