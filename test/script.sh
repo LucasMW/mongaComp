@@ -1,5 +1,5 @@
 #!/bin/bash
-FILES="test/simple/*.monga"
+FILES="test/lexical/*/*.monga"
 COUNT="0"
 OK=0
 Wrongs=0
