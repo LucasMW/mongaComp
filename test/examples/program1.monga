@@ -13,9 +13,10 @@ void main()
 	char[] array;
 	if(value > 0)
 	{
-		/* only need to alloc array inside the if */ array = new char[3];
+		/* only need to alloc array inside the if */
+		array = new char[3];
 		fvalue = 87; 
-		array[1] = value; /* need to overwrite the array * /
+		array[1] = value; /* need to overwrite the array */
 	}
 	else
 	{

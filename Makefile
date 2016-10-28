@@ -3,7 +3,7 @@ test/comp: src/main.c src/lex.c src/grammar.c
 	cc -o comp src/main.c src/lex.c src/grammar.c src/tree.c
 bin/lexical: src/main.c src/lex.c
 	cc -o bin/lexical src/lexmain.c src/lex.c
-testsyntax: comp
+testtree: comp
 	cat test/test1.monga |./comp 
 	cat test/test2.monga |./comp
 	cat test/test3.monga |./comp 
@@ -12,6 +12,8 @@ testsyntax: comp
 	cat test/test6.monga |./comp 
 	cat test/test7.monga |./comp 
 
+testsyntax: comp
+	sh test/syntax/script.sh
 #testlexical is unavaible
 tree:
 	cc -o src/tree.o -Wall -O2 -c tree.c

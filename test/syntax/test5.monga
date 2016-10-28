@@ -1,0 +1,4 @@
+int main (int argc,char[] argv)
+{
+	return f(vector[f(b)+f(a)]);
+}

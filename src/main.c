@@ -33,11 +33,21 @@ int main (int argc, char** argv)
 {
 	int tokens=-1;
 	int control=1; //Grants it enters the while
+	char noTree =0;
+
+	if(argc == 2)
+	{
+		if(strcmp("-syntax",argv[1])==0)
+			noTree = 1;
+	}
 
 	yyparse();
 	
 	printf("Syntax OK\n");
-	printf("tree:\n");
-	printTree();
+	if(!noTree) 
+	{
+		printf("tree:\n");
+		printTree();
+	}
 }
 
