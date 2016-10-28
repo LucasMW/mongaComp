@@ -19,6 +19,12 @@ tree:
 	cc -o src/tree.o -Wall -O2 -c tree.c
 testlexical: comp
 	sh test/script.sh
+
+testleaks: comp
+	@rm -f val.out prog.out
+	cat test/leak1.monga | valgrind --track-origins=yes ./comp > prog.out 2> val.out
+	cat val.out | grep error
+	rm -f val.out prog.out
 src/grammar.c: src/grammar.y
 	bison -d src/grammar.y
 	mv grammar.tab.c src/grammar.c
