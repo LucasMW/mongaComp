@@ -92,6 +92,7 @@ typedef struct Exp{
 			struct Exp *varExp, *indExp;
 		} access;
 	};
+	Type* type;
 } Exp;
 
 typedef struct ExpList
@@ -168,6 +169,7 @@ typedef struct Def {
 typedef struct progNode {
 	Def* next;
 } progNode;
+
 void printDefVar(DefVar* dv,int x);
 void printDefFunc(DefFunc* df,int x);
 extern progNode* globalTree;
@@ -183,6 +185,8 @@ void printExp(Exp* e,int x);
 void printVar(Var* v,int x);
 void printConstant(Constant* c,int x);
 void printExpList(ExpList* el,int x);
+
+int typeTree(progNode* p); 
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();
