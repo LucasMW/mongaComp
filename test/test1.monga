@@ -5,6 +5,7 @@ float ppt (float ar)
 	return result/result+result*result/result;
 }
 
+
 int fat(int n) 
 {
 	if (n == 0)

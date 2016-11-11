@@ -44,7 +44,7 @@ void mWhile(int a)
 						{
 							internalLoopCount = internalLoopCount - 1;
 						}
-					/*prgIdx = prgIdx + 1;*/
+					prgIdx = prgIdx + 1;
 				}
 
 
