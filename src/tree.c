@@ -311,10 +311,8 @@ void printConstant(Constant* c,int x) {
 	}
 }
 
-int typeTree(progNode* p)
-{
-	return 0;
-}
+
+
 void notConst()
 {
 

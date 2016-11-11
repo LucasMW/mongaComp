@@ -186,7 +186,7 @@ void printVar(Var* v,int x);
 void printConstant(Constant* c,int x);
 void printExpList(ExpList* el,int x);
 
-int typeTree(progNode* p); 
+
 Constant* makeConstant(constantType t);
 void notConst();
 void minusConst();
