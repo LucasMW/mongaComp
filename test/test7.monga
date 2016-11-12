@@ -1,3 +1,4 @@
+void printf();
 int main()  {
 	int a,b,c;
 	int i;

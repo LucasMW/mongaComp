@@ -61,7 +61,7 @@ int find(const char * symbol) {
 	int i;
 	printf("f\n");
 	for(i=variablesTop-1;i>=0;i--) {
-		printf("(%d)\n", i);
+		//printf("(%d)\n", i);
 		if(strcmp(variables[i].id,symbol)==0) {
 			return i;
 		}
@@ -151,7 +151,7 @@ void typeDefFunc(DefFunc* df )
 	typeParams(df->params );
 	typeBlock(df->b );
 	leaveScope();
-	printf("end df\n");
+	printf("end df %s\n",df->id);
 }
 
 
@@ -335,6 +335,16 @@ int checkTypeUnary(Exp* e) {
 	Type* t = e->unary.e->type;
 	return t->tag == base && t->b == WInt;
 }
+int checkTypeLogic(Exp* left,Exp* right) {
+	if(left->type->tag == base && right->type->tag == base)
+		return 1;
+	return 0;
+}
+int checkTypeCast(Exp* e) {
+	if(e->cast.type == base && e->cast.e->type == base)
+		return 1;
+	return 0;
+}
 int checkTypeCallParamsArgs(Exp* e) {
 	printf("checkTypeCallParamsArgs\n");
 	return -1;
@@ -403,7 +413,8 @@ void typeExp(Exp* e ) {
 			e->type = unaryType(e);
 		break;
 		case ExpPrim:
-			printType(e->type,10);
+			//printType(e->type,10);
+			//already typed
 		break;
 		case ExpNew:
 			//printDepthLevel("New",x);
@@ -414,32 +425,22 @@ void typeExp(Exp* e ) {
 			e->type = typeOfNew(e);
 		break;
 		case ExpCmp:
-			// switch(e->cmp.op) {
-			// 	case GT:
-			// 		printDepthLevel(">",x);
-			// 	break;
-			// 	case GTE:
-			// 		printDepthLevel(">=",x);
-			// 	break;
-			// 	case LS:
-			// 		printDepthLevel("<",x);
-			// 	break;
-			// 	case LSE:
-			// 		printDepthLevel("<=",x);
-			// 	break;
-			// 	case AND:
-			// 		printDepthLevel("&&",x);
-			// 	break;
-			// 	case OR:
-			// 		printDepthLevel("||",x);
-			// 	break;
-			// 	case EqEq:
-			// 		printDepthLevel("==",x);
-			// 	break;
-			// }
-
 			typeExp(e->cmp.e1);
 			typeExp(e->cmp.e2);
+			switch(e->cmp.op) {
+				default:
+					if(!checkTypeLogic(e->cmp.e1,e->cmp.e2)) {
+						typeError("Types not suitble for logic");
+					}
+				break;
+				case EqEq:
+					if(!typeEquals(e->cmp.e1->type,e->cmp.e2->type)) {
+						typeError("Not comparable types in ==");
+					}
+				break;
+			}
+
+			
 			e->type = CmpType(e);
 
 		break;
@@ -454,6 +455,10 @@ void typeExp(Exp* e ) {
 		break;
 		case ExpCast:
 			typeExp(e->cast.e);
+			if(!checkTypeCast(e)) {
+				typeError("Cast not avaible for these types");
+			}
+			e->type = e->cast.type;
 		break;
 	}
 	printf("sd\n");
