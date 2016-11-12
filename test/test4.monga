@@ -1,4 +1,6 @@
-float ad () 
+float ad (float[] vector) 
 {
+	int a;
+	int f;
 	vector = new float[f(a)];
 }

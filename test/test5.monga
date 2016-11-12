@@ -1,4 +1,9 @@
+char[][] vector;
+int f(char[] a) {
+	
+}
 int main (int argc,char[] argv)
 {
+	int a,b;
 	return f(vector[f(b)+f(a)]);
 }

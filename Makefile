@@ -3,6 +3,10 @@ test/comp: src/main.c src/lex.c src/grammar.c
 	cc -o comp src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c
 bin/lexical: src/main.c src/lex.c
 	cc -o bin/lexical src/lexmain.c src/lex.c
+
+testtype: comp
+	cat test/test8.monga |./comp 
+
 testtree: comp
 	cat test/test1.monga |./comp 
 	cat test/test2.monga |./comp

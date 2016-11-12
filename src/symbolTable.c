@@ -147,14 +147,17 @@ void typeDefFunc(DefFunc* df )
 	// printDepthLevel(df->id );
 	// printType(df->retType );
 	insert(df->id,df->retType);
+	enterScope();
 	typeParams(df->params );
 	typeBlock(df->b );
+	leaveScope();
 	printf("end df\n");
 }
 
 
 void typeParams(Parameter* params )
 {
+	
 	printf("params\n");
 	if(!params) {
 		// printDepthLevel("None",x);
@@ -170,10 +173,8 @@ void typeBlock(Block* b ) {
 	if(!b)
 		return;
 	//printDepthLevel("block{}",x);
-	enterScope();
 	typeDefVarList(b->dvl );
 	typeCommandList(b->cl );
-	leaveScope();
 }
 void typeDefVarList(DefVarL* dvl ) {
 	//printDepthLevel("DefVarL",x);
@@ -223,7 +224,9 @@ void typeCommandList(CommandL* cl ) {
 			break;
 			case CBlock:
 				//printDepthLevel("block ",x);
+				enterScope();
 				typeBlock((Block*)c->block );
+				leaveScope();
 			break;
 			case CCall:
 				//printDepthLevel("call",x);

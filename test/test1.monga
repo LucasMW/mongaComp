@@ -1,5 +1,6 @@
 float ppt (float ar) 
 {
+	int a;
 	int result;
 	result = a*a*a/a+a;
 	return result/result+result*result/result;
@@ -16,6 +17,7 @@ int fat(int n)
 		
 
 int main() {
+	char[] string;
 	float result, x;
 	int y;
 	int [] vector;
