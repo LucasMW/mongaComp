@@ -51,11 +51,13 @@ int main (int argc, char** argv)
 	}
 
 	yyparse();
-	
 	printf("Syntax OK\n");
+
+	checkAndFixesTypesInTree();
+	printf("Typing OK\n");
+
 	if(!noTree) 
 	{
-		printf("tree:\n");
 		printTree();
 	}
 }

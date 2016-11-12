@@ -41,11 +41,10 @@ typedef struct Parameter
 
 typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall } CTypes;
 
-
-
 typedef struct Var
 {
 	const char* id;
+	Type* type;
 } Var;
 
 typedef enum ExpE {
@@ -186,6 +185,7 @@ void printVar(Var* v,int x);
 void printConstant(Constant* c,int x);
 void printExpList(ExpList* el,int x);
 
+void checkAndFixesTypesInTree();
 
 Constant* makeConstant(constantType t);
 void notConst();

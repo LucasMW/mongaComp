@@ -5,6 +5,10 @@
 	#include "tree.h"
 	#define tree_h
 #endif
+#if !defined(symbolTable_h)
+	#include "symbolTable.h"
+	#define symbolTable_h
+#endif
 #include <stdio.h> 
 #include <stdlib.h>
 #include <string.h>
@@ -324,6 +328,10 @@ void minusConst()
 void makeID()
 {
 	
+}
+void checkAndFixesTypesInTree() 
+{
+	typeTree(globalTree);
 }
 
 Constant* makeConstant(constantType t)

@@ -20,17 +20,24 @@ typedef struct SymbolListStack {
 	int current;
 } SymbolListStack;
 
+typedef struct Symbol {
+	const char* id;
+	Type* type;
+} Symbol;
+
 static SymbolListStack symbolTable;
 
-static char* variables[1000]; 
+static Symbol variables[1000]; 
 static int scopes[100]; 
 
 static int scopesTop;
 static int variablesTop;
-
-
-void typeError() {
-	printf("Typing error detected\n");
+void printSymbol(Symbol s);
+Type* getTypeOfExp(Exp* e);
+Type* typeOfConstant(Constant* c);
+int typeEquals(Type* t1, Type* t2);
+void typeError(const char* message) {
+	printf("Typing error: %s\n",message);
 	exit(01);
 }
 
@@ -39,133 +46,141 @@ void initSymbolTable() {
 	variablesTop=0;
 }
 void enterScope() {
+	printf("enterScope\n");
 	scopesTop++;
 	scopes[scopesTop] = variablesTop; 
 }
 void leaveScope() {
+	printf("leaveScope\n");
 	scopesTop--;
 }
-int find(char * symbol) {
+int find(const char * symbol) {
 	int i;
-	for(i=variablesTop;i>=0;i--) {
-		if(strcmp(variables[i],symbol)==0) {
+	for(i=variablesTop-1;i>=0;i--) {
+		if(strcmp(variables[i].id,symbol)==0) {
 			return i;
 		}
 	}
 	return -1;
 
 }
-int findCurrentScope(char * symbol) {
+int findCurrentScope(const char * symbol) {
 	int i;
-	for(i=variablesTop;i>=scopes[scopesTop];i--) {
-		if(strcmp(variables[i],symbol)==0) {
+	for(i=variablesTop-1;i>=scopes[scopesTop];i--) {
+		if(strcmp(variables[i].id,symbol)==0) {
 			return i;
 		}
 	}
 	return -1;
 
 }
-void insert(char* symbol) {
-	variables[variablesTop] = symbol;
+void insert(const char* symbolID,Type* type) {
+	printf("insert %s \n",symbolID);
+	variables[variablesTop].id = symbolID;
+	variables[variablesTop].type = type;
 	variablesTop++;
+	printf("variablesTop %d\n",variablesTop );
 }
-// typedef struct Var {
-// 	VarTag tag;
-// 	Type* type;
-// 	union {
-// 		union {
-// 			const char* id;
-// 			DecVar* dec;
-// 		} name;
-// 		struct{
-// 			Exp *et, *ei;
-// 		} indexed;
-// 	} u;
-	
-// } Var;
 
-int typeTree(progNode* p)
-{
-	return 0;
+void printSymbol(Symbol s) {
+	printType(s.type,0);
+	printf("symbol %s \n",s.id);
 }
-int typeDefList(Def* d)
+void debugScopes() {
+	for(int i = variablesTop;i>=0;i--) {
+		printSymbol(variables[i]);	
+	}
+}
+
+
+
+void typeTree(progNode* p)
+{
+	typeDefList(p->next);
+}
+void typeDefList(Def* d)
 {
 	Def* df = d;
 	while(df!=NULL) {
 		switch(df->tag) {
 			case DVar:
-				typeVar(df->u.v);
+				typeDefVar(df->u.v);
 			break;
 			case DFunc:
-				typeFunc(df->u.f);
+				typeDefFunc(df->u.f);
 			break;
 		}
 		df = df->next;
 	}
 }
-int typeNameList(NameL* nl ) {
+void typeNameList(NameL* nl, Type* t) {
 	if(!nl)
-		return -1;
+		return;
 	NameL* p = nl;
 	do  {
-		//printDepthLevel(p->name);
+		insert(p->name,t);
 		p = p->next;
 	} while(p);
 }
-int typeDefVar(DefVar* dv ){
+void typeDefVar(DefVar* dv ){
 	
 	if(!dv)
-		return -1;
-	typeNameList(dv->nl);
+		return;
+	typeNameList(dv->nl,dv->t);
+	printf("nl\n");
 }
-int typeDefFunc(DefFunc* df )
+void typeDefFunc(DefFunc* df )
 {
+
 	if(!df)
-		return -1;
+		return;
 	// printDepthLevel("DefFunc",x);
 	// printDepthLevel(df->id );
 	// printType(df->retType );
 	typeParams(df->params );
 	typeBlock(df->b );
+	printf("df\n");
 }
 
 
-int typeParams(Parameter* params )
+void typeParams(Parameter* params )
 {
-	//printf("params\n");
+	printf("params\n");
 	if(!params) {
 		// printDepthLevel("None",x);
-		return -1;
+		return;
 	}
 	Parameter* p = params;
 	while(p) {
 		//printType(p->t,x);
 		if(p->id)
-			printf(p->id);
+			printf("%s\n",p->id);
 		p = p->next; 
 	}
 }
-int typeBlock(Block* b ) {
+void typeBlock(Block* b ) {
 	if(!b)
-		return -1;
+		return;
 	//printDepthLevel("block{}",x);
-	
+	enterScope();
 	typeDefVarList(b->dvl );
 	typeCommandList(b->cl );
+	leaveScope();
 }
-int typeDefVarList(DefVarL* dvl ) {
+void typeDefVarList(DefVarL* dvl ) {
 	//printDepthLevel("DefVarL",x);
 	if(!dvl)
-		return -1;
+		return;
 	DefVarL* d = dvl;
 	while(d){
 		typeDefVar(d->dv );
 		d = d->next;
 	}
 }
-int typeCommandList(CommandL* cl ) {
+void typeCommandList(CommandL* cl ) {
 	if(!cl)
-		return -1;
+		return;
+	printf("cl\n");
 	CommandL* c = cl;
 	while(c) {
 		switch(c->tag) {
@@ -191,8 +206,12 @@ int typeCommandList(CommandL* cl ) {
 			break;
 			case CAssign:
 				//printDepthLevel("Assign",x);
-				typeExp(c->expLeft );
-				typeExp(c->expRight );
+				typeExp(c->expLeft);
+				typeExp(c->expRight);
+				if(!typeEquals(c->expLeft->type,c->expRight->type)) {
+					typeError("Assigment left type differs from right type");
+				}
+				
 			break;
 			case CBlock:
 				//printDepthLevel("block ",x);
@@ -206,25 +225,54 @@ int typeCommandList(CommandL* cl ) {
 		c = c->next;
 	}
 }
-int typeExp(Exp* e ) {
+int typeEquals(Type* t1, Type* t2) {
+	if(t1->tag == base && t1->b == t2->b) {
+		return 1;
+	}
+	if(t1->tag == array && t2->tag == array) {
+		return typeEquals(t1->of,t2->of);
+	}
+	return 0;
+}
+int checkTypeArtih(Exp* left,Exp *right) {
+	if(left->tag == base && right->tag == base) {
+		if(typeEquals(left->type,right->type)) {
+		}
+	}
+	return 0;
+}
+int checkTypeUnary(Exp* e) {
+	Type* t = getTypeOfExp(e);
+	return t->tag == base && t->b == WInt;
+}
+void typeExp(Exp* e ) {
+	printf("exp\n");
 	if(!e)
-		return -1;
+		return;
 	switch(e->tag) {
 		case ExpAdd: 
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2))
+				typeError("Types in Add differs");
 		break;
 		case ExpSub:
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2))
+				typeError("Types in Sub differs");
 		break;
 		case ExpMul:
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2))
+				typeError("Types in Mul differs");
 		break;
 		case ExpDiv:
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2))
+				typeError("Types in Div differs");
 		break;
 		case ExpCall:
 			typeExpList(e->call.expList);
@@ -236,7 +284,7 @@ int typeExp(Exp* e ) {
 			typeExp(e->unary.e);
 		break;
 		case ExpPrim:
-			typeConstant(e->c);
+			e->type = typeOfConstant(e->c);
 		break;
 		case ExpNew:
 			//printDepthLevel("New",x);
@@ -275,6 +323,7 @@ int typeExp(Exp* e ) {
 			typeExp(e->access.indExp);
 		break;
 	}
+	printf("sd\n");
 }
 Type* typeOfConstant(Constant* c) {
 	if(!c)
@@ -300,7 +349,7 @@ Type* typeOfConstant(Constant* c) {
 Type* getTypeOfExp(Exp* e) {
 
 	if(e->tag == ExpPrim)
-		return  typeOfConstant(e->c);
+		return typeOfConstant(e->c);
 	if(e->tag == ExpUnary) {
 
 	}
@@ -309,30 +358,37 @@ Type* getTypeOfExp(Exp* e) {
 
 
 
-int typeExpList(ExpList* el ) {
+void typeExpList(ExpList* el ) {
 	if(!el)
-		return -1;
+		return;
 	ExpList *p = el;
 	//printDepthLevel("expList",x);
 	while(p) {
 		typeExp(p->e);
 		p = p->next;
 	}
-	return 0;
+	return;
 
 }
-int typeConstant(Constant* c) {
-	return 0;
-}
-int typeFunc(DefFunc* f) {
-	return 0;
-}
-int typeVar(Var* v) {
+
+Type* typeOfVar(Var* v) {
 	if(!v)
-		return -1;
-	return 0;
+		return NULL;
+	debugScopes();
+	int index = findCurrentScope(v->id);
+
+	if(index < 0)
+		typeError("No such var in scope");
+	return variables[index].type;
 	// printDepthLevel("Var",x);
 	// printDepthLevel(v->id,x+1);
 }
+void typeVar(Var* v) {
+	printf("%s\n",v->id );
+	v->type = typeOfVar(v);
+}
+
+
+
 
 
