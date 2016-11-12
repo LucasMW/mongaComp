@@ -62,7 +62,7 @@ int yylex(void);
 
 
 %type<prog> program  
-%type <cmd> command command1 command2  commandList commandList2 commandIF commandWhile commandElse
+%type <cmd> command command1 command2  commandList commandList2 commandIF commandWhile commandElse commandPrint
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
@@ -233,6 +233,12 @@ commandList2: command commandList {
   $$->next = $2;
 }
 
+commandPrint: '@' exp ';' {
+  $$ = (CommandL*)malloc(sizeof(CommandL));
+  $$->tag = CPrint;
+  $$->printExp = $2;
+}
+
 commandIF: TK_WIF '(' exp ')' command {
    $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CIf;
@@ -289,6 +295,9 @@ command1: TK_WRETURN  ';' {
         }
         | commandWhile {
           $$=$1;
+        } 
+        | commandPrint {
+          $$ = $1;
         }
 
 command2 : TK_WRETURN ';' {
@@ -314,15 +323,19 @@ command2 : TK_WRETURN ';' {
         | commandElse {
           $$ = $1;
         }
+        | commandPrint {
+          $$ = $1;
+        }
 
 //exps
 exp: expNew {
   $$ = $1;
 } 
  | expCast {
-        $$=$1;
+      $$=$1;
     }
 ;
+
 
 expCast: exp TK_WAS type {
   $$ = (Exp*)malloc(sizeof(Exp));

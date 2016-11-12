@@ -15,6 +15,7 @@ void lexError(const char* message, int ret)
 	fprintf(stderr,"ERROR: %s\t\t#line %d\n", message, yy_lines);
 	exit( ret ? ret : 1);
 }
+
 int main (int argc, char** argv)
 {
 	int tokens=-1;
@@ -36,6 +37,9 @@ int main (int argc, char** argv)
 			break;
 			case TK_LE:
 				printf("Lesser or Equal\n");
+			break;
+			case '@':
+				printf("At\n");
 			break;
 			case '=':
 				printf("Equal\n");

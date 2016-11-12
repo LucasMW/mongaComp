@@ -40,6 +40,9 @@ void testLex ()
 			case TK_LE:
 				printf("Lesser or Equal\n");
 			break;
+			case '@':
+				printf("At\n");
+			break;
 			case '=':
 				printf("Equal\n");
 			break;

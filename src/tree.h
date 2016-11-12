@@ -39,7 +39,7 @@ typedef struct Parameter
 
 
 
-typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall } CTypes;
+typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint } CTypes;
 
 typedef struct Var
 {
@@ -95,6 +95,9 @@ typedef struct Exp{
 			struct Exp *e;
 			Type* type;
 		} cast;
+		struct {
+			struct Exp *e;
+		} print;
 	};
 	Type* type;
 } Exp;
@@ -135,6 +138,7 @@ typedef struct CommandL
 	Exp* expLeft;
 	Exp* expRight;
 	Exp* retExp;
+	Exp* printExp;
 	void* block;
 } CommandL;
 

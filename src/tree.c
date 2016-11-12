@@ -186,6 +186,10 @@ void printCommandList(CommandL* cl,int x) {
 				printDepthLevel("call",x);
 				printExp(c->expRight,x+1);
 			break;
+			case CPrint:
+				printDepthLevel("print",x);
+				printExp(c->printExp,x+1);
+			break;
 
 		}
 		c = c->next;

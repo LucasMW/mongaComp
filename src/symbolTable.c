@@ -232,6 +232,10 @@ void typeCommandList(CommandL* cl ) {
 				//printDepthLevel("call",x);
 				typeExp(c->expRight );
 			break;
+			case CPrint:
+				//printDepthLevel("call",x);
+				typeExp(c->printExp);
+			break;
 		}
 		c = c->next;
 	}
