@@ -59,7 +59,9 @@ void leaveScope() {
 }
 int find(const char * symbol) {
 	int i;
+	printf("f\n");
 	for(i=variablesTop-1;i>=0;i--) {
+		printf("(%d)\n", i);
 		if(strcmp(variables[i].id,symbol)==0) {
 			return i;
 		}
@@ -144,9 +146,10 @@ void typeDefFunc(DefFunc* df )
 	// printDepthLevel("DefFunc",x);
 	// printDepthLevel(df->id );
 	// printType(df->retType );
+	insert(df->id,df->retType);
 	typeParams(df->params );
 	typeBlock(df->b );
-	printf("df\n");
+	printf("end df\n");
 }
 
 
@@ -159,9 +162,7 @@ void typeParams(Parameter* params )
 	}
 	Parameter* p = params;
 	while(p) {
-		//printType(p->t,x);
-		if(p->id)
-			printf("%s\n",p->id);
+		insert(p->id,p->t);
 		p = p->next; 
 	}
 }
@@ -265,6 +266,48 @@ Type* arithType(Exp* e) {
 	t->b = BTypeOfArith(e->bin.e1,e->bin.e2);
 	return t;
 }
+Type* unaryType(Exp* e) {
+	Type* t = (Type*)malloc(sizeof(Type));
+	t->b = WInt;
+	return t;
+}
+Type* CmpType(Exp* e) {
+	Type* t = (Type*)malloc(sizeof(Type));
+	t->b = WInt;
+	return t;
+}
+Type* typeOfCall(Exp* e) {
+	if(!e)
+		return NULL;
+	int index = find(e->call.id);
+
+	if(index < 0) {
+		printf("--func %s--\n",e->call.id);
+		typeError("No such func in scope");
+	}
+	return variables[index].type;
+}
+
+Type* typeOfNew(Exp* e) {
+	Type* t = (Type*)malloc(sizeof(Type));
+	t->tag = array;
+	t->of = e->eNew.t;
+	return t;
+}
+Type* typeOfAccess(Exp* e) {
+	int index = find(e->call.id);
+
+	if(index < 0) {
+		printf("--func %s--\n",e->call.id);
+		typeError("No such func in scope");
+	}
+	return variables[index].type;
+}
+
+int checkTypeIndex(Exp* e) {
+	return e->type->tag == base && e->type->b == WInt;
+}
+
 int checkTypeArtih(Exp* left,Exp *right) {
 	printf("\ncheckTypeArtih");
 	printExp(left,0);
@@ -282,8 +325,12 @@ int checkTypeArtih(Exp* left,Exp *right) {
 	return 0;
 }
 int checkTypeUnary(Exp* e) {
-	Type* t = getTypeOfExp(e);
+	Type* t = e->unary.e->type;
 	return t->tag == base && t->b == WInt;
+}
+int checkTypeCallParamsArgs(Exp* e) {
+	printf("checkTypeCallParamsArgs\n");
+	return -1;
 }
 void typeExp(Exp* e ) {
 	printf("exp\n");
@@ -334,6 +381,7 @@ void typeExp(Exp* e ) {
 		break;
 		case ExpCall:
 			typeExpList(e->call.expList);
+			e->type = typeOfCall(e);
 		break;
 		case ExpVar:
 			typeVar(e->var);
@@ -341,13 +389,22 @@ void typeExp(Exp* e ) {
 		break;
 		case ExpUnary:
 			typeExp(e->unary.e);
+			if(!checkTypeUnary(e->unary.e))
+			{
+				typeError("type of Unary not right");
+			}
+			e->type = unaryType(e);
 		break;
 		case ExpPrim:
 			printType(e->type,10);
 		break;
 		case ExpNew:
 			//printDepthLevel("New",x);
-			typeExp(e->eNew.e );
+			typeExp(e->eNew.e);
+			if(!checkTypeIndex(e->eNew.e)) {
+				typeError("Index of array is not an int");
+			}
+			e->type = typeOfNew(e);
 		break;
 		case ExpCmp:
 			// switch(e->cmp.op) {
@@ -373,13 +430,20 @@ void typeExp(Exp* e ) {
 			// 		printDepthLevel("==",x);
 			// 	break;
 			// }
+
 			typeExp(e->cmp.e1);
 			typeExp(e->cmp.e2);
+			e->type = CmpType(e);
+
 		break;
 		case ExpAccess:
 			//printDepthLevel("[]");
 			typeExp(e->access.varExp);
 			typeExp(e->access.indExp);
+			if(!checkTypeIndex(e->access.indExp)) {
+				typeError("Index of array is not an int");
+			}
+
 		break;
 	}
 	printf("sd\n");
@@ -430,11 +494,15 @@ void typeExpList(ExpList* el ) {
 
 }
 
+
+
+
+
 Type* typeOfVar(Var* v) {
 	if(!v)
 		return NULL;
 	debugScopes();
-	int index = findCurrentScope(v->id);
+	int index = find(v->id);
 
 	if(index < 0) {
 		printf("--var %s--\n",v->id);
