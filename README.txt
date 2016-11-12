@@ -1,27 +1,35 @@
 1310844
-Lucas Menezes, T3 1715
+Lucas Menezes, T4 1715
 —————————————————————
 
 Description of monga language:
 http://www.inf.puc-rio.br/~roberto/comp/lang.html
 
-First, use must use make to compile:
+First, use make to compile:
 make
 
-To run the tests for the tree, use
-make testsyntax
+program reads from standard input and outputs to standard output.
+
+to run the tests use,
+make testtree 
 
 After the message "Syntax OK",
-it will start printing the tree.
+it will start checking types and variables.
+
+If sucessfull, it will output "Types OK" 
+and will start printing the tree.
 These tests are not automated. 
 
 To clean builds, use
 make clean
 
 
-make testlexical is currently unavaible
+To run the tests for the syntax only, use
+make testsyntax
 
-All testlexical exclusive parts are currently unavaible
+To run the tests for the lexical only, use
+make testlexical
+
 
 Requirements:
 C compiler
