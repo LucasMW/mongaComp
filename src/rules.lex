@@ -72,6 +72,7 @@
 
 %x IN_COMMENT 
 %%
+"as"	{return TK_WAS;}
 "char"	{return TK_WCHAR;}
 "else"	{return TK_WELSE; }
 "float"	{return TK_WFLOAT;}

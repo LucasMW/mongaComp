@@ -43,6 +43,7 @@ int yylex(void);
 %token <int_val> TK_LE
 %token <int_val> TK_INT
 %token <int_val> TK_FLOAT
+%token <int_val> TK_WAS
 %token <int_val> TK_WCHAR
 %token <int_val> TK_WELSE
 %token <int_val> TK_WFLOAT
@@ -67,7 +68,7 @@ int yylex(void);
 %type <def> definitionList  definition 
 %type <dVar> defVar 
 %type <dFunc> defFunc
-%type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expNew exp primary
+%type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expCast expNew exp primary
 %type <type> type;
 %type <namelist> idList idList2 nameList
 %type <int_val> baseType 
@@ -123,6 +124,21 @@ defFunc : type ID '(' parameters ')' block {//printf("typed %s ",$2);
         $$->params = $4;
         $$->b = $6;
       }
+        | type ID '(' parameters ')' ';' {
+
+          $$ = (DefFunc*)malloc(sizeof(DefFunc));
+          $$->id = $2;
+          $$->retType = $1;
+          $$->params = $4;
+          $$->b = NULL;
+        }
+        | TK_WVOID ID '(' parameters ')' ';' {
+          $$ = (DefFunc*)malloc(sizeof(DefFunc));
+          $$->id = $2;
+          $$->retType = NULL;
+          $$->params = $4;
+          $$->b = NULL;
+        } 
 
 ;
 
@@ -302,9 +318,20 @@ command2 : TK_WRETURN ';' {
 //exps
 exp: expNew {
   $$ = $1;
-}
+} 
+ | expCast {
+        $$=$1;
+    }
 ;
 
+expCast: exp TK_WAS type {
+  $$ = (Exp*)malloc(sizeof(Exp));
+  $$->tag = ExpCast;
+  $$->cast.type = $3;
+  $$->type = $3;
+  $$->cast.e = $1;
+
+}
 
 expCall: TK_VAR '(' expList ')' {
   $$ = (Exp*)malloc(sizeof(Exp));
@@ -462,6 +489,7 @@ expVar: expVar '[' exp ']' {
         $$->tag = ExpAccess; 
         $$->access.varExp = $1;
         $$->access.indExp = $3;
+
 
 }
       | ID {

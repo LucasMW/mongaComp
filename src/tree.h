@@ -58,7 +58,8 @@ typedef enum ExpE {
 	ExpPrim,
 	ExpCmp,
 	ExpNew,
-	ExpAccess
+	ExpAccess,
+	ExpCast
 } ExpE;
 
 
@@ -90,6 +91,10 @@ typedef struct Exp{
 		struct {
 			struct Exp *varExp, *indExp;
 		} access;
+		struct {
+			struct Exp *e;
+			Type* type;
+		} cast;
 	};
 	Type* type;
 } Exp;

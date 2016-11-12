@@ -186,6 +186,7 @@ void printCommandList(CommandL* cl,int x) {
 				printDepthLevel("call",x);
 				printExp(c->expRight,x+1);
 			break;
+
 		}
 		c = c->next;
 	}
@@ -277,6 +278,11 @@ void printExp(Exp* e,int x) {
 			printDepthLevel("[]",x);
 			printExp(e->access.varExp,x+1);
 			printExp(e->access.indExp,x+1);
+		break;
+		case ExpCast:
+			printDepthLevel("cast",x);
+			printExp(e->cast.e,x+1);
+			printType(e->cast.type,x+1);
 		break;
 	}
 }

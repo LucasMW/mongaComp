@@ -446,7 +446,10 @@ void typeExp(Exp* e ) {
 			if(!checkTypeIndex(e->access.indExp)) {
 				typeError("Index of array is not an int");
 			}
-
+			e->type = e->access.varExp->type->of;
+		break;
+		case ExpCast:
+			typeExp(e->cast.e);
 		break;
 	}
 	printf("sd\n");
