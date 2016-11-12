@@ -193,6 +193,8 @@ void printCommandList(CommandL* cl,int x) {
 void printExp(Exp* e,int x) {
 	if(!e)
 		return;
+
+	printType(e->type,x);
 	switch(e->tag) {
 		case ExpAdd: 
 			//printf("expAdd ");

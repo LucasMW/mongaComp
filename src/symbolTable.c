@@ -32,6 +32,9 @@ static int scopes[100];
 
 static int scopesTop;
 static int variablesTop;
+
+
+
 void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
 Type* typeOfConstant(Constant* c);
@@ -76,6 +79,10 @@ int findCurrentScope(const char * symbol) {
 }
 void insert(const char* symbolID,Type* type) {
 	printf("insert %s \n",symbolID);
+	if(findCurrentScope(symbolID)>=0) {
+		printf("--%s--\n", symbolID);
+		typeError("Symbol was already declared in this scope");
+	}
 	variables[variablesTop].id = symbolID;
 	variables[variablesTop].type = type;
 	variablesTop++;
@@ -226,6 +233,10 @@ void typeCommandList(CommandL* cl ) {
 	}
 }
 int typeEquals(Type* t1, Type* t2) {
+	printType(t1,3);
+	printf("vs\n");
+	printType(t2,3);
+	printf("\n");
 	if(t1->tag == base && t1->b == t2->b) {
 		return 1;
 	}
@@ -234,9 +245,38 @@ int typeEquals(Type* t1, Type* t2) {
 	}
 	return 0;
 }
+/* 
+Em qualquer expressão, 
+uma variável char tem seu valor 
+automaticamente promovido para int.
+*/
+void promoteType(Exp* e) {	
+	if(e->type->tag == base && e->type->b == WChar) {
+		e->type->b = WInt;
+	}
+}
+BType BTypeOfArith(Exp* e1,Exp *e2) {
+	if(e1->type->b == WFloat || e2->type->b == WFloat)
+		return WFloat;
+	return WInt;
+}
+Type* arithType(Exp* e) {
+	Type* t = (Type*)malloc(sizeof(Type));
+	t->b = BTypeOfArith(e->bin.e1,e->bin.e2);
+	return t;
+}
 int checkTypeArtih(Exp* left,Exp *right) {
-	if(left->tag == base && right->tag == base) {
+	printf("\ncheckTypeArtih");
+	printExp(left,0);
+	printExp(right,0);
+	if(left->type->tag == base && right->type->tag == base) {
+		printf(":::");
 		if(typeEquals(left->type,right->type)) {
+			printf("s:s");
+			return 1;
+		}
+		if(left->type->b == WChar || right->type->b == WChar) {
+
 		}
 	}
 	return 0;
@@ -253,38 +293,57 @@ void typeExp(Exp* e ) {
 		case ExpAdd: 
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
-			if(!checkTypeArtih(e->bin.e1,e->bin.e2))
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
+				printType(e->bin.e1->type,0);
+				printType(e->bin.e2->type,0);
 				typeError("Types in Add differs");
+			}
+			e->type = arithType(e);
 		break;
 		case ExpSub:
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
-			if(!checkTypeArtih(e->bin.e1,e->bin.e2))
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2)){
+				printType(e->bin.e1->type,0);
+				printType(e->bin.e2->type,0);
 				typeError("Types in Sub differs");
+			}
+			e->type = arithType(e);
 		break;
 		case ExpMul:
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
-			if(!checkTypeArtih(e->bin.e1,e->bin.e2))
+			printExp(e->bin.e1,0);
+			printExp(e->bin.e2,0);
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
+				
+				printf("\n");
 				typeError("Types in Mul differs");
+			}
+			e->type = arithType(e);
 		break;
 		case ExpDiv:
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
-			if(!checkTypeArtih(e->bin.e1,e->bin.e2))
+			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
+				printExp(e->bin.e1,0);
+				printExp(e->bin.e2,0);
 				typeError("Types in Div differs");
+			}
+			e->type = arithType(e);
 		break;
 		case ExpCall:
 			typeExpList(e->call.expList);
 		break;
 		case ExpVar:
 			typeVar(e->var);
+			e->type = e->var->type;
 		break;
 		case ExpUnary:
 			typeExp(e->unary.e);
 		break;
 		case ExpPrim:
-			e->type = typeOfConstant(e->c);
+			printType(e->type,10);
 		break;
 		case ExpNew:
 			//printDepthLevel("New",x);
@@ -377,8 +436,10 @@ Type* typeOfVar(Var* v) {
 	debugScopes();
 	int index = findCurrentScope(v->id);
 
-	if(index < 0)
+	if(index < 0) {
+		printf("--var %s--\n",v->id);
 		typeError("No such var in scope");
+	}
 	return variables[index].type;
 	// printDepthLevel("Var",x);
 	// printDepthLevel(v->id,x+1);
