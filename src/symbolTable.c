@@ -80,13 +80,13 @@ void initSymbolTable() {
 	currentFunction = NULL;
 }
 void enterScope() {
-	printf("enterScope\n");
+	//printf("enterScope\n");
 	scopes[scopesTop] = variablesTop; 
 	scopesTop++;
 	//scopes[scopesTop] = variablesTop; 
 }
 void leaveScope() {
-	printf("leaveScope\n");
+	//printf("leaveScope\n");
 	scopesTop--;
 	variablesTop = scopes[scopesTop];
 }
@@ -111,7 +111,7 @@ int findCurrentScope(const char * symbol) {
 
 }
 void insert(const char* symbolID,Type* type) {
-	printf("insert %s \n",symbolID);
+	//printf("insert %s \n",symbolID);
 	if(findCurrentScope(symbolID)>=0) {
 		printf("--%s--\n", symbolID);
 		typeError("Symbol was already declared in this scope");
@@ -119,7 +119,7 @@ void insert(const char* symbolID,Type* type) {
 	variables[variablesTop].id = symbolID;
 	variables[variablesTop].type = type;
 	variablesTop++;
-	printf("variablesTop %d\n",variablesTop );
+	//printf("variablesTop %d\n",variablesTop );
 }
 
 void printSymbol(Symbol s) {
