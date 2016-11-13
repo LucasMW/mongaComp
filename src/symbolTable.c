@@ -33,6 +33,8 @@ static int scopes[100];
 static int scopesTop;
 static int variablesTop;
 
+static DefFunc* currentFunction = NULL;
+
 
 void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
@@ -57,10 +59,25 @@ Parameter* findParamsOfFunc(const char* funcId) {
 	return NULL;
 
 }
+// Parameter* findTypeOfFunc(const char* funcId) {
+// 	Def* dfl = globalTree->next;
+// 	while(dfl) {
+// 		if(dfl->tag == DFunc) {
+// 			DefFunc* df = dfl->u.f;
+// 			if(strcmp(funcId,df->id)==0) {
+// 				return df->retType;
+// 			}
+// 		}
+// 		dfl = dfl->next;
+// 	}
+// 	return NULL;
+
+// }
 void initSymbolTable() {
 	scopesTop=0;
 	variablesTop=0;
 	scopes[0] = 0;
+	currentFunction = NULL;
 }
 void enterScope() {
 	printf("enterScope\n");
@@ -153,15 +170,16 @@ void typeDefVar(DefVar* dv ){
 }
 void typeDefFunc(DefFunc* df )
 {
-
 	if(!df)
 		return;
 	// printType(df->retType );
+	currentFunction = df;
 	insert(df->id,df->retType);
 	enterScope();
 	typeParams(df->params );
 	typeBlock(df->b );
 	leaveScope();
+	currentFunction = NULL;
 	//printf("end df %s\n",df->id);
 }
 
@@ -191,6 +209,13 @@ void typeDefVarList(DefVarL* dvl ) {
 		typeDefVar(d->dv );
 		d = d->next;
 	}
+}
+int checkTypeReturn(Exp* retExp, DefFunc* df) {
+	Type* t = NULL;
+	if(retExp)
+		t = retExp->type; 
+	Type* ft = df->retType;
+	return typeEquals(t,ft);
 }
 void typeCommandList(CommandL* cl ) {
 	if(!cl)
@@ -223,6 +248,13 @@ void typeCommandList(CommandL* cl ) {
 			break;
 			case CReturn:
 				typeExp(c->retExp );
+				if(!currentFunction) {
+					typeError("Return not allowed outbounds");
+				}
+				if(!checkTypeReturn(c->retExp,currentFunction)) {
+					typeError("Return and func types mismatch");
+				}
+
 			break;
 			case CAssign:
 				
