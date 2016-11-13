@@ -1,4 +1,4 @@
-void a();
+void a1();
 void printf(char[] str);
 int main()  {
 	int a,b,c;
