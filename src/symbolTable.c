@@ -38,6 +38,7 @@ void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
 Type* typeOfConstant(Constant* c);
 int typeEquals(Type* t1, Type* t2);
+int checkPrintability(Exp* e);
 void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
 	exit(01);
@@ -59,21 +60,22 @@ Parameter* findParamsOfFunc(const char* funcId) {
 void initSymbolTable() {
 	scopesTop=0;
 	variablesTop=0;
+	scopes[0] = 0;
 }
 void enterScope() {
-	//printf("enterScope\n");
-	scopesTop++;
+	printf("enterScope\n");
 	scopes[scopesTop] = variablesTop; 
+	scopesTop++;
+	//scopes[scopesTop] = variablesTop; 
 }
 void leaveScope() {
-	//printf("leaveScope\n");
+	printf("leaveScope\n");
 	scopesTop--;
+	variablesTop = scopes[scopesTop];
 }
 int find(const char * symbol) {
 	int i;
-	//printf("f\n");
 	for(i=variablesTop-1;i>=0;i--) {
-		//printf("(%d)\n", i);
 		if(strcmp(variables[i].id,symbol)==0) {
 			return i;
 		}
@@ -92,7 +94,7 @@ int findCurrentScope(const char * symbol) {
 
 }
 void insert(const char* symbolID,Type* type) {
-	//printf("insert %s \n",symbolID);
+	printf("insert %s \n",symbolID);
 	if(findCurrentScope(symbolID)>=0) {
 		printf("--%s--\n", symbolID);
 		typeError("Symbol was already declared in this scope");
@@ -100,7 +102,7 @@ void insert(const char* symbolID,Type* type) {
 	variables[variablesTop].id = symbolID;
 	variables[variablesTop].type = type;
 	variablesTop++;
-	//printf("variablesTop %d\n",variablesTop );
+	printf("variablesTop %d\n",variablesTop );
 }
 
 void printSymbol(Symbol s) {
@@ -148,15 +150,12 @@ void typeDefVar(DefVar* dv ){
 	if(!dv)
 		return;
 	typeNameList(dv->nl,dv->t);
-	//printf("nl\n");
 }
 void typeDefFunc(DefFunc* df )
 {
 
 	if(!df)
 		return;
-	// printDepthLevel("DefFunc",x);
-	// printDepthLevel(df->id );
 	// printType(df->retType );
 	insert(df->id,df->retType);
 	enterScope();
@@ -169,10 +168,7 @@ void typeDefFunc(DefFunc* df )
 
 void typeParams(Parameter* params )
 {
-	
-	//printf("params\n");
 	if(!params) {
-		// printDepthLevel("None",x);
 		return;
 	}
 	Parameter* p = params;
@@ -184,12 +180,10 @@ void typeParams(Parameter* params )
 void typeBlock(Block* b ) {
 	if(!b)
 		return;
-	//printDepthLevel("block{}",x);
 	typeDefVarList(b->dvl );
 	typeCommandList(b->cl );
 }
 void typeDefVarList(DefVarL* dvl ) {
-	//printDepthLevel("DefVarL",x);
 	if(!dvl)
 		return;
 	DefVarL* d = dvl;
@@ -201,32 +195,37 @@ void typeDefVarList(DefVarL* dvl ) {
 void typeCommandList(CommandL* cl ) {
 	if(!cl)
 		return;
-	//printf("cl\n");
 	CommandL* c = cl;
 	while(c) {
 		switch(c->tag) {
 			case CWhile:
-				//printDepthLevel("While",x);
+				
 				typeExp(c->condExp );
+				enterScope();
 				typeCommandList(c->cmdIf );
+				leaveScope();
 			break;
 			case CIf:
-				//printDepthLevel("If",x);
+				
 				typeExp(c->condExp );
+				enterScope();
 				typeCommandList(c->cmdIf );
+				leaveScope();
 			break;
 			case CIfElse:
-				//printDepthLevel("if/else",x);
 				typeExp(c->condExp );
+				enterScope();
 				typeCommandList(c->cmdIf );
+				leaveScope();
+				enterScope();
 				typeCommandList(c->cmdElse );
+				leaveScope();
 			break;
 			case CReturn:
-				//printDepthLevel("return ",x);
 				typeExp(c->retExp );
 			break;
 			case CAssign:
-				//printDepthLevel("Assign",x);
+				
 				typeExp(c->expLeft);
 				typeExp(c->expRight);
 				if(!typeEquals(c->expLeft->type,c->expRight->type)) {
@@ -235,18 +234,19 @@ void typeCommandList(CommandL* cl ) {
 				
 			break;
 			case CBlock:
-				//printDepthLevel("block ",x);
 				enterScope();
 				typeBlock((Block*)c->block );
 				leaveScope();
 			break;
 			case CCall:
-				//printDepthLevel("call",x);
+				
 				typeExp(c->expRight );
 			break;
 			case CPrint:
-				//printDepthLevel("call",x);
 				typeExp(c->printExp);
+				if (!checkPrintability(c->printExp)) {
+					typeError("Expression is not printable");
+				}
 			break;
 		}
 		c = c->next;
@@ -257,11 +257,15 @@ int typeEquals(Type* t1, Type* t2) {
 	// printf("typeEqual\n");
 	// printType(t2,3);
 	// printf("\n");
-	if(t1 == NULL) {
-		return t2 == NULL;
+	if(t1 == NULL || t2 == NULL) {
+		return t2 == NULL && t1 == NULL;
 	}
-	if(t1->tag == base && t1->b == t2->b) {
-		return 1;
+	if(t1->tag == base) {
+		if(t1->b == t2->b) {
+			return 1;
+		}
+		return ((t1->b == WChar) && (t2->b == WInt)) || 
+		((t1->b == WInt) && (t2->b == WChar));
 	}
 	if(t1->tag == array && t2->tag == array) {
 		return typeEquals(t1->of,t2->of);
@@ -285,11 +289,13 @@ BType BTypeOfArith(Exp* e1,Exp *e2) {
 }
 Type* arithType(Exp* e) {
 	Type* t = (Type*)malloc(sizeof(Type));
+	t->tag = base;
 	t->b = BTypeOfArith(e->bin.e1,e->bin.e2);
 	return t;
 }
 Type* unaryType(Exp* e) {
 	Type* t = (Type*)malloc(sizeof(Type));
+	t->tag = base;
 	t->b = WInt;
 	return t;
 }
@@ -338,13 +344,18 @@ int checkTypeArtih(Exp* left,Exp *right) {
 			return 1;
 		}
 		if(left->type->b == WChar || right->type->b == WChar) {
-
+			if(left->type->b == WInt || right->type->b == WInt) {
+				return 1;
+			}
 		}
 	}
 	return 0;
 }
+//receives exp inside unary
 int checkTypeUnary(Exp* e) {
-	Type* t = e->unary.e->type;
+	Type* t = e->type;
+	if(!t)
+		return 0;
 	return t->tag == base && t->b == WInt;
 }
 int checkTypeLogic(Exp* left,Exp* right) {
@@ -365,19 +376,18 @@ int checkTypeExpList(ExpList* el,Parameter* params) {
 		return !el && !params;
 	ExpList *p = el;
 	while(p) {
-		//printf("ad\n");
 		if(!typeEquals(params->t,el->e->type)) {
 			return 0;
 		}
-		//printf("sd\n");
 		p = p->next;
 		params = params->next;
-		//printf("ds\n");
 	}
 	return params == NULL;
 }
 int checkTypeCallParamsArgs(Exp* e) {
 	//printf("checkTypeCallParamsArgs\n");
+	if(!e)
+		return 0;
 	int index = find(e->call.id);
 	if(index<0)
 		return 0;
@@ -385,8 +395,24 @@ int checkTypeCallParamsArgs(Exp* e) {
 	return checkTypeExpList(e->call.expList,params);
 }
 
+int checkPrintability(Exp* e) {
+	if(!e)
+		return 0;
+	if(e->type == NULL)
+		return 1;
+	if(e->type->tag == base) {
+		return 1;
+	}
+	if(e->type->tag == array) { //can print strings
+		if(e->type->of->tag == base 
+			&& e->type->of->b ==WChar) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 void typeExp(Exp* e ) {
-	//printf("exp\n");
 	if(!e)
 		return;
 	switch(e->tag) {
@@ -394,8 +420,8 @@ void typeExp(Exp* e ) {
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
 			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
-				// printType(e->bin.e1->type,0);
-				// printType(e->bin.e2->type,0);
+				printType(e->bin.e1->type,0);
+				printType(e->bin.e2->type,0);
 				typeError("Types in Add differs");
 			}
 			e->type = arithType(e);
@@ -404,8 +430,8 @@ void typeExp(Exp* e ) {
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
 			if(!checkTypeArtih(e->bin.e1,e->bin.e2)){
-				// printType(e->bin.e1->type,0);
-				// printType(e->bin.e2->type,0);
+				printType(e->bin.e1->type,0);
+				printType(e->bin.e2->type,0);
 				typeError("Types in Sub differs");
 			}
 			e->type = arithType(e);
@@ -413,10 +439,9 @@ void typeExp(Exp* e ) {
 		case ExpMul:
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
-			// printExp(e->bin.e1,0);
-			// printExp(e->bin.e2,0);
 			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
-				
+				printExp(e->bin.e1,0);
+				printExp(e->bin.e2,0);
 				printf("\n");
 				typeError("Types in Mul differs");
 			}
@@ -426,8 +451,8 @@ void typeExp(Exp* e ) {
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
 			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
-				// printExp(e->bin.e1,0);
-				// printExp(e->bin.e2,0);
+				printExp(e->bin.e1,0);
+				printExp(e->bin.e2,0);
 				typeError("Types in Div differs");
 			}
 			e->type = arithType(e);
@@ -453,11 +478,9 @@ void typeExp(Exp* e ) {
 			e->type = unaryType(e);
 		break;
 		case ExpPrim:
-			//printType(e->type,10);
 			e->type = typeOfConstant(e->c);
 		break;
 		case ExpNew:
-			//printDepthLevel("New",x);
 			typeExp(e->eNew.e);
 			if(!checkTypeIndex(e->eNew.e)) {
 				typeError("Index of array is not an int");
@@ -475,6 +498,8 @@ void typeExp(Exp* e ) {
 				break;
 				case EqEq:
 					if(!typeEquals(e->cmp.e1->type,e->cmp.e2->type)) {
+						printType(e->cmp.e1->type,0);
+						printType(e->cmp.e2->type,0);
 						typeError("Not comparable types in ==");
 					}
 				break;
@@ -485,7 +510,7 @@ void typeExp(Exp* e ) {
 
 		break;
 		case ExpAccess:
-			//printDepthLevel("[]");
+			
 			typeExp(e->access.varExp);
 			typeExp(e->access.indExp);
 			if(!checkTypeIndex(e->access.indExp)) {
@@ -504,7 +529,7 @@ void typeExp(Exp* e ) {
 			e->type = e->cast.type;
 		break;
 	}
-	//printf("sd\n");
+	//printExp(e,10);
 }
 Type* typeOfConstant(Constant* c) {
 	if(!c)
@@ -531,9 +556,6 @@ Type* getTypeOfExp(Exp* e) {
 
 	if(e->tag == ExpPrim)
 		return typeOfConstant(e->c);
-	if(e->tag == ExpUnary) {
-
-	}
 	return NULL;
 }
 
@@ -542,7 +564,6 @@ void typeExpList(ExpList* el ) {
 	if(!el)
 		return;
 	ExpList *p = el;
-	//printDepthLevel("expList",x);
 	while(p) {
 		typeExp(p->e);
 		p = p->next;
@@ -566,10 +587,11 @@ Type* typeOfVar(Var* v) {
 		typeError("No such var in scope");
 	}
 	return variables[index].type;
-	// printDepthLevel("Var",x);
-	// printDepthLevel(v->id,x+1);
+	
 }
 void typeVar(Var* v) {
+	if(!v)
+		return;
 	//printf("%s\n",v->id );
 	v->type = typeOfVar(v);
 }

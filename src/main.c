@@ -38,15 +38,23 @@ int main (int argc, char** argv)
 	int tokens=-1;
 	int control=1; //Grants it enters the while
 	char noTree =0;
+	char noChecks=0;
 
 	if(argc == 2)
 	{
-		if(strcmp("-syntax",argv[1])==0)
+		if(strcmp("-syntax",argv[1])==0) 
+		{
 			noTree = 1;
+			noChecks = 1;
+		}
 		if(strcmp("-lex",argv[1])==0)
 		{
 			testLex();
 			return 0;
+		}
+		if(strcmp("-noChecks",argv[1])==0)
+		{
+			noChecks =1;
 		}
 	}
 
@@ -54,10 +62,11 @@ int main (int argc, char** argv)
 	printf("Syntax OK\n");
 
 	
-
+	if(!noChecks) {
+		checkAndFixesTypesInTree();
+	}
 	if(!noTree) 
 	{
-		checkAndFixesTypesInTree();
 		printf("Typing OK\n");
 		printTree();
 	}
