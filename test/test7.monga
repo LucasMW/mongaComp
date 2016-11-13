@@ -25,5 +25,5 @@ int main()  {
 	return a;
 }
 void dodo() {
-	@ "a" ;
+	printf ("a") ;
 }

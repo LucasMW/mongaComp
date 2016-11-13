@@ -457,7 +457,7 @@ void typeExp(Exp* e ) {
 		break;
 		case ExpPrim:
 			//printType(e->type,10);
-			//already typed
+			e->type = typeOfConstant(e->c);
 		break;
 		case ExpNew:
 			//printDepthLevel("New",x);
