@@ -8,3 +8,5 @@ src/*.o
 .DS_Store
 src/grammar.c
 src/grammar.h
+va.txt
+e.txt
