@@ -7,5 +7,6 @@ reserved word new
 reserved word return
 reserved word void
 reserved word while
+reserved word as
 FINISHED READING FILE
-Proccessed 9 tokens in 1 lines
+Proccessed 10 tokens in 1 lines

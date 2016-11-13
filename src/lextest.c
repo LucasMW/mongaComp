@@ -127,6 +127,9 @@ void testLex ()
 			case TK_WWHILE:
 				printf("reserved word while\n");
 			break;
+			case TK_WAS:
+				printf("reserved word as\n");
+			break;
 			case TK_STR:
 				printf("String: %s\n",yylval.str_val);
 			break;

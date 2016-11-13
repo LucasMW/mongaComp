@@ -15,14 +15,14 @@ void main()
 	{
 		/* only need to alloc array inside the if */
 		array = new char[3];
-		fvalue = 87; 
+		fvalue = 87 as float; 
 		array[1] = value; /* need to overwrite the array */
 	}
 	else
 	{
-		fvalue = 90;
+		fvalue = 90 as float;
 	}
-	printf("value is %f\n",fvalue);
-	printf("END\n");
-	return 0; /* no errors */
+	@ "value is "; @fvalue; @ "\n";
+	@ "END\n" ;
+	return; /* no errors */
 }

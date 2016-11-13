@@ -15,6 +15,8 @@ testtree: comp
 	cat test/test6.monga |./comp 
 	cat test/test7.monga |./comp 
 	cat test/test8.monga |./comp
+	cat test/examples/bf.monga |./comp
+	cat test/examples/bf.monga |./comp
  
 
 testsyntax: comp
