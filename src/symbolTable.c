@@ -34,7 +34,6 @@ static int scopesTop;
 static int variablesTop;
 
 
-
 void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
 Type* typeOfConstant(Constant* c);
@@ -43,7 +42,20 @@ void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
 	exit(01);
 }
+Parameter* findParamsOfFunc(const char* funcId) {
+	Def* dfl = globalTree->next;
+	while(dfl) {
+		if(dfl->tag == DFunc) {
+			DefFunc* df = dfl->u.f;
+			if(strcmp(funcId,df->id)==0) {
+				return df->params;
+			}
+		}
+		dfl = dfl->next;
+	}
+	return NULL;
 
+}
 void initSymbolTable() {
 	scopesTop=0;
 	variablesTop=0;
@@ -242,9 +254,12 @@ void typeCommandList(CommandL* cl ) {
 }
 int typeEquals(Type* t1, Type* t2) {
 	printType(t1,3);
-	printf("vs\n");
+	printf("typeEqual\n");
 	printType(t2,3);
 	printf("\n");
+	if(t1 == NULL) {
+		return t2 == NULL;
+	}
 	if(t1->tag == base && t1->b == t2->b) {
 		return 1;
 	}
@@ -341,14 +356,38 @@ int checkTypeLogic(Exp* left,Exp* right) {
 	return 0;
 }
 int checkTypeCast(Exp* e) {
-	if(e->cast.type == base && e->cast.e->type == base)
-		return 1;
+	printExp(e,5);
+	if(e->type->tag == base) {
+		return e->cast.type->tag == base;
+	}
 	return 0;
+}
+int checkTypeExpList(ExpList* el,Parameter* params) {
+
+	if(el == NULL || params == NULL)
+		return !el && !params;
+	ExpList *p = el;
+	while(p) {
+		printf("ad\n");
+		if(!typeEquals(params->t,el->e->type)) {
+			return 0;
+		}
+		printf("sd\n");
+		p = p->next;
+		params = params->next;
+		printf("ds\n");
+	}
+	return params == NULL;
 }
 int checkTypeCallParamsArgs(Exp* e) {
 	printf("checkTypeCallParamsArgs\n");
-	return -1;
+	int index = find(e->call.id);
+	if(index<0)
+		return 0;
+	Parameter* params = findParamsOfFunc(e->call.id);
+	return checkTypeExpList(e->call.expList,params);
 }
+
 void typeExp(Exp* e ) {
 	printf("exp\n");
 	if(!e)
@@ -399,6 +438,10 @@ void typeExp(Exp* e ) {
 		case ExpCall:
 			typeExpList(e->call.expList);
 			e->type = typeOfCall(e);
+			if(!checkTypeCallParamsArgs(e)) {
+				printf("--%s--\n", e->call.id);
+				typeError("Params typing differs from arguments in call");
+			}
 		break;
 		case ExpVar:
 			typeVar(e->var);
@@ -456,6 +499,9 @@ void typeExp(Exp* e ) {
 		case ExpCast:
 			typeExp(e->cast.e);
 			if(!checkTypeCast(e)) {
+				printType(e->type,0);
+				printType(e->cast.type,0);
+				printType(e->cast.e->type,0);
 				typeError("Cast not avaible for these types");
 			}
 			e->type = e->cast.type;
@@ -495,7 +541,6 @@ Type* getTypeOfExp(Exp* e) {
 }
 
 
-
 void typeExpList(ExpList* el ) {
 	if(!el)
 		return;
@@ -516,7 +561,7 @@ void typeExpList(ExpList* el ) {
 Type* typeOfVar(Var* v) {
 	if(!v)
 		return NULL;
-	debugScopes();
+	//debugScopes();
 	int index = find(v->id);
 
 	if(index < 0) {
