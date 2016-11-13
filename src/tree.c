@@ -15,7 +15,6 @@
 
 progNode* globalTree;
 
-static int depth_level = 0;
 static void printDepthLevel(const char* str,int x) {
 	int i =0;
 	printf("\n|");

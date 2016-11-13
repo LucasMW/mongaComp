@@ -25,7 +25,7 @@ typedef struct Symbol {
 	Type* type;
 } Symbol;
 
-static SymbolListStack symbolTable;
+//static SymbolListStack symbolTable;
 
 static Symbol variables[1000]; 
 static int scopes[100]; 

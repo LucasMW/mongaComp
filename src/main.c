@@ -35,8 +35,6 @@ void lexError(const char* message, int ret)
 }
 int main (int argc, char** argv)
 {
-	int tokens=-1;
-	int control=1; //Grants it enters the while
 	char noTree =0;
 	char noChecks=0;
 

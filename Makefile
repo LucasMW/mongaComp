@@ -1,6 +1,6 @@
 #always compiles when using just make
 test/comp: src/main.c src/lex.c src/grammar.c
-	cc -o comp src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c
+	cc -Wall -o comp src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c
 bin/lexical: src/main.c src/lex.c
 	cc -o bin/lexical src/lexmain.c src/lex.c
 
@@ -15,7 +15,7 @@ testtree: comp
 	cat test/test6.monga |./comp 
 	cat test/test7.monga |./comp 
 	cat test/test8.monga |./comp
-	cat test/examples/bf.monga |./comp
+	cat test/examples/program1.monga |./comp
 	cat test/examples/bf.monga |./comp
  
 

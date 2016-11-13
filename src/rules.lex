@@ -1,4 +1,5 @@
-
+%option noinput
+%option nounput
 %option noyywrap
 %{
    #if !defined(lex_h)
@@ -15,14 +16,6 @@
    #endif
    
 
-	static void countlinesintoken() //Legacy
-	{
-		for(int i = 0; i < yyleng; i++)  
-		{
-			if(yytext[i] == '\n')
-				yy_lines++;
-		}
-	}
 	static char* makeNewStr()
 	{
 		char* newStr = (char*)malloc(yyleng+1);
