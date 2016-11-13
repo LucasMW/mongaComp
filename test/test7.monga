@@ -16,7 +16,7 @@ int main()  {
 		b=c/a;
 	}
 	if(i<c) {
-		@ "asd" ;
+		printf("asd");
 		a = a + i*2;
 	} else {
 		@"else" ;

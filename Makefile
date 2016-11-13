@@ -6,7 +6,6 @@ bin/lexical: src/main.c src/lex.c
 
 testtype: comp
 	cat test/test8.monga |./comp 
-
 testtree: comp
 	cat test/test1.monga |./comp 
 	cat test/test2.monga |./comp
@@ -15,6 +14,8 @@ testtree: comp
 	cat test/test5.monga |./comp 
 	cat test/test6.monga |./comp 
 	cat test/test7.monga |./comp 
+	cat test/test8.monga |./comp
+ 
 
 testsyntax: comp
 	sh test/syntax/script.sh

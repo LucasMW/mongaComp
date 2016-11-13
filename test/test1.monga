@@ -3,7 +3,7 @@ float ppt (float ar)
 	int a;
 	int result;
 	result = a*a*a/a+a;
-	return result/result+result*result/result;
+	return result/result+result*result/result as float;
 }
 
 
