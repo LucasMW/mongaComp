@@ -62,10 +62,10 @@ int main (int argc, char** argv)
 	
 	if(!noChecks) {
 		checkAndFixesTypesInTree();
+		printf("Typing OK\n");
 	}
 	if(!noTree) 
 	{
-		printf("Typing OK\n");
 		printTree();
 	}
 }
