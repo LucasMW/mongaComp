@@ -62,7 +62,7 @@ int yylex(void);
 
 
 %type<prog> program  
-%type <cmd> command command1 command2  commandList commandList2 commandIF commandWhile commandElse commandPrint
+%type <cmd> command command1  commandList commandList2 commandIF commandWhile commandPrint
 %type <block> block
 %type <param> parameters parameter 
 %type <def> definitionList  definition 
@@ -77,6 +77,7 @@ int yylex(void);
 %type <el> expList expList2
 %type <cons> constant;
 
+%right "if" TK_WELSE // Same precedence, but "shift" wins.
 %%
 program : definitionList  {
   $$ = (progNode*)malloc(sizeof(progNode));
@@ -238,28 +239,28 @@ commandPrint: '@' exp ';' {
   $$->tag = CPrint;
   $$->printExp = $2;
 }
-
-commandIF: TK_WIF '(' exp ')' command {
+;
+commandIF: TK_WIF '(' exp ')' command %prec "if" {  
    $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CIf;
           $$->condExp = $3;
           $$->cmdIf = $5;
-}
-
-commandElse: TK_WIF '(' exp ')' command2 TK_WELSE command2 {
+} |  TK_WIF '(' exp ')' command TK_WELSE command %prec "else" {
           $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CIfElse;
           $$->condExp = $3;
           $$->cmdIf = $5;
           $$->cmdElse = $7;
 }
+;
 
-commandWhile: TK_WWHILE '(' exp ')' command {
+commandWhile: TK_WWHILE '(' exp ')' command %prec "if" {
           $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CWhile;
           $$->condExp = $3;
           $$->cmdIf = $5;
 }
+;
 
 command1: TK_WRETURN  ';' {
    $$ = (CommandL*)malloc(sizeof(CommandL));
@@ -284,9 +285,6 @@ command1: TK_WRETURN  ';' {
         | commandIF {
           $$=$1;
         }
-        | commandElse {
-          $$ = $1;
-        }
         | expVar '=' exp ';' {
           $$ = (CommandL*)malloc(sizeof(CommandL));
           $$->tag = CAssign;
@@ -299,33 +297,7 @@ command1: TK_WRETURN  ';' {
         | commandPrint {
           $$ = $1;
         }
-
-command2 : TK_WRETURN ';' {
-           $$ = (CommandL*)malloc(sizeof(CommandL));
-           $$->tag = CReturn;
-           $$->retExp = NULL;
-        }
-        | TK_WRETURN exp ';' {
-           $$ = (CommandL*)malloc(sizeof(CommandL));
-           $$->tag = CReturn;
-           $$->retExp = $2;
-        }
-        | expCall ';' {
-          $$ = (CommandL*)malloc(sizeof(CommandL));
-          $$->tag = CCall;
-          $$->expRight = $1;
-        }
-        | block {
-          $$ = (CommandL*)malloc(sizeof(CommandL));
-          $$->tag = CBlock;
-          $$->block = $1; //abuse
-        }
-        | commandElse {
-          $$ = $1;
-        }
-        | commandPrint {
-          $$ = $1;
-        }
+;
 
 //exps
 exp: expNew {
