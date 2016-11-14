@@ -1,6 +1,7 @@
 
 /* BF INTERPRETER IN MONGA
 Copyright 25/10/16 
+Modified  13/11/16
 Lucas Menezes */
 
 int printf(char[] str);
@@ -69,11 +70,10 @@ void execute(char[] program)
 						internalLoopCount = internalLoopCount + 1;
 					}
 					/* that is the case to fix */
-					else {
-						if(program[prgIdx] == ']')
-						{
-							internalLoopCount = internalLoopCount - 1;
-						}
+					else if(program[prgIdx] == ']')
+					{
+						internalLoopCount = internalLoopCount - 1;
+	
 					}
 					prgIdx = prgIdx + 1;
 				}
