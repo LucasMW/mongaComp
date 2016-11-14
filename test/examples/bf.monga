@@ -69,7 +69,6 @@ void execute(char[] program)
 					{
 						internalLoopCount = internalLoopCount + 1;
 					}
-					/* that is the case to fix */
 					else if(program[prgIdx] == ']')
 					{
 						internalLoopCount = internalLoopCount - 1;
