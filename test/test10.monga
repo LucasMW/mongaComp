@@ -1,0 +1,9 @@
+int f(int a,float b,char c){
+  return a;
+}
+
+int g(){
+  int a;
+
+  a = f(1.7 as int,3 as float,'a');
+}

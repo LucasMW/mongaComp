@@ -59,6 +59,20 @@ Parameter* findParamsOfFunc(const char* funcId) {
 	return NULL;
 
 }
+DefFunc* findFuncInTree(const char* funcId) {
+	Def* dfl = globalTree->next;
+	while(dfl) {
+		if(dfl->tag == DFunc) {
+			DefFunc* df = dfl->u.f;
+			if(strcmp(funcId,df->id)==0) {
+				return df;
+			}
+		}
+		dfl = dfl->next;
+	}
+	return NULL;
+
+}
 // Parameter* findTypeOfFunc(const char* funcId) {
 // 	Def* dfl = globalTree->next;
 // 	while(dfl) {
@@ -217,6 +231,18 @@ int checkTypeReturn(Exp* retExp, DefFunc* df) {
 	Type* ft = df->retType;
 	return typeEquals(t,ft);
 }
+int checkCallability(Exp* callExp) {
+	printf("wsw\n");
+	if(!callExp) {
+		return 0; //cannot call null
+	}
+	Type* t = callExp->type;
+	DefFunc* df = findFuncInTree(callExp->call.id);
+	if(!df)
+		return 0; //must be a function
+	Type* ft = df->retType;
+	return typeEquals(t,ft);
+}
 void typeCommandList(CommandL* cl ) {
 	if(!cl)
 		return;
@@ -231,7 +257,6 @@ void typeCommandList(CommandL* cl ) {
 				leaveScope();
 			break;
 			case CIf:
-				
 				typeExp(c->condExp );
 				enterScope();
 				typeCommandList(c->cmdIf );
@@ -271,8 +296,10 @@ void typeCommandList(CommandL* cl ) {
 				leaveScope();
 			break;
 			case CCall:
-				
 				typeExp(c->expRight );
+				if(!checkCallability(c->expRight)) {
+					typeError("Expression is not callable");
+				}
 			break;
 			case CPrint:
 				typeExp(c->printExp);
@@ -407,12 +434,20 @@ int checkTypeExpList(ExpList* el,Parameter* params) {
 	if(el == NULL || params == NULL)
 		return !el && !params;
 	ExpList *p = el;
+	printExpList(el,0);
+	printParams(params,0);
+	puts("");
 	while(p) {
-		if(!typeEquals(params->t,el->e->type)) {
+		printf("a\n");
+		if(!typeEquals(params->t,p->e->type)) {
+			printf("Not equal typing");
 			return 0;
 		}
 		p = p->next;
 		params = params->next;
+		if(!params && p) {
+			return 0;
+		}
 	}
 	return params == NULL;
 }
@@ -492,6 +527,10 @@ void typeExp(Exp* e ) {
 		case ExpCall:
 			typeExpList(e->call.expList);
 			e->type = typeOfCall(e);
+			if(!checkCallability(e)) {
+					printf("--%s--\n", e->call.id);
+					typeError("Expression is not callable");
+				}
 			if(!checkTypeCallParamsArgs(e)) {
 				printf("--%s--\n", e->call.id);
 				typeError("Params typing differs from arguments in call");
@@ -603,10 +642,6 @@ void typeExpList(ExpList* el ) {
 	return;
 
 }
-
-
-
-
 
 Type* typeOfVar(Var* v) {
 	if(!v)
