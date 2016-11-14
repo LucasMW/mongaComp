@@ -16,7 +16,6 @@ testtree: comp
 	cat test/test7.monga |./comp 
 	cat test/test8.monga |./comp
 	cat test/examples/program1.monga |./comp
-	cat test/examples/bf.monga |./comp
  
 
 testsyntax: comp
@@ -50,6 +49,10 @@ clean:
 	mkdir temp
 	rm -rf comp.dSYM
 	rm -f test/*/*.output
+	rm -f va.txt
+	rm -f val.out
+	rm -f grammar.output
+	rm -f prog.out
 src/main.o: 
 	cc -o temp/main.o -Wall -O2 -c main.c
 src/lex.o:
