@@ -1,6 +1,6 @@
 #always compiles when using just make
 test/comp: src/main.c src/lex.c src/grammar.c
-	cc -Wall -o comp src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c
+	cc -Wall -o comp src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
 bin/lexical: src/main.c src/lex.c
 	cc -o bin/lexical src/lexmain.c src/lex.c
 
