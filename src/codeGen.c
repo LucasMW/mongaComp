@@ -13,6 +13,7 @@ void codeDefList(Def* d);
 void codeNameList(NameL* nl,Type* t);
 void codeType(Type* t);
 void codeParams(Parameter* params);
+void codeForAllocParams(Parameter* params);
 void codeCommandList(CommandL* cl);
 void codeBlock(Block* b);
 void codeExp(Exp* e);
@@ -22,6 +23,7 @@ void codeExpList(ExpList* el);
 char* stringForType(Type* t);
 
 static FILE* output = NULL;
+static int currentFunctionTIndex = 0;
 
 void setCodeOutput(FILE* out) {
 	output = out;
@@ -75,13 +77,20 @@ void codeDefVar(DefVar* dv) {
 
 }
 void codeDefFunc(DefFunc* df) {
+
 	char* typeStr = stringForType(df->retType);
 	if(df->b) {
+		currentFunctionTIndex = 0;
 		fprintf(output, "define %s @%s(", typeStr,df->id);
 		codeParams(df->params);
-		fprintf(output, ")\n{");
+		fprintf(output, ")\n{\n");
+		codeForAllocParams(df->params);
 		codeBlock(df->b);
-		fprintf(output, "}");
+		if(df->retType == NULL) {
+			fprintf(output, "ret void\n");
+		} //probably missing a ret in the end of void func
+		fprintf(output, "}\n");
+		currentFunctionTIndex = 0;
 	}
 	else {
 		fprintf(output, "declare %s @%s(", typeStr,df->id);
@@ -95,7 +104,7 @@ void codeDefVarList(DefVarL* dvl) {
 void codeDefList(Def* d) {
 	if(!d)
 		return;
-	printf("coding DefList\n");
+	//printf("coding DefList\n");
 	switch (d->tag) {
 		case DVar:
 		break;
@@ -118,11 +127,188 @@ void codeParams(Parameter* params) {
 		codeParams(params->next);
 	}
 }
-void codeCommandList(CommandL* cl);
-void codeBlock(Block* b) {
-
+void codeForAllocParams(Parameter* params) {
+	if(!params)
+		return;
+	char * tStr = stringForType(params->t);
+	fprintf(output,"%%t%d = alloca %s\n", currentFunctionTIndex, tStr);
+	currentFunctionTIndex++;
+	if(params->next) {
+		codeForAllocParams(params->next);
+	}
 }
-void codeExp(Exp* e);
+void codeCommandList(CommandL* cl) {
+	if(!cl)
+		return;
+	CommandL* c = cl;
+	printf("CommandL\n");
+	while(c) {
+		switch(c->tag) {
+			case CWhile:
+				// typeExp(c->condExp );
+				// enterScope();
+				// typeCommandList(c->cmdIf );
+				// leaveScope();
+			break;
+			case CIf:
+				// typeExp(c->condExp );
+				// enterScope();
+				// typeCommandList(c->cmdIf );
+				// leaveScope();
+			break;
+			case CIfElse:
+				// typeExp(c->condExp );
+				// enterScope();
+				// typeCommandList(c->cmdIf );
+				// leaveScope();
+				// enterScope();
+				// typeCommandList(c->cmdElse );
+				// leaveScope();
+			break;
+			case CReturn:	
+				if(c->retExp == NULL) {
+					fprintf(output, "ret void\n");
+				}
+				else {
+				char * tStr = stringForType(c->retExp->type);
+				codeExp(c->retExp);
+				fprintf(output, "ret %s %%t%d\n",tStr,currentFunctionTIndex);
+				}
+			break;
+			case CAssign:
+				
+				// typeExp(c->expLeft);
+				// typeExp(c->expRight);
+				// if(!typeEquals(c->expLeft->type,c->expRight->type)) {
+				// 	typeError("Assigment left type differs from right type");
+				// }
+				
+			break;
+			case CBlock:
+				codeBlock((Block*)c->block );
+				// leaveScope();
+			break;
+			case CCall:
+				// typeExp(c->expRight );
+				// if(!checkCallability(c->expRight)) {
+				// 	typeError("Expression is not callable");
+				// }
+			break;
+			case CPrint:
+				// typeExp(c->printExp);
+				// if (!checkPrintability(c->printExp)) {
+				// 	typeError("Expression is not printable");
+				// }
+			break;
+		}
+		c = c->next;
+	}
+}
+void codeBlock(Block* b) {
+	// codeDefVarList(b->dvl);
+	codeCommandList(b->cl);
+}
+void codeBinExp(Exp* e ,char * cmd) {
+	int te1,te2; 
+	codeExp(e->bin.e1 );
+	codeExp(e->bin.e2 );
+	te2 = currentFunctionTIndex-1;
+	te1 = te2-1;
+	char * tStr = stringForType(e->type);
+	currentFunctionTIndex++;
+	fprintf(output, "%%t%d = %s %s %%t%d, %%t%d\n",
+		currentFunctionTIndex,cmd, tStr, te1,te2);
+}
+void codeExp(Exp* e) {
+	if(!e)
+		return;
+	switch(e->tag) {
+		case ExpAdd:
+			codeBinExp(e,"add nsw");
+		break;
+		case ExpSub:
+			codeBinExp(e,"sub nsw");
+		break;
+		case ExpMul:
+			codeBinExp(e,"mul nsw");
+		break;
+		case ExpDiv:
+			codeBinExp(e,"sdiv");
+		break;
+		case ExpCall:
+			// typeExpList(e->call.expList);
+			// e->type = typeOfCall(e);
+			// if(!checkCallability(e)) {
+			// 		printf("--%s--\n", e->call.id);
+			// 		typeError("Expression is not callable");
+			// 	}
+			// if(!checkTypeCallParamsArgs(e)) {
+			// 	printf("--%s--\n", e->call.id);
+			// 	typeError("Params typing differs from arguments in call");
+			// }
+		break;
+		case ExpVar:
+			// typeVar(e->var);
+			// e->type = e->var->typtypeExp(e->unary.e);
+			// if(!checkTypeUnary(e->unary.e))
+			// {
+			// 	typeError("type of Unary not right");
+			// }
+			// e->type = unaryType(e);e;
+		break;
+		case ExpUnary:
+			// 
+		break;
+		case ExpPrim:
+			// e->type = typeOfConstant(e->c);
+		break;
+		case ExpNew:
+			// typeExp(e->eNew.e);
+			// if(!checkTypeIndex(e->eNew.e)) {
+			// 	typeError("Index of array is not an int");
+			// }
+			// e->type = typeOfNew(e);
+		break;
+		case ExpCmp:
+			// typeExp(e->cmp.e1);
+			// typeExp(e->cmp.e2);
+			// switch(e->cmp.op) {
+			// 	default:
+			// 		if(!checkTypeLogic(e->cmp.e1,e->cmp.e2)) {
+			// 			typeError("Types not suitble for logic");
+			// 		}
+			// 	break;
+			// 	case EqEq:
+			// 		if(!typeEquals(e->cmp.e1->type,e->cmp.e2->type)) {
+			// 			printType(e->cmp.e1->type,0);
+			// 			printType(e->cmp.e2->type,0);
+			// 			typeError("Not comparable types in ==");
+			// 		}
+			// 	break;
+			// }
+			// e->type = CmpType(e);
+
+		break;
+		case ExpAccess:
+			// typeExp(e->access.varExp);
+			// typeExp(e->access.indExp);
+			// if(!checkTypeIndex(e->access.indExp)) {
+			// 	typeError("Index of array is not an int");
+			// }
+			// e->type = e->access.varExp->type->of;
+		break;
+		case ExpCast:
+			// typeExp(e->cast.e);
+			// if(!checkTypeCast(e)) {
+			// 	// printType(e->type,0);
+			// 	// printType(e->cast.type,0);
+			// 	// printType(e->cast.e->type,0);
+			// 	typeError("Cast not avaible for these types");
+			// }
+			// e->type = e->cast.type;
+		break;
+	}
+}
 void codeVar(Var* v);
 void codeConstant(Constant* c);
 void codeExpList(ExpList* el);
