@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #if !defined(tree_h)
 	#include "tree.h"
 	#define tree_h
@@ -16,7 +17,7 @@ void codeParams(Parameter* params);
 void codeForAllocParams(Parameter* params);
 void codeCommandList(CommandL* cl);
 void codeBlock(Block* b);
-void codeExp(Exp* e);
+int codeExp(Exp* e);
 void codeVar(Var* v);
 void codeConstant(Constant* c);
 void codeExpList(ExpList* el);
@@ -131,11 +132,18 @@ void codeForAllocParams(Parameter* params) {
 	if(!params)
 		return;
 	char * tStr = stringForType(params->t);
+	int index = currentFunctionTIndex;
 	fprintf(output,"%%t%d = alloca %s\n", currentFunctionTIndex, tStr);
 	currentFunctionTIndex++;
 	if(params->next) {
 		codeForAllocParams(params->next);
 	}
+	fprintf(output,"store %s %%t%d, %s* %%t%d\n", tStr, index, tStr, currentFunctionTIndex);
+	fprintf(output, "%%t%d = load %s, %s* %%t%d\n", currentFunctionTIndex,tStr,tStr,index);
+
+}
+void codeForAssign() {
+
 }
 void codeCommandList(CommandL* cl) {
 	if(!cl)
@@ -143,6 +151,7 @@ void codeCommandList(CommandL* cl) {
 	CommandL* c = cl;
 	printf("CommandL\n");
 	while(c) {
+		printf("cl\n");
 		switch(c->tag) {
 			case CWhile:
 				// typeExp(c->condExp );
@@ -166,6 +175,7 @@ void codeCommandList(CommandL* cl) {
 				// leaveScope();
 			break;
 			case CReturn:	
+				printf("cret\n");
 				if(c->retExp == NULL) {
 					fprintf(output, "ret void\n");
 				}
@@ -176,23 +186,22 @@ void codeCommandList(CommandL* cl) {
 				}
 			break;
 			case CAssign:
-				
-				// typeExp(c->expLeft);
-				// typeExp(c->expRight);
+				 printf("CAssign\n");
+				 codeExp(c->expLeft);
+				 codeExp(c->expRight);
 				// if(!typeEquals(c->expLeft->type,c->expRight->type)) {
 				// 	typeError("Assigment left type differs from right type");
 				// }
 				
 			break;
 			case CBlock:
+				printf("cblock\n");
 				codeBlock((Block*)c->block );
 				// leaveScope();
 			break;
 			case CCall:
-				// typeExp(c->expRight );
-				// if(!checkCallability(c->expRight)) {
-				// 	typeError("Expression is not callable");
-				// }
+				printf("ccall\n");
+				codeExp(c->expRight);
 			break;
 			case CPrint:
 				// typeExp(c->printExp);
@@ -210,42 +219,107 @@ void codeBlock(Block* b) {
 }
 void codeBinExp(Exp* e ,char * cmd) {
 	int te1,te2; 
-	codeExp(e->bin.e1 );
-	codeExp(e->bin.e2 );
-	te2 = currentFunctionTIndex-1;
-	te1 = te2-1;
+	te1 = codeExp(e->bin.e1 );
+	te2 = codeExp(e->bin.e2 );
+	// te2 = currentFunctionTIndex-1;
+	// te1 = te2-1;
 	char * tStr = stringForType(e->type);
 	currentFunctionTIndex++;
 	fprintf(output, "%%t%d = %s %s %%t%d, %%t%d\n",
-		currentFunctionTIndex,cmd, tStr, te1,te2);
+		currentFunctionTIndex++,cmd, tStr, te1,te2);
 }
-void codeExp(Exp* e) {
+void codeCallExp(Exp* e) {
+	if(e->type == NULL) {
+		fprintf(output, "call void @%s(",
+			e->call.id);
+	}
+	else {
+		char* fTypeStr = stringForType(e->type); 
+		fprintf(output, "%%t%d = call %s @%s(",
+			currentFunctionTIndex++,
+			fTypeStr,
+			e->call.id);
+	}
+	codeExpList(e->call.expList);
+	fprintf(output, ")\n" );		
+}
+char* stringForConstant(Constant* c) {
+	//char str[40] = "no string given";
+	char* str = (char*)malloc(40);
+	double nd;
+	int exponent = 0;
+	if(!c)
+		return NULL;
+	switch(c->tag) {
+		case KInt:
+			sprintf(str, "%d", c->u.i);
+		break;
+		case KFloat:
+			nd = frexp(c->u.d, &exponent);
+			sprintf(str, "%f", c->u.d);
+		break;
+		case KStr:
+			sprintf(str, "\"%s\"", c->u.str);
+		break;
+	}
+	return &str[0];
+}
+int codeExpPrim(Exp* e) {
+	currentFunctionTIndex++;
+	char* tStr = stringForType(e->type);
+	if(e->c->tag == KStr) {
+		fprintf(output, "no code yet for strings\n" );
+		return -1;
+	}
+	
+	char* cStr = stringForConstant(e->c);
+	// fprintf(output, "%%t%d = alloca %s* \n",currentFunctionTIndex);
+	// fprintf(output, "store i8* %0, i8** %2, align 8\n", );
+	if(e->c->tag == KFloat) {
+		fprintf(output, "%%t%d= fadd %s 0.0 , %s\n",
+			currentFunctionTIndex,
+			tStr,
+			cStr );
+	} else {
+		fprintf(output, "%%t%d= add nsw %s 0 , %s\n",
+			currentFunctionTIndex,
+			tStr,
+			cStr );
+	}
+	int index = currentFunctionTIndex++;
+	return index;
+}
+int codeExp(Exp* e) {
+	int resultIndex =-1;
 	if(!e)
-		return;
+		return -1;
 	switch(e->tag) {
 		case ExpAdd:
-			codeBinExp(e,"add nsw");
+			if(e->type->b == WFloat) 
+				codeBinExp(e,"fadd nsw");
+			else
+				codeBinExp(e,"add nsw");
 		break;
 		case ExpSub:
-			codeBinExp(e,"sub nsw");
+			if(e->type->b == WFloat) 
+				codeBinExp(e,"fsub nsw");
+			else
+				codeBinExp(e,"sub nsw");
 		break;
 		case ExpMul:
-			codeBinExp(e,"mul nsw");
+			if(e->type->b == WFloat) 
+				codeBinExp(e,"fmul nsw");
+			else
+				codeBinExp(e,"mul nsw");
 		break;
 		case ExpDiv:
-			codeBinExp(e,"sdiv");
+			if(e->type->b == WFloat) 
+				codeBinExp(e,"fdiv");
+			else
+				codeBinExp(e,"sdiv");
 		break;
 		case ExpCall:
-			// typeExpList(e->call.expList);
-			// e->type = typeOfCall(e);
-			// if(!checkCallability(e)) {
-			// 		printf("--%s--\n", e->call.id);
-			// 		typeError("Expression is not callable");
-			// 	}
-			// if(!checkTypeCallParamsArgs(e)) {
-			// 	printf("--%s--\n", e->call.id);
-			// 	typeError("Params typing differs from arguments in call");
-			// }
+			codeCallExp(e);
 		break;
 		case ExpVar:
 			// typeVar(e->var);
@@ -260,6 +334,7 @@ void codeExp(Exp* e) {
 			// 
 		break;
 		case ExpPrim:
+			resultIndex = codeExpPrim(e);
 			// e->type = typeOfConstant(e->c);
 		break;
 		case ExpNew:
@@ -308,7 +383,25 @@ void codeExp(Exp* e) {
 			// e->type = e->cast.type;
 		break;
 	}
+
+	return resultIndex;
 }
 void codeVar(Var* v);
 void codeConstant(Constant* c);
-void codeExpList(ExpList* el);
+void codeExpList(ExpList* el) {
+	char * tStr;
+	if(!el)
+		return;
+	ExpList *p = el;
+	while(p) {
+		codeExp(p->e);
+		int index = currentFunctionTIndex-1;
+		tStr = stringForType(p->e->type);
+		fprintf(output, "%s %%t%d",tStr,index);
+		if(p->next)
+			fprintf(output, ", ");
+		p = p->next;
+	}
+	return;
+
+}
