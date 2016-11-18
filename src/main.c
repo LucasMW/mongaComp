@@ -78,8 +78,10 @@ int main (int argc, char** argv)
 		printTree();
 	}
 	if(!noCode) 
-	{
+	{	FILE* llvm_ir_location = fopen("a.ll","wt");
+		setCodeOutput(llvm_ir_location);
 		codeTree();
+		fclose(llvm_ir_location);
 	}
 }
 
