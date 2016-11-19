@@ -150,6 +150,7 @@ void codeCommandList(CommandL* cl) {
 		return;
 	CommandL* c = cl;
 	printf("CommandL\n");
+	int i1;
 	while(c) {
 		printf("cl\n");
 		switch(c->tag) {
@@ -181,8 +182,8 @@ void codeCommandList(CommandL* cl) {
 				}
 				else {
 				char * tStr = stringForType(c->retExp->type);
-				codeExp(c->retExp);
-				fprintf(output, "ret %s %%t%d\n",tStr,currentFunctionTIndex);
+				i1 = codeExp(c->retExp);
+				fprintf(output, "ret %s %%t%d\n",tStr,i1);
 				}
 			break;
 			case CAssign:
@@ -217,7 +218,7 @@ void codeBlock(Block* b) {
 	// codeDefVarList(b->dvl);
 	codeCommandList(b->cl);
 }
-void codeBinExp(Exp* e ,char * cmd) {
+int codeBinExp(Exp* e ,char * cmd) {
 	int te1,te2; 
 	te1 = codeExp(e->bin.e1 );
 	te2 = codeExp(e->bin.e2 );
@@ -225,8 +226,10 @@ void codeBinExp(Exp* e ,char * cmd) {
 	// te1 = te2-1;
 	char * tStr = stringForType(e->type);
 	currentFunctionTIndex++;
+	int index = currentFunctionTIndex;
 	fprintf(output, "%%t%d = %s %s %%t%d, %%t%d\n",
 		currentFunctionTIndex++,cmd, tStr, te1,te2);
+	return index;
 }
 void codeCallExp(Exp* e) {
 	if(e->type == NULL) {
@@ -290,33 +293,33 @@ int codeExpPrim(Exp* e) {
 	return index;
 }
 int codeExp(Exp* e) {
-	int resultIndex =-1;
+	int result =-1;
 	if(!e)
 		return -1;
 	switch(e->tag) {
 		case ExpAdd:
 			if(e->type->b == WFloat) 
-				codeBinExp(e,"fadd nsw");
+				result = codeBinExp(e,"fadd nsw");
 			else
-				codeBinExp(e,"add nsw");
+				result = codeBinExp(e,"add nsw");
 		break;
 		case ExpSub:
 			if(e->type->b == WFloat) 
-				codeBinExp(e,"fsub nsw");
+				result = codeBinExp(e,"fsub nsw");
 			else
-				codeBinExp(e,"sub nsw");
+				result =codeBinExp(e,"sub nsw");
 		break;
 		case ExpMul:
 			if(e->type->b == WFloat) 
-				codeBinExp(e,"fmul nsw");
+				result = codeBinExp(e,"fmul nsw");
 			else
-				codeBinExp(e,"mul nsw");
+				result = codeBinExp(e,"mul nsw");
 		break;
 		case ExpDiv:
 			if(e->type->b == WFloat) 
-				codeBinExp(e,"fdiv");
+				result = codeBinExp(e,"fdiv");
 			else
-				codeBinExp(e,"sdiv");
+				result = codeBinExp(e,"sdiv");
 		break;
 		case ExpCall:
 			codeCallExp(e);
@@ -334,7 +337,7 @@ int codeExp(Exp* e) {
 			// 
 		break;
 		case ExpPrim:
-			resultIndex = codeExpPrim(e);
+			result = codeExpPrim(e);
 			// e->type = typeOfConstant(e->c);
 		break;
 		case ExpNew:
@@ -384,7 +387,7 @@ int codeExp(Exp* e) {
 		break;
 	}
 
-	return resultIndex;
+	return result;
 }
 void codeVar(Var* v);
 void codeConstant(Constant* c);
@@ -394,8 +397,7 @@ void codeExpList(ExpList* el) {
 		return;
 	ExpList *p = el;
 	while(p) {
-		codeExp(p->e);
-		int index = currentFunctionTIndex-1;
+		int index = codeExp(p->e);
 		tStr = stringForType(p->e->type);
 		fprintf(output, "%s %%t%d",tStr,index);
 		if(p->next)
