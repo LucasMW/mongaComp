@@ -23,6 +23,7 @@ typedef struct SymbolListStack {
 typedef struct Symbol {
 	const char* id;
 	Type* type;
+	Def* d;
 } Symbol;
 
 //static SymbolListStack symbolTable;
@@ -87,22 +88,39 @@ DefFunc* findFuncInTree(const char* funcId) {
 // 	return NULL;
 
 // }
+void printSymbol(Symbol s) {
+	printType(s.type,0);
+	printf("symbol %s \n",s.id);
+}
+void debugScopes() {
+	for(int j = scopesTop-1;j>=0;j--) {
+		printf(":::scope %d:::",j);
+		for(int i = variablesTop-1;i>=0;i--) {
+			printSymbol(variables[i]);	
+		}
+		printf("\n:::end %d:::\n",j);
+	}
+}
+
 void initSymbolTable() {
 	scopesTop=0;
 	variablesTop=0;
 	scopes[0] = 0;
 	currentFunction = NULL;
 }
+
 void enterScope() {
-	//printf("enterScope\n");
+	printf("enterScope %d\n",scopesTop+1);
 	scopes[scopesTop] = variablesTop; 
 	scopesTop++;
 	//scopes[scopesTop] = variablesTop; 
+	debugScopes();
 }
 void leaveScope() {
-	//printf("leaveScope\n");
+	printf("leaveScope %d\n",scopesTop);
 	scopesTop--;
 	variablesTop = scopes[scopesTop];
+	debugScopes();
 }
 int find(const char * symbol) {
 	int i;
@@ -116,6 +134,7 @@ int find(const char * symbol) {
 }
 int findCurrentScope(const char * symbol) {
 	int i;
+
 	for(i=variablesTop-1;i>=scopes[scopesTop];i--) {
 		if(strcmp(variables[i].id,symbol)==0) {
 			return i;
@@ -125,7 +144,7 @@ int findCurrentScope(const char * symbol) {
 
 }
 void insert(const char* symbolID,Type* type) {
-	//printf("insert %s \n",symbolID);
+	printf("insert %s \n",symbolID);
 	if(findCurrentScope(symbolID)>=0) {
 		printf("--%s--\n", symbolID);
 		typeError("Symbol was already declared in this scope");
@@ -136,15 +155,7 @@ void insert(const char* symbolID,Type* type) {
 	//printf("variablesTop %d\n",variablesTop );
 }
 
-void printSymbol(Symbol s) {
-	printType(s.type,0);
-	printf("symbol %s \n",s.id);
-}
-void debugScopes() {
-	for(int i = variablesTop;i>=0;i--) {
-		printSymbol(variables[i]);	
-	}
-}
+
 
 
 
@@ -661,6 +672,9 @@ void typeVar(Var* v) {
 		return;
 	//printf("%s\n",v->id );
 	v->type = typeOfVar(v);
+	if(findFuncInTree(v->id)) {
+		typeError("Subject is a function, not a var");
+	}
 }
 
 

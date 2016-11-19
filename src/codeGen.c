@@ -133,13 +133,17 @@ void codeForAllocParams(Parameter* params) {
 		return;
 	char * tStr = stringForType(params->t);
 	int index = currentFunctionTIndex;
-	fprintf(output,"%%t%d = alloca %s\n", currentFunctionTIndex, tStr);
-	currentFunctionTIndex++;
-	if(params->next) {
-		codeForAllocParams(params->next);
+	Parameter* p = params;
+	while(p) {
+		fprintf(output,"%%t%d = alloca %s\n", currentFunctionTIndex++, tStr);
+		p = p->next;
 	}
-	fprintf(output,"store %s %%t%d, %s* %%t%d\n", tStr, index, tStr, currentFunctionTIndex);
-	fprintf(output, "%%t%d = load %s, %s* %%t%d\n", currentFunctionTIndex,tStr,tStr,index);
+	p = params;
+	int i=0;
+	while(p) {
+		fprintf(output,"store %s %%%d, %s* %%t%d\n", tStr, i++, tStr, index++);
+		p = p->next;
+	}
 
 }
 void codeForAssign() {
@@ -150,7 +154,7 @@ void codeCommandList(CommandL* cl) {
 		return;
 	CommandL* c = cl;
 	printf("CommandL\n");
-	int i1;
+	int i1,i2;
 	while(c) {
 		printf("cl\n");
 		switch(c->tag) {
@@ -188,8 +192,8 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CAssign:
 				 printf("CAssign\n");
-				 codeExp(c->expLeft);
-				 codeExp(c->expRight);
+				 i1 = codeExp(c->expLeft);
+				 i2 = codeExp(c->expRight);
 				// if(!typeEquals(c->expLeft->type,c->expRight->type)) {
 				// 	typeError("Assigment left type differs from right type");
 				// }

@@ -4,6 +4,10 @@ int f(int a,float b,char c){
 
 int g(){
   int a;
+  a = f(1.7 as int,3 as float,g());
+}
 
-  a = f(1.7 as int,3 as float,'a');
+int d() {
+	int g;
+	return !g+1;
 }
