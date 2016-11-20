@@ -284,6 +284,24 @@ int codeBinExp(Exp* e ,char * cmd) {
 }
 int codeCallExp(Exp* e) {
 	int toCall = -1;
+	int size=0;
+	ExpList *p = e->call.expList;
+	//calculate size
+	while(p) {
+		size++;
+		p = p->next;
+	}
+	//generate code for arguments
+	p = e->call.expList;
+	int * args = (int*)malloc(sizeof(int)*size);
+	int i=0;
+	while(p) {
+		int index = codeExp(p->e);
+		args[i] = index;
+		i++;
+		p=p->next;
+	}
+
 	if(e->type == NULL) {
 		fprintf(output, "call void @%s(",
 			e->call.id);
@@ -296,7 +314,16 @@ int codeCallExp(Exp* e) {
 			fTypeStr,
 			e->call.id);
 	}
-	codeExpList(e->call.expList);
+	p = e->call.expList;
+	i=0;
+	while(p) {
+		char* tStr = stringForType(p->e->type);
+		fprintf(output, "%s %%t%d",tStr,args[i]);
+		if(p->next)
+			fprintf(output, ", ");
+		p = p->next;
+		i++;
+	}
 	fprintf(output, ")\n" );
 	return toCall;		
 }
