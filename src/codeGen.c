@@ -402,12 +402,32 @@ int codeExpUnary(Exp* e) {
 				currentFunctionTIndex,
 				i2,
 				tStr );
-				
-  				
 			}
-					
 		break; 
-			}
+	}
+	return currentFunctionTIndex;
+}
+int codeExpCast(Exp* e) {
+	int i1 = codeExp(e->cast.e);
+	char* orTStr = stringForType(e->cast.e->type);
+	char* toTStr = stringForType(e->type);
+	currentFunctionTIndex++;
+	if(e->type->b == WFloat) {
+		fprintf(output, "%%t%d = sitofp %s %%t%d to float\n",
+		currentFunctionTIndex,
+		orTStr,
+		i1 );
+	}
+	else if(e->cast.e->type->b == WFloat) {
+		fprintf(output, "%%t%d = fptosi float %%t%d to %s\n",
+		currentFunctionTIndex,
+		i1,
+		toTStr);
+		
+	}
+	else {
+		fprintf(output, "cast not implemented \n" );
+	}
 	return currentFunctionTIndex;
 }
 
@@ -489,7 +509,7 @@ int codeExp(Exp* e) {
 			// e->type = e->access.varExp->type->of;
 		break;
 		case ExpCast:
-			// typeExp(e->cast.e);
+			result = codeExpCast(e);
 			// if(!checkTypeCast(e)) {
 			// 	// printType(e->type,0);
 			// 	// printType(e->cast.type,0);
