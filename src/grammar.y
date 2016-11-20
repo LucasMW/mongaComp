@@ -172,6 +172,8 @@ defVar : type nameList ';' {  //correct
   $$ = (DefVar*)malloc(sizeof(DefVar));
   $$->t = $1;
   $$->nl = $2;
+  $$->scope = VGlobal;
+  $$->id = $2->name;
   
 }
 ;
@@ -482,6 +484,7 @@ expVar: expVar '[' exp ']' {
         $$->tag = ExpVar; 
         $$->var = (Var*)malloc(sizeof(Var));
         $$->var->id = $1;
+        $$->var->declaration = NULL;
       }
       | primary {
         $$ = $1;

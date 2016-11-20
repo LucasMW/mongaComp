@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "symbolTable.h"
 
 #if !defined(grammar_h)
@@ -23,7 +24,7 @@ typedef struct SymbolListStack {
 typedef struct Symbol {
 	const char* id;
 	Type* type;
-	Def* d;
+	void* declaration;
 } Symbol;
 
 //static SymbolListStack symbolTable;
@@ -46,6 +47,85 @@ void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
 	exit(01);
 }
+static Def* expandDefVar(Def* d) {
+	DefVar* dv = d->u.v;
+	NameL* nl = dv->nl;
+	Def* dl = d;
+	while(nl) {
+		printf("%s\n", nl->name);
+		Def* nDef = (Def*)malloc(sizeof(Def));
+		nDef->tag = DVar;
+		DefVar* ndv = (DefVar*)malloc(sizeof(DefVar));
+		char* name = (char*)malloc(strlen(nl->name)+1);
+		name[strlen(nl->name)] = '\0';
+		strcpy(name,nl->name);
+		ndv->id = name;
+		assert(ndv->id!=NULL);
+		ndv->t = dv->t; //same type
+		nDef->u.v = ndv;
+		dl->next = nDef;
+		dl = dl->next;
+		nl = nl->next;
+	}
+	dl->next = d->next;
+	return d;
+}
+static DefVarL* expandNameListIntoDefVarL(NameL * nl,Type* t) {
+	if(nl==NULL) {
+		return NULL;
+	}
+	DefVarL * dvl;
+
+		dvl = (DefVarL*)malloc(sizeof(DefVarL));
+		DefVar* dv = (DefVar*)malloc(sizeof(DefVar));
+		dv->scope = VLocal;
+		char* name = (char*)malloc(strlen(nl->name)+1);
+		name[strlen(nl->name)] = '\0';
+		strcpy(name,nl->name);
+		dv->id = name;
+		dv->t = t;
+		dv->nl = NULL;
+		dvl->dv = dv;
+		dvl->next = expandNameListIntoDefVarL(nl->next,t);
+	return dvl;
+	
+
+}
+static DefVarL* expandDefVarL(DefVarL* dvl) {
+	// DefVar* dv = dvl->dv;
+	// NameL* nl = dv->nl;
+	// DefVarL* rdvl = dvl;
+	// dv->id = "NENHUM";
+	// while(nl) {
+	// 	printf("%s\n", nl->name);
+	// 	printf("%s nl\n",nl->name );
+	// 	DefVarL* ndvl = (DefVarL*)malloc(sizeof(DefVarL));
+
+	// 	DefVar* ndv = (DefVar*)malloc(sizeof(DefVar));
+	// 	char* name = (char*)malloc(strlen(nl->name)+1);
+	// 	name[strlen(nl->name)] = '\0';
+	// 	strcpy(name,nl->name);
+	// 	ndv->id = name;
+	// 	assert(ndv->id!=NULL);
+	// 	ndv->t = dv->t; //same type
+	// 	ndvl->dv = ndv;
+	// 	dl->next = ndvl;
+	// 	dl = dl->next;
+	// 	nl = nl->next;
+	// }
+	// dl->next = d->next;
+
+	// return d;
+	DefVarL* internalList = expandNameListIntoDefVarL(dvl->dv->nl,dvl->dv->t);
+	DefVarL* p = internalList;
+	while(p->next !=NULL) {
+		p = p->next;
+	}
+	p->next = dvl->next;
+	dvl->next = internalList;
+	return dvl;
+}
+
 Parameter* findParamsOfFunc(const char* funcId) {
 	Def* dfl = globalTree->next;
 	while(dfl) {
@@ -143,7 +223,7 @@ int findCurrentScope(const char * symbol) {
 	return -1;
 
 }
-void insert(const char* symbolID,Type* type) {
+void insert(const char* symbolID,Type* type,void* d) {
 	printf("insert %s \n",symbolID);
 	if(findCurrentScope(symbolID)>=0) {
 		printf("--%s--\n", symbolID);
@@ -151,6 +231,7 @@ void insert(const char* symbolID,Type* type) {
 	}
 	variables[variablesTop].id = symbolID;
 	variables[variablesTop].type = type;
+	variables[variablesTop].declaration = d;
 	variablesTop++;
 	//printf("variablesTop %d\n",variablesTop );
 }
@@ -166,9 +247,12 @@ void typeTree(progNode* p)
 void typeDefList(Def* d)
 {
 	Def* df = d;
+	Def* ndf;
 	while(df!=NULL) {
 		switch(df->tag) {
 			case DVar:
+				// ndf = expandDefVar(d);
+				// df = ndf;
 				typeDefVar(df->u.v);
 			break;
 			case DFunc:
@@ -178,28 +262,29 @@ void typeDefList(Def* d)
 		df = df->next;
 	}
 }
-void typeNameList(NameL* nl, Type* t) {
+void typeNameList(NameL* nl, Type* t,DefVar* dv) {
 	if(!nl)
 		return;
 	NameL* p = nl;
 	do  {
-		insert(p->name,t);
+		insert(p->name,t,dv);
 		p = p->next;
 	} while(p);
 }
-void typeDefVar(DefVar* dv ){
+void typeDefVar(DefVar* dv){
 	
 	if(!dv)
 		return;
-	typeNameList(dv->nl,dv->t);
+	dv->scope = scopesTop;
+	typeNameList(dv->nl,dv->t,dv);
 }
-void typeDefFunc(DefFunc* df )
+void typeDefFunc(DefFunc* df)
 {
 	if(!df)
 		return;
 	// printType(df->retType );
 	currentFunction = df;
-	insert(df->id,df->retType);
+	insert(df->id,df->retType,df);
 	enterScope();
 	typeParams(df->params );
 	typeBlock(df->b );
@@ -216,13 +301,16 @@ void typeParams(Parameter* params )
 	}
 	Parameter* p = params;
 	while(p) {
-		insert(p->id,p->t);
+		insert(p->id,p->t,NULL);
 		p = p->next; 
 	}
 }
 void typeBlock(Block* b ) {
+	DefVarL* ndvl;
 	if(!b)
 		return;
+	// ndvl = expandDefVarL(b->dvl);
+	// b->dvl = ndvl;
 	typeDefVarList(b->dvl );
 	typeCommandList(b->cl );
 }
@@ -654,24 +742,17 @@ void typeExpList(ExpList* el ) {
 
 }
 
-Type* typeOfVar(Var* v) {
+void typeVar(Var* v) {
 	if(!v)
-		return NULL;
-	//debugScopes();
+		return;
 	int index = find(v->id);
-
 	if(index < 0) {
 		printf("--var %s--\n",v->id);
 		typeError("No such var in scope");
 	}
-	return variables[index].type;
-	
-}
-void typeVar(Var* v) {
-	if(!v)
-		return;
-	//printf("%s\n",v->id );
-	v->type = typeOfVar(v);
+	v->type = variables[index].type;
+	DefVar* dv = (DefVar*)variables[index].declaration;
+	v->declaration = dv;
 	if(findFuncInTree(v->id)) {
 		typeError("Subject is a function, not a var");
 	}

@@ -8,7 +8,7 @@ void typeDefVar(DefVar* dv);
 void typeDefFunc(DefFunc* df);
 void typeDefVarList(DefVarL* dvl);
 void typeDefList(Def* d);
-void typeNameList(NameL* nl,Type* t);
+void typeNameList(NameL* nl,Type* t,DefVar* dv);
 void typeType(Type* t);
 void typeParams(Parameter* params);
 void typeCommandList(CommandL* cl);

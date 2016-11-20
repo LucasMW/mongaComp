@@ -41,10 +41,43 @@ typedef struct Parameter
 
 typedef enum CTypes { CWhile, CIf, CIfElse, CReturn, CAssign, CBlock, CCall,CPrint } CTypes;
 
+
+
+typedef struct NameL
+{
+	const char* name;
+	struct NameL* next;
+} NameL;
+
+typedef enum VScope { VGlobal,VLocal } VScope;
+
+typedef struct DefVar
+{
+	Type* t;
+	const char* id; //not used yet
+	NameL* nl;
+	int scope; //think is enough
+	VScope scopeTag; // not used yet
+	union {
+		int localAddress;
+		char* globalAddress;
+	}; //not used yet
+
+} DefVar;
+
+typedef struct DefVarL
+{
+	DefVar* dv;
+	struct DefVarL* next;
+} DefVarL;
+
+
+
 typedef struct Var
 {
 	const char* id;
 	Type* type;
+	DefVar* declaration;
 } Var;
 
 typedef enum ExpE {
@@ -108,25 +141,6 @@ typedef struct ExpList
 	struct ExpList* next; 
 } ExpList ;
 
-typedef struct NameL
-{
-	const char* name;
-	struct NameL* next;
-} NameL;
-
-
-
-typedef struct DefVar
-{
-	Type* t;
-	NameL* nl;
-} DefVar;
-
-typedef struct DefVarL
-{
-	DefVar* dv;
-	struct DefVarL* next;
-} DefVarL;
 
 typedef struct CommandL
 {
@@ -173,6 +187,7 @@ typedef struct Def {
 	} u;
 	struct Def* next;
 } Def;
+
 
 typedef struct progNode {
 	Def* next;
