@@ -1,0 +1,19 @@
+int getchar();
+void putchar(int c);
+int main() {
+	int c;
+	c = getchar();
+	/*putchar(c);
+	putchar('\n');*/
+	if(c >= 'x' ) {
+		putchar('y');
+		putchar('e');
+		putchar('s');
+	}
+	else {
+		putchar('n');
+		putchar('o');
+	}
+	putchar('\n');
+	return 0;
+}

@@ -25,6 +25,7 @@ char* stringForType(Type* t);
 
 static FILE* output = NULL;
 static int currentFunctionTIndex = 0;
+static int currentBrIndex = 0;
 
 void setCodeOutput(FILE* out) {
 	output = out;
@@ -205,6 +206,7 @@ void codeCommandList(CommandL* cl) {
 	CommandL* c = cl;
 	printf("CommandL\n");
 	int i1,i2;
+	int b1,b2,b3;
 	while(c) {
 		printf("cl\n");
 		switch(c->tag) {
@@ -215,19 +217,34 @@ void codeCommandList(CommandL* cl) {
 				// leaveScope();
 			break;
 			case CIf:
-				// typeExp(c->condExp );
-				// enterScope();
-				// typeCommandList(c->cmdIf );
-				// leaveScope();
+				i1 = codeExp(c->condExp );
+				b1 = currentBrIndex++;
+				b2 = currentBrIndex++;
+				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
+				 i1,
+				 b1,
+				 b2);
+				fprintf(output, "b%d:\n",b1 );
+				codeCommandList(c->cmdIf );
+				fprintf(output, "br label %%b%d\n",b2 );
+				fprintf(output, "b%d:\n",b2 );				// leaveScope();
 			break;
 			case CIfElse:
-				// typeExp(c->condExp );
-				// enterScope();
-				// typeCommandList(c->cmdIf );
-				// leaveScope();
-				// enterScope();
-				// typeCommandList(c->cmdElse );
-				// leaveScope();
+				i1 = codeExp(c->condExp );
+				b1 = currentBrIndex++;
+				b2 = currentBrIndex++;
+				b3 = currentBrIndex++;
+				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
+				 i1,
+				 b1,
+				 b2);
+				fprintf(output, "b%d:\n",b1 );
+				codeCommandList(c->cmdIf );
+				fprintf(output, "br label %%b%d\n",b3 );
+				fprintf(output, "b%d:\n",b2 );
+				codeCommandList(c->cmdElse );
+				fprintf(output, "br label %%b%d\n",b3 );
+				fprintf(output, "b%d:\n",b3 );
 			break;
 			case CReturn:	
 				printf("cret\n");
@@ -497,6 +514,77 @@ int codeExpAccess(Exp* e) {
 	p64 );
 	return currentFunctionTIndex;
 }
+int codeExpCompare(Exp* e) {
+	int i1,i2;
+	i1 = codeExp(e->cmp.e1);
+	i2 = codeExp(e->cmp.e2);
+	currentFunctionTIndex++;
+	int l;
+	char oprStr[4] = "sgt";
+	switch(e->cmp.op) {
+		case GT:
+			strcpy(oprStr,"sgt");
+		break;
+		case GTE:
+			strcpy(oprStr,"sge");
+		break;
+		case LS:
+			strcpy(oprStr,"slt");
+		break;
+		case LSE:
+			strcpy(oprStr,"sle");
+		break;
+		case EqEq:
+			strcpy(oprStr,"sle");
+		break;
+		case OR:
+			fprintf(output, "%%t%d = or i32 %%t%d, %%t%d\n",
+			currentFunctionTIndex,
+			i1,
+			i2);
+			l = currentFunctionTIndex++;
+			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			currentFunctionTIndex,
+			l);
+			l = currentFunctionTIndex++;
+			fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
+			currentFunctionTIndex,
+			l);
+			return currentFunctionTIndex;
+		break;
+		case AND:
+		fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			currentFunctionTIndex,
+			i1);
+		i1 = currentFunctionTIndex++;
+		fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			currentFunctionTIndex,
+			i2);
+		i2 = currentFunctionTIndex++;
+		fprintf(output, "%%t%d = and i1 %%t%d, %%t%d\n",
+		currentFunctionTIndex,
+		i1,
+		i2 );
+		l=currentFunctionTIndex++;
+		fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
+			currentFunctionTIndex,
+			l);
+			return currentFunctionTIndex;
+
+		break;
+	}
+	oprStr[3] = '\0';
+	fprintf(output, "%%t%d = icmp %s i32 %%t%d, %%t%d\n",
+	currentFunctionTIndex,
+	oprStr,
+	i1,
+	i2 );
+	// int t = currentFunctionTIndex++;
+	// fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
+	// 	currentFunctionTIndex,
+	// 	t);
+	return currentFunctionTIndex;
+}
 
 int codeExp(Exp* e) {
 	int result =-1;
@@ -547,23 +635,7 @@ int codeExp(Exp* e) {
 			// e->type = typeOfNew(e);
 		break;
 		case ExpCmp:
-			// typeExp(e->cmp.e1);
-			// typeExp(e->cmp.e2);
-			// switch(e->cmp.op) {
-			// 	default:
-			// 		if(!checkTypeLogic(e->cmp.e1,e->cmp.e2)) {
-			// 			typeError("Types not suitble for logic");
-			// 		}
-			// 	break;
-			// 	case EqEq:
-			// 		if(!typeEquals(e->cmp.e1->type,e->cmp.e2->type)) {
-			// 			printType(e->cmp.e1->type,0);
-			// 			printType(e->cmp.e2->type,0);
-			// 			typeError("Not comparable types in ==");
-			// 		}
-			// 	break;
-			// }
-			// e->type = CmpType(e);
+			result = codeExpCompare(e);
 
 		break;
 		case ExpAccess:
