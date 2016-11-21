@@ -211,9 +211,22 @@ void codeCommandList(CommandL* cl) {
 		printf("cl\n");
 		switch(c->tag) {
 			case CWhile:
-				// typeExp(c->condExp );
-				// enterScope();
-				// typeCommandList(c->cmdIf );
+			 	i1 = codeExp(c->condExp );
+				b1 = currentBrIndex++;
+				b2 = currentBrIndex++;
+				b3 = currentBrIndex++;
+				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
+				 i1,
+				 b1,
+				 b3);
+				fprintf(output, "b%d:\n",b1 );
+				codeCommandList(c->cmdIf );
+				i2 = codeExp(c->condExp );
+				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
+				 i2,
+				 b1,
+				 b3);
+				fprintf(output, "b%d:\n",b3 );
 				// leaveScope();
 			break;
 			case CIf:
