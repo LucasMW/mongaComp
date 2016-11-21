@@ -34,6 +34,8 @@ static void defaultOutput() {
 	output = stdout;
 }
 
+static Parameter* currentParameters = NULL;
+
 char* stringForType(Type* t) {
 	char* tStr = NULL;
 	if(t == NULL)
@@ -99,6 +101,7 @@ void codeDefFunc(DefFunc* df) {
 	char* typeStr = stringForType(df->retType);
 	if(df->b) {
 		currentFunctionTIndex = 0;
+		currentParameters = df->params;
 		fprintf(output, "define %s @%s(", typeStr,df->id);
 		codeParams(df->params);
 		fprintf(output, ")\n{\n");
@@ -109,6 +112,7 @@ void codeDefFunc(DefFunc* df) {
 		} //probably missing a ret in the end of void func
 		fprintf(output, "}\n");
 		currentFunctionTIndex = 0;
+		currentParameters = NULL;
 	}
 	else {
 		fprintf(output, "declare %s @%s(", typeStr,df->id);
@@ -379,6 +383,25 @@ int getAddressOfVar(Var* id) {
 int codeExpVar(Exp* e) {
 	currentFunctionTIndex++;
 	char* tStr = stringForType(e->type);
+	if(e->var->declaration == NULL)
+	{
+		printf(";params\n");
+		Parameter* p = currentParameters;
+		int t=0;
+		while(p) {
+			if(strcmp(e->var->id,p->id)==0)
+				break;
+			p=p->next;
+			t++;
+		}
+
+		fprintf(output,"%%t%d = load %s, %s* %%t%d\n", 
+				currentFunctionTIndex,
+				 tStr,
+				 tStr,
+				 t);
+	}
+	else {
 	int scope = e->var->declaration->scope;
 	char* varAddr = stringForVarAddress(e->var->id,scope);
 	fprintf(output,"%%t%d = load %s, %s* %%%s\n", 
@@ -386,6 +409,7 @@ int codeExpVar(Exp* e) {
 				 tStr,
 				 tStr,
 				 varAddr);
+	}
 	return currentFunctionTIndex;
 }
 int codeExpUnary(Exp* e) {
@@ -457,6 +481,22 @@ int codeExpCast(Exp* e) {
 	}
 	return currentFunctionTIndex;
 }
+int codeExpAccess(Exp* e) {
+	int i2;
+	//i1 = codeExp(e->access.varExp);
+	char* arrayName = adressOfLeftAssign(e->access.varExp);
+	i2 = codeExp(e->access.indExp);
+	currentFunctionTIndex++;
+	fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
+			currentFunctionTIndex,
+			i2 );
+	int p64 = currentFunctionTIndex++;
+	fprintf(output, "%%t%d = getelementptr inbounds [100 x i32], [100 x i32]* %s, i64 0, i64 %%t%d\n",
+	currentFunctionTIndex,
+	arrayName,
+	p64 );
+	return currentFunctionTIndex;
+}
 
 int codeExp(Exp* e) {
 	int result =-1;
@@ -501,7 +541,6 @@ int codeExp(Exp* e) {
 			// e->type = typeOfConstant(e->c);
 		break;
 		case ExpNew:
-			// typeExp(e->eNew.e);
 			// if(!checkTypeIndex(e->eNew.e)) {
 			// 	typeError("Index of array is not an int");
 			// }
@@ -528,6 +567,7 @@ int codeExp(Exp* e) {
 
 		break;
 		case ExpAccess:
+			result = codeExpAccess(e);
 			// typeExp(e->access.varExp);
 			// typeExp(e->access.indExp);
 			// if(!checkTypeIndex(e->access.indExp)) {
