@@ -89,6 +89,7 @@ char* stringForVarAddress(const char* name,int scope) {
 	return str;
 }
 static void codeExtraDeclares() {
+	//fprintf(output, "declare noalias i8* @malloc(i64)\n" );
 	fprintf(output, "declare i8* @malloc(i32)\n" ); //malloc 
 }
 
@@ -576,24 +577,35 @@ int codeExpAccess(Exp* e) {
 	tStr,
 	tStr,
 	i1);
-	return currentFunctionTIndex;
-
-	// fprintf(output, ";access var code\n" );
-	// i1 = codeExp(e->access.varExp);
-	// fprintf(output, ";access var code\n" );
-	// char* arrayName = adressOfLeftAssign(e->access.varExp);
-	
-	// fprintf(output, "%%t%d = getelementptr %s*, %%%s, i32 0, i32 %%t%d\n",
-	// currentFunctionTIndex,
-	// tStr,
-	// arrayName,
-	// i2 );
-	
+	return currentFunctionTIndex;	
+}
+int sizeOfType(Type* t) {
+	if(t->tag == base) {
+		switch(t->b) {
+			case WInt:
+				return sizeof(int);
+			break;
+			case WFloat:
+				return sizeof(float);
+			break;
+			case WChar:
+				return sizeof(char);
+			break;
+		}
+	}
+	else {
+		return sizeof(int*); //pointer size
+	}
 }
 int codeExpNew(Exp* e) {
 	int i1 = codeExp(e->eNew.e);
 	char * tStr = stringForType(e->type);
 	currentFunctionTIndex++;
+	fprintf(output, "%%t%d = mul i32 %%t%d, %d\n",
+		currentFunctionTIndex, 
+		i1,
+		sizeOfType(e->type));
+	i1 = currentFunctionTIndex++;
 	fprintf(output, " %%t%d = tail call i8* @malloc(i32 %%t%d)\n",
 	currentFunctionTIndex,
 	i1);
