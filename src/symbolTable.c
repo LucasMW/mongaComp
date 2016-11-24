@@ -44,14 +44,15 @@ Type* getTypeOfExp(Exp* e);
 Type* typeOfConstant(Constant* c);
 int typeEquals(Type* t1, Type* t2);
 int checkPrintability(Exp* e);
+DefFunc* findFuncInTree(const char* funcId);
 void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
 	exit(01);
 }
 void generateStardardDeclares(progNode* prog) {
-	findFuncInTree("")
+	findFuncInTree("");
 }
-static Def* expandDefVar(Def* d) {
+/*static Def* expandDefVar(Def* d) {
 	DefVar* dv = d->u.v;
 	NameL* nl = dv->nl;
 	Def* dl = d;
@@ -128,7 +129,7 @@ static DefVarL* expandDefVarL(DefVarL* dvl) {
 	p->next = dvl->next;
 	dvl->next = internalList;
 	return dvl;
-}
+}*/
 
 Parameter* findParamsOfFunc(const char* funcId) {
 	Def* dfl = globalTree->next;
@@ -484,6 +485,7 @@ Type* typeOfNew(Exp* e) {
 	t->of = e->eNew.t;
 	return t;
 }
+
 Type* typeOfAccess(Exp* e) {
 	int index = find(e->call.id);
 
@@ -578,6 +580,13 @@ int checkPrintability(Exp* e) {
 			&& e->type->of->b ==WChar) {
 			return 1;
 		}
+	}
+	return 0;
+}
+int checkAccess(Exp* e) {
+	Exp* v = e->access.varExp;
+	if(v->tag == ExpAccess | v->tag == ExpVar) {
+		return 1;
 	}
 	return 0;
 }
@@ -684,11 +693,13 @@ void typeExp(Exp* e ) {
 
 		break;
 		case ExpAccess:
-			
 			typeExp(e->access.varExp);
 			typeExp(e->access.indExp);
 			if(!checkTypeIndex(e->access.indExp)) {
 				typeError("Index of array is not an int");
+			}
+			if(!checkAccess(e)) {
+				typeError("Access in something that is not an array or variable");
 			}
 			e->type = e->access.varExp->type->of;
 		break;

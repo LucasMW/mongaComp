@@ -16,16 +16,20 @@ void codeType(Type* t);
 void codeParams(Parameter* params);
 void codeForAllocParams(Parameter* params);
 void codeCommandList(CommandL* cl);
+int codeExpAccess(Exp* e);
 void codeBlock(Block* b);
 int codeExp(Exp* e);
 void codeVar(Var* v);
 void codeConstant(Constant* c);
 void codeExpList(ExpList* el);
+int codeAccessElemPtr(Exp* e);
 char* stringForType(Type* t);
 
 static FILE* output = NULL;
 static int currentFunctionTIndex = 0;
 static int currentBrIndex = 0;
+
+
 
 void setCodeOutput(FILE* out) {
 	output = out;
@@ -84,12 +88,16 @@ char* stringForVarAddress(const char* name,int scope) {
 	str[strlen(string)] = '\0';
 	return str;
 }
+static void codeExtraDeclares() {
+	fprintf(output, "declare i8* @malloc(i32)\n" ); //malloc 
+}
 
 void codeTree() {
 	if(output==NULL) {
 		defaultOutput();
 	}
 	printf("generating code for tree\n");
+	codeExtraDeclares();
 	codeDefList(globalTree->next);
 } 
 void codeDefVar(DefVar* dv) {
@@ -171,16 +179,18 @@ void codeParams(Parameter* params) {
 void codeForAllocParams(Parameter* params) {
 	if(!params)
 		return;
-	char * tStr = stringForType(params->t);
+	
 	int index = currentFunctionTIndex;
 	Parameter* p = params;
 	while(p) {
+		char * tStr = stringForType(p->t);
 		fprintf(output,"%%t%d = alloca %s\n", currentFunctionTIndex++, tStr);
 		p = p->next;
 	}
 	p = params;
 	int i=0;
 	while(p) {
+		char * tStr = stringForType(p->t);
 		fprintf(output,"store %s %%%d, %s* %%t%d\n", tStr, i++, tStr, index++);
 		p = p->next;
 	}
@@ -189,6 +199,13 @@ void codeForAllocParams(Parameter* params) {
 void codeForAssign() {
 
 }
+/* 
+ %t315 = getelementptr i32* @g25, i32 0
+ ~= i315 = &g25[0];
+*/
+// void getelementptr(char* str) {
+// 	fprintf(output, "%s\n", );
+// }
 char* adressOfLeftAssign(Exp* e) {
 	if(e->tag == ExpVar) {
 		int scope = e->var->declaration->scope;
@@ -196,7 +213,10 @@ char* adressOfLeftAssign(Exp* e) {
 		return varAddr;
 	}
 	else {
-		fprintf(output, "; not implemented \n" );
+		int i = codeAccessElemPtr(e); //received getElemPtr
+		char * str = malloc(i/10+3);
+		sprintf(str,"t%d",i);
+		return str;
 	}
 	return NULL;
 }
@@ -507,26 +527,111 @@ int codeExpCast(Exp* e) {
 		
 	}
 	else {
-		fprintf(output, "cast not implemented \n" );
+		fprintf(output, ";cast not implemented \n" );
 	}
 	return currentFunctionTIndex;
 }
-int codeExpAccess(Exp* e) {
-	int i2;
-	//i1 = codeExp(e->access.varExp);
-	char* arrayName = adressOfLeftAssign(e->access.varExp);
-	i2 = codeExp(e->access.indExp);
+char* addressOfVector(Exp* e) {
+	if(e->tag == ExpAccess) {
+		return adressOfLeftAssign(e->access.varExp);
+	}
+	else if(e->tag == ExpVar) {
+		return adressOfLeftAssign(e);
+	}
+	else {
+		return "%%SevereError";
+	}
+}
+int codeAccessElemPtr(Exp* e) {
+	int i1 = codeExp(e->access.indExp);
 	currentFunctionTIndex++;
 	fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
 			currentFunctionTIndex,
-			i2 );
-	int p64 = currentFunctionTIndex++;
-	fprintf(output, "%%t%d = getelementptr inbounds [100 x i32], [100 x i32]* %s, i64 0, i64 %%t%d\n",
+			i1 );
+	char* tStr = stringForType(e->type);
+	int index = currentFunctionTIndex++;
+	char* str = addressOfVector(e->access.varExp);
+	fprintf(output, "%%t%d = load %s*, %s** %%%s\n",
 	currentFunctionTIndex,
-	arrayName,
-	p64 );
+	tStr,
+	tStr,
+	str );
+	int startArrayAddress = currentFunctionTIndex++;
+	fprintf(output, "%%t%d = getelementptr %s, %s* %%t%d, i64 %%t%d\n",
+	currentFunctionTIndex,
+	tStr,
+	tStr,
+	startArrayAddress,
+	index);
 	return currentFunctionTIndex;
 }
+int codeExpAccess(Exp* e) {
+	printf("Exp Access\n");
+	int i1;
+	i1 =codeAccessElemPtr(e);
+	char* tStr = stringForType(e->type);
+	currentFunctionTIndex++;
+	fprintf(output, "%%t%d = load %s, %s* %%t%d\n",
+	currentFunctionTIndex,
+	tStr,
+	tStr,
+	i1);
+	return currentFunctionTIndex;
+
+	// fprintf(output, ";access var code\n" );
+	// i1 = codeExp(e->access.varExp);
+	// fprintf(output, ";access var code\n" );
+	// char* arrayName = adressOfLeftAssign(e->access.varExp);
+	
+	// fprintf(output, "%%t%d = getelementptr %s*, %%%s, i32 0, i32 %%t%d\n",
+	// currentFunctionTIndex,
+	// tStr,
+	// arrayName,
+	// i2 );
+	
+}
+int codeExpNew(Exp* e) {
+	int i1 = codeExp(e->eNew.e);
+	char * tStr = stringForType(e->type);
+	currentFunctionTIndex++;
+	fprintf(output, " %%t%d = tail call i8* @malloc(i32 %%t%d)\n",
+	currentFunctionTIndex,
+	i1);
+	int i2 = currentFunctionTIndex++;
+	fprintf(output, "%%t%d = bitcast i8* %%t%d to %s\n",
+	currentFunctionTIndex,
+	i2,
+	tStr );
+	return currentFunctionTIndex;
+}
+// void codeBranches(Exp* e, int lt,int l2) {
+// 	switch(e->tag) {
+// 		case OR:
+// 		int ln = currentBrIndex++;
+// 		codeBranches(e->e1,lt,ln);
+// 		codeLabel(ln);
+// 		codeBranches(e->e2,lt,lf);
+// 		break;
+// 		case AND:
+// 		break;
+// 		case NOT:
+// 		codeBranches(e->e1,lf,lt);
+// 		break;
+// 		case E_LT:
+// 		int r1 = codeExp(e->e1);
+// 		int r2 = condExp(e->e2);
+// 		int t = currentFunctionTIndex++;
+// 		fprintf("%t = icmp lt i32 %r1, %r2");
+// 		fprintf(output, "br i1 %nt label lt, lf\n", );
+// 		break;
+// 		default:
+// 		int nt = currentFunctionTIndex++;
+// 		int te = condExp(e);
+// 		fprintf(output, "%nt = icmp eq i32 %te, 0\n", );
+// 		fprintf(output, "br i1 %nt label lt, lf\n", );
+// 		break;
+// 	}
+// }
 int codeExpCompare(Exp* e) {
 	int i1,i2;
 	i1 = codeExp(e->cmp.e1);
@@ -642,6 +747,7 @@ int codeExp(Exp* e) {
 			// e->type = typeOfConstant(e->c);
 		break;
 		case ExpNew:
+			result = codeExpNew(e);
 			// if(!checkTypeIndex(e->eNew.e)) {
 			// 	typeError("Index of array is not an int");
 			// }
