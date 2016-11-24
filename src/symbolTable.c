@@ -25,6 +25,7 @@ typedef struct Symbol {
 	const char* id;
 	Type* type;
 	void* declaration;
+
 } Symbol;
 
 //static SymbolListStack symbolTable;
@@ -47,12 +48,15 @@ void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
 	exit(01);
 }
+void generateStardardDeclares(progNode* prog) {
+	findFuncInTree("")
+}
 static Def* expandDefVar(Def* d) {
 	DefVar* dv = d->u.v;
 	NameL* nl = dv->nl;
 	Def* dl = d;
 	while(nl) {
-		printf("%s\n", nl->name);
+		//printf("%s\n", nl->name);
 		Def* nDef = (Def*)malloc(sizeof(Def));
 		nDef->tag = DVar;
 		DefVar* ndv = (DefVar*)malloc(sizeof(DefVar));
@@ -190,17 +194,17 @@ void initSymbolTable() {
 }
 
 void enterScope() {
-	printf("enterScope %d\n",scopesTop+1);
+	//printf("enterScope %d\n",scopesTop+1);
 	scopes[scopesTop] = variablesTop; 
 	scopesTop++;
 	//scopes[scopesTop] = variablesTop; 
-	debugScopes();
+	//debugScopes();
 }
 void leaveScope() {
-	printf("leaveScope %d\n",scopesTop);
+	//printf("leaveScope %d\n",scopesTop);
 	scopesTop--;
 	variablesTop = scopes[scopesTop];
-	debugScopes();
+	//debugScopes();
 }
 int find(const char * symbol) {
 	int i;
@@ -224,7 +228,7 @@ int findCurrentScope(const char * symbol) {
 
 }
 void insert(const char* symbolID,Type* type,void* d) {
-	printf("insert %s \n",symbolID);
+	//printf("insert %s \n",symbolID);
 	if(findCurrentScope(symbolID)>=0) {
 		printf("--%s--\n", symbolID);
 		typeError("Symbol was already declared in this scope");
@@ -331,7 +335,7 @@ int checkTypeReturn(Exp* retExp, DefFunc* df) {
 	return typeEquals(t,ft);
 }
 int checkCallability(Exp* callExp) {
-	printf("wsw\n");
+	//printf("wsw\n");
 	if(!callExp) {
 		return 0; //cannot call null
 	}
@@ -533,11 +537,11 @@ int checkTypeExpList(ExpList* el,Parameter* params) {
 	if(el == NULL || params == NULL)
 		return !el && !params;
 	ExpList *p = el;
-	printExpList(el,0);
-	printParams(params,0);
-	puts("");
+	//printExpList(el,0);
+	//printParams(params,0);
+	//puts("");
 	while(p) {
-		printf("a\n");
+		//printf("a\n");
 		if(!typeEquals(params->t,p->e->type)) {
 			printf("Not equal typing");
 			return 0;
