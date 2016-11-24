@@ -5,6 +5,7 @@ int f(int a,float b,char c){
 int g(){
   int a;
   a = f(1.7 as int,3 as float,g());
+  return a;
 }
 
 int d() {

@@ -1,4 +1,4 @@
-
+int printf(char[] c);
 /* if test */
 void main(int argc,char[][] argv) 
 {
@@ -31,6 +31,9 @@ void makeAAd1(int a)
 }
 void mWhile(int a)
 {
+	char[] program;
+	int prgIdx;
+	int internalLoopCount;
 	while(!( a >= ']' && a < 150)) 
 				/* while not match stop requirements*/
 				{

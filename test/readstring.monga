@@ -1,0 +1,14 @@
+int getchar();
+void putchar(int c);
+void readstring() {
+	int c;
+	c = getchar();
+	while(c>0) {
+		putchar(c);
+		c = getchar();
+	}
+}
+int main() {
+	readstring();
+	return 0;
+}
