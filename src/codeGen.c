@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include <math.h>
 #if !defined(tree_h)
 	#include "tree.h"
@@ -29,6 +30,7 @@ static FILE* output = NULL;
 static int currentFunctionTIndex = 0;
 static int currentBrIndex = 0;
 
+char* stringsToDeclare[100];
 
 
 void setCodeOutput(FILE* out) {
@@ -77,7 +79,7 @@ char* stringForType(Type* t) {
 char* stringForVarAddress(const char* name,int scope) {
 	char string[50] = "no string yet";
 	if(scope == 0) {
-		sprintf(string,"g%s",name);
+		sprintf(string,"@g%s",name);
 	}
 	else {
 		sprintf(string,"l%d%s",scope,name);
@@ -90,7 +92,15 @@ char* stringForVarAddress(const char* name,int scope) {
 }
 static void codeExtraDeclares() {
 	//fprintf(output, "declare noalias i8* @malloc(i64)\n" );
+	fprintf(output, "; generated with mongaComp \n" );
 	fprintf(output, "declare i8* @malloc(i32)\n" ); //malloc 
+	fprintf(output, "declare i32 @printf(i8* nocapture readonly, ...)\n" );
+	fprintf(output, "declare i32 @puts(i8* nocapture readonly)\n" );
+	fprintf(output, "@.intprintstr = private unnamed_addr constant [4 x i8] c\"%%d\\0A\\00\"\n" );
+	fprintf(output, "@.floatprintstr = private unnamed_addr constant [4 x i8] c\"%%f\\0A\\00\"\n" );
+	fprintf(output, "@.charprintstr = private unnamed_addr constant [4 x i8] c\"%%c\\0A\\00\"\n" );
+	fprintf(output, "@.strprintstr = private unnamed_addr constant [4 x i8] c\"%%s\\0A\\00\"\n" );
+	fprintf(output, "; End of main monga dependencies \n" );
 }
 
 void codeTree() {
@@ -208,14 +218,17 @@ void codeForAssign() {
 // 	fprintf(output, "%s\n", );
 // }
 char* adressOfLeftAssign(Exp* e) {
+	printf("addr left assig\n");
 	if(e->tag == ExpVar) {
+		printf("e->var.id %s\n",e->var->id);
+		assert(e->var->declaration != NULL);
 		int scope = e->var->declaration->scope;
 		char* varAddr = stringForVarAddress(e->var->id,scope);
 		return varAddr;
 	}
 	else {
 		int i = codeAccessElemPtr(e); //received getElemPtr
-		char * str = malloc(i/10+3);
+		char * str = (char*)malloc(i/10+3);
 		sprintf(str,"t%d",i);
 		return str;
 	}
@@ -311,7 +324,36 @@ void codeCommandList(CommandL* cl) {
 				codeExp(c->expRight);
 			break;
 			case CPrint:
-				// typeExp(c->printExp);
+				i1 =  codeExp(c->printExp);
+				if(c->printExp->type == NULL) {
+					fprintf(output, ";printing void expression is unavaible\n" );
+				}
+				else if(c->printExp->type->tag == base) {
+					switch(c->printExp->type->b) {
+						case WInt:
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.intprintstr, i64 0, i64 0), i32 %%t%d)\n",
+						i1 );
+						
+						break;
+						case WFloat:
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.floatprintstr, i64 0, i64 0), float %%t%d)\n",
+						i1 );
+						break;
+						case WChar:
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.charprintstr, i64 0, i64 0), i8 %%t%d)\n",
+						i1 );
+						break;
+					}
+				}
+				else if(c->printExp->type->of->tag == base &&
+					c->printExp->type->of->b == WChar) {
+
+					fprintf(output, "tail call i32 @puts(i8* %%t%d)\n", i1);
+					
+				}
+				else {
+					fprintf(output, ";printing non string array is unavaible\n" );
+				}
 				// if (!checkPrintability(c->printExp)) {
 				// 	typeError("Expression is not printable");
 				// }
@@ -532,11 +574,33 @@ int codeExpCast(Exp* e) {
 	}
 	return currentFunctionTIndex;
 }
+char* adressOfParameter(const char* id) {
+	Parameter* p = currentParameters;
+		int t=0;
+		while(p) {
+			if(strcmp(id,p->id)==0)
+				break;
+			p=p->next;
+			t++;
+		}
+		char * str = (char*)malloc(t/10+3);
+		sprintf(str,"t%d",t);
+		return str;
+		
+}
 char* addressOfVector(Exp* e) {
+	printf("addressOfVector\n");
 	if(e->tag == ExpAccess) {
-		return adressOfLeftAssign(e->access.varExp);
+		printf("gacr\n");
+		return addressOfVector(e->access.varExp);
 	}
 	else if(e->tag == ExpVar) {
+		printf("gVar\n");
+
+		if(e->var->declaration == NULL)
+		{
+			return adressOfParameter(e->var->id);
+		}
 		return adressOfLeftAssign(e);
 	}
 	else {
@@ -544,6 +608,7 @@ char* addressOfVector(Exp* e) {
 	}
 }
 int codeAccessElemPtr(Exp* e) {
+	printf("getelementptr\n");
 	int i1 = codeExp(e->access.indExp);
 	currentFunctionTIndex++;
 	fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
@@ -569,7 +634,7 @@ int codeAccessElemPtr(Exp* e) {
 int codeExpAccess(Exp* e) {
 	printf("Exp Access\n");
 	int i1;
-	i1 =codeAccessElemPtr(e);
+	i1 = codeAccessElemPtr(e);
 	char* tStr = stringForType(e->type);
 	currentFunctionTIndex++;
 	fprintf(output, "%%t%d = load %s, %s* %%t%d\n",

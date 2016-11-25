@@ -320,7 +320,7 @@ void printConstant(Constant* c,int x) {
 			printDepthLevel(str,x);
 		break;
 		case KStr:
-			sprintf(str, "\"%s\"", c->u.str);
+			sprintf(str, "\"%.*s\"", 37,c->u.str); //first 40 characters of string
 			printDepthLevel(str,x);
 		break;
 	}
