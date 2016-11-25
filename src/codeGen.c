@@ -100,7 +100,7 @@ static void codeExtraDeclares() {
 	fprintf(output, "@.floatprintstr = private unnamed_addr constant [4 x i8] c\"%%f\\0A\\00\"\n" );
 	fprintf(output, "@.charprintstr = private unnamed_addr constant [4 x i8] c\"%%c\\0A\\00\"\n" );
 	fprintf(output, "@.strprintstr = private unnamed_addr constant [4 x i8] c\"%%s\\0A\\00\"\n" );
-	fprintf(output, "; End of main monga dependencies \n" );
+	fprintf(output, "; End of monga dependencies \n" );
 }
 
 void codeTree() {
@@ -336,8 +336,13 @@ void codeCommandList(CommandL* cl) {
 						
 						break;
 						case WFloat:
-						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.floatprintstr, i64 0, i64 0), float %%t%d)\n",
-						i1 );
+						currentFunctionTIndex++;
+						fprintf(output, "%%t%d = fpext float %%t%d to double\n", 
+							currentFunctionTIndex,
+							i1 );
+						 
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.floatprintstr, i64 0, i64 0), double %%t%d)\n",
+						currentFunctionTIndex );
 						break;
 						case WChar:
 						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.charprintstr, i64 0, i64 0), i8 %%t%d)\n",
@@ -570,7 +575,14 @@ int codeExpCast(Exp* e) {
 		
 	}
 	else {
-		fprintf(output, ";cast not implemented \n" );
+		if(e->type->b == WChar) {
+			fprintf(output, "%%t%d = trunc i32 %%t%d to i8\n",
+			currentFunctionTIndex,
+			i1 );
+		}
+		else {
+			fprintf(output, ";cast not implemented\n");
+		}
 	}
 	return currentFunctionTIndex;
 }
