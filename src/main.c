@@ -41,6 +41,7 @@ int main (int argc, char** argv)
 	char noTree =0;
 	char noChecks=0;
 	char noCode = 0;
+	char noBin = 0;
 
 	if(argc == 2)
 	{
@@ -49,6 +50,7 @@ int main (int argc, char** argv)
 			noTree = 1;
 			noChecks = 1;
 			noCode = 1;
+			noBin = 1;
 		}
 		if(strcmp("-lex",argv[1])==0)
 		{
@@ -57,9 +59,14 @@ int main (int argc, char** argv)
 		}
 		if(strcmp("-noChecks",argv[1])==0)
 		{
-			noChecks =1;
+			noChecks = 1;
+			noCode =1;
 		}
 		if(strcmp("-noCode",argv[1])==0)
+		{
+			noCode =1;
+		}
+		if(strcmp("-noBin",argv[1])==0)
 		{
 			noCode =1;
 		}
@@ -82,6 +89,10 @@ int main (int argc, char** argv)
 		setCodeOutput(llvm_ir_location);
 		codeTree();
 		fclose(llvm_ir_location);
+	}
+	if(!noBin)
+	{
+		system("clang a.ll");
 	}
 }
 
