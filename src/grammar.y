@@ -457,7 +457,7 @@ expMul: expMul '*' expUnary {
 expUnary: '!' expVar {  
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpUnary;
-        $$->unary.op = MINUS;
+        $$->unary.op = NOT;
         $$->unary.e = $2;
          } //!(exp) = 
       | '-' expVar {  //-(exp) = (0 - exp)

@@ -30,7 +30,10 @@ static FILE* output = NULL;
 static int currentFunctionTIndex = 0;
 static int currentBrIndex = 0;
 
+static int currentStringConstant = 0;
+static int declareTop = 0;
 char* stringsToDeclare[100];
+
 
 
 void setCodeOutput(FILE* out) {
@@ -76,6 +79,29 @@ char* stringForType(Type* t) {
 	}
 }
 
+static void pushStringToDeclare(char* str) {
+	printf("%s\n",str );
+	char* nstr = malloc(strlen(str)+1);
+	strcpy(nstr,str);
+	nstr[strlen(str)] = '\0';
+	stringsToDeclare[declareTop] = nstr ;
+	declareTop++;
+}
+static void declateStringsToDeclare() {
+	int x = currentStringConstant - declareTop;
+	for(int i = 0;i<declareTop;i++,x++) {
+		printf("ihihiz\n");
+		int len = strlen(stringsToDeclare[i])+1;
+		fprintf(output, "@.cstr.%d = private unnamed_addr constant [%d x i8] c\"%s\\00\"\n",
+		x+1,
+		len,
+		 stringsToDeclare[i]);
+		free(stringsToDeclare[i]);
+		stringsToDeclare[i] = NULL;
+	}
+	declareTop = 0;
+}
+
 char* stringForVarAddress(const char* name,int scope) {
 	char string[50] = "no string yet";
 	if(scope == 0) {
@@ -107,6 +133,7 @@ void codeTree() {
 	if(output==NULL) {
 		defaultOutput();
 	}
+	currentStringConstant = 0;
 	printf("generating code for tree\n");
 	codeExtraDeclares();
 	codeDefList(globalTree->next);
@@ -122,6 +149,7 @@ void codeDefFunc(DefFunc* df) {
 	if(df->b) {
 		currentFunctionTIndex = 0;
 		currentParameters = df->params;
+		declareTop = 0;
 		fprintf(output, "define %s @%s(", typeStr,df->id);
 		codeParams(df->params);
 		fprintf(output, ")\n{\n");
@@ -133,6 +161,7 @@ void codeDefFunc(DefFunc* df) {
 		fprintf(output, "}\n");
 		currentFunctionTIndex = 0;
 		currentParameters = NULL;
+		declateStringsToDeclare();
 	}
 	else {
 		fprintf(output, "declare %s @%s(", typeStr,df->id);
@@ -234,6 +263,18 @@ char* adressOfLeftAssign(Exp* e) {
 	}
 	return NULL;
 }
+int codeCond(Exp* e) {
+	int i1;
+	i1 = codeExp(e);
+	if(e->tag != ExpCmp) {
+		currentFunctionTIndex++;
+		fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+		currentFunctionTIndex,
+		i1 );
+		i1 = currentFunctionTIndex;
+	}
+	return i1;
+}
 void codeCommandList(CommandL* cl) {
 	if(!cl)
 		return;
@@ -245,7 +286,7 @@ void codeCommandList(CommandL* cl) {
 		printf("cl\n");
 		switch(c->tag) {
 			case CWhile:
-			 	i1 = codeExp(c->condExp );
+			 	i1 = codeCond(c->condExp);
 				b1 = currentBrIndex++;
 				b2 = currentBrIndex++;
 				b3 = currentBrIndex++;
@@ -255,7 +296,7 @@ void codeCommandList(CommandL* cl) {
 				 b3);
 				fprintf(output, "b%d:\n",b1 );
 				codeCommandList(c->cmdIf );
-				i2 = codeExp(c->condExp );
+				i2 = codeCond(c->condExp);
 				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
 				 i2,
 				 b1,
@@ -264,7 +305,7 @@ void codeCommandList(CommandL* cl) {
 				// leaveScope();
 			break;
 			case CIf:
-				i1 = codeExp(c->condExp );
+				i1 = codeCond(c->condExp);
 				b1 = currentBrIndex++;
 				b2 = currentBrIndex++;
 				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
@@ -277,7 +318,7 @@ void codeCommandList(CommandL* cl) {
 				fprintf(output, "b%d:\n",b2 );				// leaveScope();
 			break;
 			case CIfElse:
-				i1 = codeExp(c->condExp );
+				i1 = codeCond(c->condExp);
 				b1 = currentBrIndex++;
 				b2 = currentBrIndex++;
 				b3 = currentBrIndex++;
@@ -445,7 +486,7 @@ char* stringForConstant(Constant* c) {
 			sprintf(str, "%f", c->u.d);
 		break;
 		case KStr:
-			sprintf(str, "\"%s\"", c->u.str);
+			sprintf(str, "%s", c->u.str);
 		break;
 	}
 	return &str[0];
@@ -454,8 +495,18 @@ int codeExpPrim(Exp* e) {
 	currentFunctionTIndex++;
 	char* tStr = stringForType(e->type);
 	if(e->c->tag == KStr) {
-		fprintf(output, "no code yet for strings\n" );
-		return -1;
+		currentStringConstant++;
+		char* cStr = stringForConstant(e->c);
+		int len = strlen(cStr) + 1;
+		fprintf(output, "%%t%d = getelementptr inbounds [%d x i8], [%d x i8]* @.cstr.%d, i64 0, i64 0\n",
+		currentFunctionTIndex,
+		len,
+		len,
+		currentStringConstant );
+		
+		pushStringToDeclare(cStr);
+
+		return currentFunctionTIndex;
 	}
 	
 	char* cStr = stringForConstant(e->c);
