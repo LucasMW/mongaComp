@@ -631,8 +631,14 @@ int codeExpCast(Exp* e) {
 			currentFunctionTIndex,
 			i1 );
 		}
+		else if(e->cast.e->type->b == WChar) {
+			fprintf(output, "%%t%d = sext i8 %%t%d to i32\n",
+			currentFunctionTIndex,
+			i1 );
+		}
 		else {
 			fprintf(output, ";cast not implemented\n");
+			return -1;
 		}
 	}
 	return currentFunctionTIndex;
@@ -793,7 +799,7 @@ int codeExpCompare(Exp* e) {
 			strcpy(oprStr,"sle");
 		break;
 		case EqEq:
-			strcpy(oprStr,"sle");
+			strcpy(oprStr,"eq");
 		break;
 		case OR:
 			fprintf(output, "%%t%d = or i32 %%t%d, %%t%d\n",
