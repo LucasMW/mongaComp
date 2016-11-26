@@ -1,5 +1,5 @@
 1310844
-Lucas Menezes, T4 1715
+Lucas Menezes, T5 1715
 —————————————————————
 
 Description of monga language:
@@ -37,6 +37,7 @@ make
 flex
 bison
 bash
+clang/llc (llvm compiler)
 
 rules.lex was developed using flex. 
 Although, it was written to also work in lex, it was never tested.
