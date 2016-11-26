@@ -2,7 +2,7 @@ char[][] vector;
 int f(char[] a) {
 	
 }
-int main (int argc,char[] argv)
+int mongamain (int argc,char[] argv)
 {
 	int a,b;
 	return f(vector[f(vector[b])+f(vector[a])]);

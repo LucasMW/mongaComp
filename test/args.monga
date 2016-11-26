@@ -1,11 +1,9 @@
-void putchar(int c);
 int main(int argc,char[][] argv) {
 	int i;
 	i=0;
 	while(i<argc)
 	{
-		putchar('a');
-		putchar('\n');
+		@argv[i];
 		i = i+ 1;
 	}
 	return 0;

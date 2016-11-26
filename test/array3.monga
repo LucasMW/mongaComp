@@ -1,0 +1,13 @@
+void putchar(int c);
+int main() {
+	int [] v;
+	int index;
+	index = 100;
+	v = new int[index+1];
+	v[index] = 'a';
+	v[index] = 'b';
+	v[index] = 'c';
+	putchar(v[index]);
+	putchar('\n');
+	return v[index];
+}

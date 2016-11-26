@@ -1,5 +1,7 @@
 int abs(int a) {
-	return 3;
+	if(a<0)
+		return -(1)* a;
+	return a;
 }
 
 float diff(float a,float b) 
