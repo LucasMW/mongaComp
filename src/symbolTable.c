@@ -38,6 +38,8 @@ static int variablesTop;
 
 static DefFunc* currentFunction = NULL;
 
+static int flagFunctionHasReturn = 0;
+
 
 void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
@@ -289,11 +291,18 @@ void typeDefFunc(DefFunc* df)
 		return;
 	// printType(df->retType );
 	currentFunction = df;
+	flagFunctionHasReturn = 0;
 	insert(df->id,df->retType,df);
 	enterScope();
 	typeParams(df->params );
 	typeBlock(df->b );
 	leaveScope();
+	if(df->b && 
+		df->retType && 
+		flagFunctionHasReturn == 0) {
+		typeError("Non void function must return a value");
+	}
+	flagFunctionHasReturn = 0;
 	currentFunction = NULL;
 	//printf("end df %s\n",df->id);
 }
@@ -376,6 +385,8 @@ void typeCommandList(CommandL* cl ) {
 				leaveScope();
 			break;
 			case CReturn:
+				flagFunctionHasReturn = 1;
+				printf("has return\n");
 				typeExp(c->retExp );
 				if(!currentFunction) {
 					typeError("Return not allowed outbounds");
@@ -383,7 +394,6 @@ void typeCommandList(CommandL* cl ) {
 				if(!checkTypeReturn(c->retExp,currentFunction)) {
 					typeError("Return and func types mismatch");
 				}
-
 			break;
 			case CAssign:
 				
