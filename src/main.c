@@ -57,6 +57,10 @@ int main (int argc, char** argv)
 			testLex();
 			return 0;
 		}
+		if(strcmp("-noTree",argv[1])==0)
+		{
+			noTree = 1;
+		}
 		if(strcmp("-noChecks",argv[1])==0)
 		{
 			noChecks = 1;
