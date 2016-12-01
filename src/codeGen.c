@@ -34,6 +34,7 @@ static int currentStringConstant = 0;
 static int declareTop = 0;
 char* stringsToDeclare[100];
 
+static int currentFuncHasReturn = 0;
 
 
 void setCodeOutput(FILE* out) {
@@ -150,6 +151,7 @@ void codeDefFunc(DefFunc* df) {
 		currentFunctionTIndex = 0;
 		currentParameters = df->params;
 		declareTop = 0;
+		currentFuncHasReturn = 0;
 		fprintf(output, "define %s @%s(", typeStr,df->id);
 		codeParams(df->params);
 		fprintf(output, ")\n{\n");
@@ -162,6 +164,7 @@ void codeDefFunc(DefFunc* df) {
 		currentFunctionTIndex = 0;
 		currentParameters = NULL;
 		declateStringsToDeclare();
+		currentFuncHasReturn = 0;
 	}
 	else {
 		fprintf(output, "declare %s @%s(", typeStr,df->id);
@@ -336,6 +339,7 @@ void codeCommandList(CommandL* cl) {
 			break;
 			case CReturn:	
 				printf("cret\n");
+				currentFuncHasReturn = 1;
 				if(c->retExp == NULL) {
 					fprintf(output, "ret void\n");
 				}
@@ -563,9 +567,9 @@ int codeExpVar(Exp* e) {
 }
 int codeExpUnary(Exp* e) {
 	char* tStr = stringForType(e->type);
-	currentFunctionTIndex++;
 	int i1,i2;
 	i1 = codeExp(e->unary.e);
+	currentFunctionTIndex++;
 	switch(e->unary.op) {
 		case MINUS:
 			if(e->type->b == WFloat) {
