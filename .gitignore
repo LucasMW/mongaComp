@@ -10,3 +10,5 @@ src/grammar.c
 src/grammar.h
 va.txt
 e.txt
+*.ll
+*.out
