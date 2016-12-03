@@ -1,5 +1,5 @@
 #!/bin/bash
-FILES="test/syntax/*.monga"
+FILES="test/checks/*.monga"
 COUNT="0"
 OK=0
 Wrongs=0

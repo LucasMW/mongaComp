@@ -39,8 +39,7 @@ void mWhile(int a)
 						internalLoopCount = internalLoopCount + 1;
 					}
 					/* that is the case to fix */
-					else 
-						if(program[prgIdx] == ']')
+					else if(program[prgIdx] == ']')
 						{
 							internalLoopCount = internalLoopCount - 1;
 						}

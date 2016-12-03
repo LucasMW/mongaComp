@@ -1,0 +1,28 @@
+int f() {
+	if(1)
+		return 1;
+	else
+		return 0;
+}
+int g() {
+	if(1)
+		return 1;
+}
+int h() {
+	if(1)
+		@"print";
+	else
+		return -1;
+}
+int[] v() {
+	if(1)
+		return new int[3];
+}
+
+int main() {
+	@f();
+	@g();
+	@h();
+	return 0;
+}
+

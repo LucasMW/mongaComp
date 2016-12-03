@@ -1,0 +1,27 @@
+int find(char[] str,char value) {
+	int i;
+	i=0;
+	@ str;
+	@ value;
+	while(str[i] as int) {
+		@ i ;
+		@ str[i];
+		if((str[i] as int)==(value as int))
+			return i;
+		i=i+1;
+	}
+	return 0-1;
+}
+
+
+void main() 
+{
+	char[] str;
+	int i;
+	str = "Buginganga";
+	
+	i = find(str,'g' as char);
+	@ i;
+	
+
+}
