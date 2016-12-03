@@ -19,11 +19,10 @@ test: comp
 	cat test/examples/program1.monga |./comp -noTree
  
 
+testchecks: comp
+	sh test/checks/script.sh
 testsyntax: comp
 	sh test/syntax/script.sh
-#testlexical is unavaible
-tree:
-	cc -o src/tree.o -Wall -O2 -c tree.c
 testlexical: comp
 	sh test/script.sh
 
@@ -55,9 +54,18 @@ clean:
 	rm -f grammar.output
 	rm -f prog.out
 	rm -f *.ll
-src/main.o: 
+
+src/codeGen.o: codeGen.c
+	cc -o temp/symbolTable.o -Wall -O2 -c symbolTable.c
+src/symbolTable.o: symbolTable.c
+	cc -o temp/symbolTable.o -Wall -O2 -c symbolTable.c
+src/grammar.o: grammar.c
+	cc -o temp/grammar.o -Wall -O2 -c grammar.c
+src/tree.o: tree.c
+	cc -o temp/tree.o -Wall -O2 -c tree.c
+src/main.o:  main.c
 	cc -o temp/main.o -Wall -O2 -c main.c
-src/lex.o:
-	cc -o temp/lex.o	-Wall -O2 -c lex.c
+src/lex.o: lex.c
+	cc -o temp/lex.o -Wall -O2 -c lex.c
 bin/comp: temp/main.o temp/lex.o
 	ld -o bin/comp main.o temp/lex.o

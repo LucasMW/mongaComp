@@ -45,6 +45,12 @@ int main (int argc, char** argv)
 
 	if(argc == 2)
 	{
+		if(strcmp("-check",argv[1])==0)
+		{
+			noTree =1;
+			noCode =1;
+			noBin = 1;
+		}
 		if(strcmp("-syntax",argv[1])==0) 
 		{
 			noTree = 1;
