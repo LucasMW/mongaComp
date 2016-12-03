@@ -5,17 +5,18 @@ bin/lexical: src/main.c src/lex.c
 	cc -o bin/lexical src/lexmain.c src/lex.c
 
 testtype: comp
-	cat test/test8.monga |./comp 
-testtree: comp
-	cat test/test1.monga |./comp 
-	cat test/test2.monga |./comp
-	cat test/test3.monga |./comp 
-	cat test/test4.monga |./comp
-	cat test/test5.monga |./comp 
-	cat test/test6.monga |./comp 
-	cat test/test7.monga |./comp 
-	cat test/test8.monga |./comp
-	cat test/examples/program1.monga |./comp
+	cat test/test8.monga |./comp -noCode
+test: comp
+	cat test/test1.monga |./comp -noTree
+	cat test/test2.monga |./comp -noTree
+	cat test/test3.monga |./comp -noTree
+	cat test/test4.monga |./comp -noTree
+	cat test/test5.monga |./comp -noTree
+	cat test/test6.monga |./comp -noTree  
+	cat test/test7.monga |./comp -noTree 
+	cat test/test8.monga |./comp -noTree 
+	cat test/test9.monga |./comp -noTree 
+	cat test/examples/program1.monga |./comp -noTree
  
 
 testsyntax: comp
@@ -53,6 +54,7 @@ clean:
 	rm -f val.out
 	rm -f grammar.output
 	rm -f prog.out
+	rm -f *.ll
 src/main.o: 
 	cc -o temp/main.o -Wall -O2 -c main.c
 src/lex.o:
