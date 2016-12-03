@@ -12,3 +12,5 @@ va.txt
 e.txt
 *.ll
 *.out
+codeExamples
+*.c
