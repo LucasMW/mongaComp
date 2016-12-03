@@ -1,4 +1,4 @@
-void putchar(int c);
+
 int main() {
 	int [] v;
 	int index;
@@ -7,7 +7,6 @@ int main() {
 	v[index] = 'a';
 	v[index] = 'b';
 	v[index] = 'c';
-	putchar(v[index]);
-	putchar('\n');
+	@ v[index] as char;
 	return v[index];
 }
