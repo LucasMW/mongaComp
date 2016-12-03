@@ -1,9 +1,11 @@
 float ppt (float ar) 
 {
+	int a;
 	int result;
 	result = a*a*a/a+a;
-	return result/result+result*result/result;
+	return result/result+result*result/result as float;
 }
+
 
 int fat(int n) 
 {
@@ -15,6 +17,7 @@ int fat(int n)
 		
 
 int main() {
+	char[] string;
 	float result, x;
 	int y;
 	int [] vector;
@@ -22,12 +25,13 @@ int main() {
 	y = 3;
 	vector = new int[fat(10)];
 	result = ppt(x);
-	if (result > x) {
+	if ((result as int) > (x as int)) {
 		y = 0;
 	} else {
 		y = 1;
 	}
 	string = new char[10];
+	@fat(5);
 	return 0;
 	
 	

@@ -3,17 +3,17 @@
 void main(int argc,char[][] argv) 
 {
 	if(argc == 1)
-		printf("0");
+		@ "0";
 	else if (argc == 2)
-		printf("2");
+		@"2";
 	else if (argc == 3)
-		printf("3");
+		@"3";
 	else if (argc == 4)
-		printf("4");
+		@"4" ;
 	else if (argc == 5)
-		printf("5");
+		@"5";
 	else
-		printf("Unnecessary");
+		@ "Unnecessary" ;
 }
 
 void makeAAd1(int a)
@@ -26,25 +26,27 @@ void makeAAd1(int a)
 
 	}
 	else
-		printf("hi");
+		@"hi";
 
 }
 void mWhile(int a)
 {
-	while(!( a >= ']' && a < 150)) 
-				/* while not match stop requirements*/
-				{
+	char[] program;
+	int prgIdx;
+	int internalLoopCount;
+	while(!( a >= ']' && a < 150)) 		/* while no match stop requirements*/
+	{
 					if(program[prgIdx] == '[')
 					{
 						internalLoopCount = internalLoopCount + 1;
 					}
 					/* that is the case to fix */
 					else if(program[prgIdx] == ']')
-						{
+					{
 							internalLoopCount = internalLoopCount - 1;
-						}
-					/*prgIdx = prgIdx + 1;*/
-				}
+					}
+					prgIdx = prgIdx + 1;
+	}
 
 
 }

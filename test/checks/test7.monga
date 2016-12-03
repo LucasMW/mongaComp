@@ -1,3 +1,4 @@
+void a1();
 int main()  {
 	int a,b,c;
 	int i;
@@ -14,11 +15,14 @@ int main()  {
 		b=c/a;
 	}
 	if(i<c) {
-		printf("asd");
+		@ "if" ;
 		a = a + i*2;
 	} else {
-		printf("else");
+		@"else" ;
 		a = (a+i) *2;
 	}
 	return a;
+}
+void dodo() {
+	@ "a" ;
 }

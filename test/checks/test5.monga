@@ -1,4 +1,10 @@
-int main (int argc,char[] argv)
+char[][] vector;
+int f(char[] a) {
+	
+	return a[0] as int;
+}
+int mongamain (int argc,char[] argv)
 {
-	return f(vector[f(b)+f(a)]);
+	int a,b;
+	return f(vector[f(vector[b])+f(vector[a])]);
 }

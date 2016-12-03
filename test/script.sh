@@ -1,5 +1,5 @@
 #!/bin/bash
-FILES="test/syntax/*.monga"
+FILES="test/lexical/*/*.monga"
 COUNT="0"
 OK=0
 Wrongs=0
@@ -8,7 +8,7 @@ do
 	let COUNT=COUNT+1
 	name=$(echo $f | cut -f 1 -d '.')
 	echo "Testing $name"
-	cat $f | ./comp -syntax > $f.output
+	cat $f | ./comp -lex > $f.output
 	if [ ! -f $name.answer ]; then
     	echo "no answer associated"
     	continue
