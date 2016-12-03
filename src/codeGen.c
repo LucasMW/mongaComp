@@ -45,6 +45,7 @@ static void defaultOutput() {
 	output = stdout;
 }
 
+
 static Parameter* currentParameters = NULL;
 
 char* stringForType(Type* t) {
@@ -80,6 +81,24 @@ char* stringForType(Type* t) {
 	}
 }
 
+static void codeDefaultReturn(Type* t) {
+	if(!t) {
+		fprintf(output, "ret void\n");
+		return;
+	}
+	char* tStr = stringForType(t);
+	if(t->tag == base) {
+		if(t->b == WInt || t->b == WChar) {
+			fprintf(output, "ret %s 0\n", tStr);
+		}
+		else {
+			fprintf(output, "ret %s 0.0\n", tStr);
+		}
+	} else {
+		fprintf(output, "ret %s null\n", tStr);
+	}
+}
+
 static void pushStringToDeclare(char* str) {
 	printf("%s\n",str );
 	char* nstr = malloc(strlen(str)+1);
@@ -105,6 +124,9 @@ static void declateStringsToDeclare() {
 
 char* stringForVarAddress(const char* name,int scope) {
 	char string[50] = "no string yet";
+	if(strlen(name) >= 50) {
+		printf("SevereError. var name is to big\n");
+	}
 	if(scope == 0) {
 		sprintf(string,"@g%s",name);
 	}
@@ -152,6 +174,7 @@ void codeDefFunc(DefFunc* df) {
 		currentParameters = df->params;
 		declareTop = 0;
 		currentFuncHasReturn = 0;
+		currentBrIndex = 0;
 		fprintf(output, "define %s @%s(", typeStr,df->id);
 		codeParams(df->params);
 		fprintf(output, ")\n{\n");
@@ -160,11 +183,17 @@ void codeDefFunc(DefFunc* df) {
 		if(df->retType == NULL) {
 			fprintf(output, "ret void\n");
 		} //probably missing a ret in the end of void func
+		else if(currentFuncHasReturn == 0) {
+			fprintf(stderr, "Warning: missing return in function %s\n",df->id);
+			fprintf(stderr, "I will be overwritten by i deafult return\n");
+		}
+		codeDefaultReturn(df->retType);
 		fprintf(output, "}\n");
 		currentFunctionTIndex = 0;
 		currentParameters = NULL;
 		declateStringsToDeclare();
 		currentFuncHasReturn = 0;
+		currentBrIndex = 0;
 	}
 	else {
 		fprintf(output, "declare %s @%s(", typeStr,df->id);
@@ -269,10 +298,12 @@ char* adressOfLeftAssign(Exp* e) {
 int codeCond(Exp* e) {
 	int i1;
 	i1 = codeExp(e);
+	char* tStr = stringForType(e->cmp.e1->type);
 	if(e->tag != ExpCmp) {
 		currentFunctionTIndex++;
-		fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+		fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
 		currentFunctionTIndex,
+		tStr,
 		i1 );
 		i1 = currentFunctionTIndex;
 	}
