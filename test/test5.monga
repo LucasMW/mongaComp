@@ -1,6 +1,7 @@
 char[][] vector;
 int f(char[] a) {
 	
+	return a[0] as int;
 }
 int mongamain (int argc,char[] argv)
 {
