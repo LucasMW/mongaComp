@@ -386,7 +386,6 @@ void typeCommandList(CommandL* cl ) {
 			break;
 			case CReturn:
 				flagFunctionHasReturn = 1;
-				printf("has return\n");
 				typeExp(c->retExp );
 				if(!currentFunction) {
 					typeError("Return not allowed outbounds");
@@ -540,7 +539,7 @@ int checkTypeLogic(Exp* left,Exp* right) {
 int checkTypeCast(Exp* e) {
 	//printExp(e,5);
 	if(e->type->tag == base) {
-		return e->cast.type->tag == base;
+		return e->cast.e->type->tag == base;
 	}
 	return 0;
 }
