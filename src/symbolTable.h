@@ -3,6 +3,7 @@
 	#define tree_h
 #endif
 
+void checkAndFixesTypesInTree();
 void typeTree(progNode* p); 
 void typeDefVar(DefVar* dv);
 void typeDefFunc(DefFunc* df);

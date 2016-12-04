@@ -20,6 +20,10 @@
 	#include "lextest.h"
 	#define lextest_h
 #endif
+#if !defined(symbolTable_h)
+	#include "symbolTable.h"
+	#define symbolTable_h
+#endif
 #if !defined(codeGen_h)
 	#include "codeGen.h"
 	#define codeGen_h
@@ -71,14 +75,16 @@ int main (int argc, char** argv)
 		{
 			noChecks = 1;
 			noCode =1;
+			noBin = 1;
 		}
 		if(strcmp("-noCode",argv[1])==0)
 		{
 			noCode =1;
+			noBin =1;
 		}
 		if(strcmp("-noBin",argv[1])==0)
 		{
-			noCode =1;
+			noBin =1;
 		}
 	}
 

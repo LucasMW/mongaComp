@@ -209,7 +209,6 @@ void printVar(Var* v,int x);
 void printConstant(Constant* c,int x);
 void printExpList(ExpList* el,int x);
 
-void checkAndFixesTypesInTree();
 
 Constant* makeConstant(constantType t);
 void notConst();
