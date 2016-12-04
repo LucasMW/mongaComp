@@ -10,6 +10,10 @@ make
 
 program reads from standard input and outputs to a.ll, 
 then calls clang to generate a binary named a.out
+Usage example:
+
+cat test/helloWorld.monga | ./comp
+./a.out
 
 the program accepts some arguments:
 
@@ -21,7 +25,7 @@ won't output the program tree
 won't generate llvm, just output the program tree
 
 to run the tests use,
-make testtree 
+make testbin
 
 After the message "Syntax OK",
 it will start checking types and variables.
@@ -35,9 +39,13 @@ executable: a.out.
 
 ./a.out can be executed
 
+These tests aren't automated
+
 To clean builds, use
 make clean
 
+To run the tests for the checks only, use
+make testcheks
 
 To run the tests for the syntax only, use
 make testsyntax
