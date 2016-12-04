@@ -254,7 +254,6 @@ void typeTree(progNode* p)
 void typeDefList(Def* d)
 {
 	Def* df = d;
-	Def* ndf;
 	while(df!=NULL) {
 		switch(df->tag) {
 			case DVar:
@@ -320,7 +319,7 @@ void typeParams(Parameter* params )
 	}
 }
 void typeBlock(Block* b ) {
-	DefVarL* ndvl;
+	
 	if(!b)
 		return;
 	// ndvl = expandDefVarL(b->dvl);
@@ -594,7 +593,7 @@ int checkPrintability(Exp* e) {
 }
 int checkAccess(Exp* e) {
 	Exp* v = e->access.varExp;
-	if(v->tag == ExpAccess | v->tag == ExpVar) {
+	if(v->tag == ExpAccess | v->tag == ExpVar | v->tag == ExpCall) {
 		return 1;
 	}
 	return 0;
@@ -708,8 +707,9 @@ void typeExp(Exp* e ) {
 				typeError("Index of array is not an int");
 			}
 			if(!checkAccess(e)) {
-				typeError("Access in something that is not an array or variable");
+				typeError("Access in something that is not an array, nor variable, nor function return");
 			}
+
 			e->type = e->access.varExp->type->of;
 		break;
 		case ExpCast:
@@ -780,6 +780,10 @@ void typeVar(Var* v) {
 	if(findFuncInTree(v->id)) {
 		typeError("Subject is a function, not a var");
 	}
+}
+void checkAndFixesTypesInTree() 
+{
+	typeTree(globalTree);
 }
 
 
