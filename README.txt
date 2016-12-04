@@ -8,7 +8,17 @@ http://www.inf.puc-rio.br/~roberto/comp/lang.html
 First, use make to compile:
 make
 
-program reads from standard input and outputs to standard output.
+program reads from standard input and outputs to a.ll, 
+then calls clang to generate a binary named a.out
+
+the program accepts some arguments:
+
+./comp -noBin 
+won't call clang to generate a.out
+./comp -noTree 
+won't output the program tree
+./comp -noCode 
+won't generate llvm, just output the program tree
 
 to run the tests use,
 make testtree 
@@ -18,7 +28,12 @@ it will start checking types and variables.
 
 If sucessfull, it will output "Types OK" 
 and will start printing the tree.
-These tests are not automated. 
+
+Then, it will generate the llvm output at a.ll.
+After that, it will call clang to assemble the
+executable: a.out.
+
+./a.out can be executed
 
 To clean builds, use
 make clean
