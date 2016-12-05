@@ -282,10 +282,25 @@ char* adressOfLeftAssign(Exp* e) {
 	printf("addr left assig\n");
 	if(e->tag == ExpVar) {
 		printf("e->var.id %s\n",e->var->id);
-		assert(e->var->declaration != NULL);
-		int scope = e->var->declaration->scope;
-		char* varAddr = stringForVarAddress(e->var->id,scope);
-		return varAddr;
+		
+		if (e->var->declaration == NULL){
+			Parameter* p = currentParameters;
+			int t=0;
+			while(p) {
+				if(strcmp(e->var->id,p->id)==0)
+					break;
+				p=p->next;
+				t++;
+			}
+			char * str = (char*)malloc(t/10+3);
+			sprintf(str,"t%d",t);
+			return str;
+		}
+		else {
+			int scope = e->var->declaration->scope;
+			char* varAddr = stringForVarAddress(e->var->id,scope);
+			return varAddr;
+		}
 	}
 	else {
 		int i = codeAccessElemPtr(e); //received getElemPtr
@@ -892,19 +907,19 @@ int codeExp(Exp* e) {
 	switch(e->tag) {
 		case ExpAdd:
 			if(e->type->b == WFloat) 
-				result = codeBinExp(e,"fadd nsw");
+				result = codeBinExp(e,"fadd");
 			else
 				result = codeBinExp(e,"add nsw");
 		break;
 		case ExpSub:
 			if(e->type->b == WFloat) 
-				result = codeBinExp(e,"fsub nsw");
+				result = codeBinExp(e,"fsub");
 			else
 				result =codeBinExp(e,"sub nsw");
 		break;
 		case ExpMul:
 			if(e->type->b == WFloat) 
-				result = codeBinExp(e,"fmul nsw");
+				result = codeBinExp(e,"fmul");
 			else
 				result = codeBinExp(e,"mul nsw");
 		break;
