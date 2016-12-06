@@ -804,8 +804,8 @@ int codeExpNew(Exp* e) {
 	tStr );
 	return currentFunctionTIndex;
 }
-// void codeBranches(Exp* e, int lt,int l2) {
-// 	switch(e->tag) {
+// void codeBranches(Exp* e, int lt,int lf) {
+// 	switch(e->cmp.op) {
 // 		case OR:
 // 		int ln = currentBrIndex++;
 // 		codeBranches(e->e1,lt,ln);
@@ -813,16 +813,26 @@ int codeExpNew(Exp* e) {
 // 		codeBranches(e->e2,lt,lf);
 // 		break;
 // 		case AND:
+// 		int ln = currentBrIndex++;
+// 		codeBranches(e->e1,lf,ln);
+// 		codeLabel(ln);
+// 		codeBranches(e->e2,lt,lf);
 // 		break;
 // 		case NOT:
 // 		codeBranches(e->e1,lf,lt);
 // 		break;
-// 		case E_LT:
+// 		case LS:
 // 		int r1 = codeExp(e->e1);
 // 		int r2 = condExp(e->e2);
 // 		int t = currentFunctionTIndex++;
-// 		fprintf("%t = icmp lt i32 %r1, %r2");
-// 		fprintf(output, "br i1 %nt label lt, lf\n", );
+// 		fprintf("%%t%d = icmp lt i32 %%t%d, %%t%d",
+// 			t,
+// 			r1,
+// 			r2);
+// 		fprintf(output, "br i1 %%t%d label %%b%d, %%b%d\n",
+// 		t,
+// 		lt,
+// 		lf );
 // 		break;
 // 		default:
 // 		int nt = currentFunctionTIndex++;
@@ -832,6 +842,7 @@ int codeExpNew(Exp* e) {
 // 		break;
 // 	}
 // }
+
 int codeExpCompare(Exp* e) {
 	int i1,i2;
 	i1 = codeExp(e->cmp.e1);
@@ -864,10 +875,10 @@ int codeExpCompare(Exp* e) {
 			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
 			currentFunctionTIndex,
 			l);
-			l = currentFunctionTIndex++;
-			fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
-			currentFunctionTIndex,
-			l);
+			// l = currentFunctionTIndex++;
+			// fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
+			// currentFunctionTIndex,
+			// l);
 			return currentFunctionTIndex;
 		break;
 		case AND:
@@ -883,10 +894,10 @@ int codeExpCompare(Exp* e) {
 		currentFunctionTIndex,
 		i1,
 		i2 );
-		l=currentFunctionTIndex++;
-		fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
-			currentFunctionTIndex,
-			l);
+		// l=currentFunctionTIndex++;
+		// fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
+		// 	currentFunctionTIndex,
+		// 	l);
 			return currentFunctionTIndex;
 
 		break;

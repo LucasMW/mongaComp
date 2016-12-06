@@ -29,6 +29,12 @@ void makeAAd1(int a)
 		@"hi";
 
 }
+void cond1(int a,int b,int c) {
+	if((a>b)>c) {
+		@"ok";
+	}
+	else @ "not ok";
+}
 void mWhile(int a)
 {
 	char[] program;
