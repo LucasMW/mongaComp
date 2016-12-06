@@ -110,7 +110,7 @@ static void pushStringToDeclare(char* str) {
 static void declateStringsToDeclare() {
 	int x = currentStringConstant - declareTop;
 	for(int i = 0;i<declareTop;i++,x++) {
-		printf("ihihiz\n");
+		//printf("ihihiz\n");
 		int len = strlen(stringsToDeclare[i])+1;
 		fprintf(output, "@.cstr.%d = private unnamed_addr constant [%d x i8] c\"%s\\00\"\n",
 		x+1,
@@ -279,9 +279,9 @@ void codeForAssign() {
 // 	fprintf(output, "%s\n", );
 // }
 char* adressOfLeftAssign(Exp* e) {
-	printf("addr left assig\n");
+	//printf("addr left assig\n");
 	if(e->tag == ExpVar) {
-		printf("e->var.id %s\n",e->var->id);
+		//printf("e->var.id %s\n",e->var->id);
 		
 		if (e->var->declaration == NULL){
 			Parameter* p = currentParameters;
@@ -312,45 +312,46 @@ char* adressOfLeftAssign(Exp* e) {
 }
 int codeCond(Exp* e) {
 	int i1;
+	fprintf(output, ";begin codecond\n");
 	i1 = codeExp(e);
-	char* tStr = stringForType(e->cmp.e1->type);
-	if(e->tag != ExpCmp) {
-		currentFunctionTIndex++;
-		fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
-		currentFunctionTIndex,
-		tStr,
-		i1 );
-		i1 = currentFunctionTIndex;
-	}
+	
+	char* tStr = stringForType(e->type);
+	currentFunctionTIndex++;
+	fprintf(output, "%%t%d = icmp ne %s %%t%d, 0\n",
+	currentFunctionTIndex,
+	tStr,
+	i1 );
+	fprintf(output, ";end codecond\n");
+	i1 = currentFunctionTIndex;
+	
 	return i1;
 }
 void codeCommandList(CommandL* cl) {
 	if(!cl)
 		return;
 	CommandL* c = cl;
-	printf("CommandL\n");
+	//printf("CommandL\n");
 	int i1,i2;
 	int b1,b2,b3;
 	while(c) {
-		printf("cl\n");
+		//printf("cl\n");
 		switch(c->tag) {
 			case CWhile:
 			 	i1 = codeCond(c->condExp);
 				b1 = currentBrIndex++;
 				b2 = currentBrIndex++;
-				b3 = currentBrIndex++;
 				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
 				 i1,
 				 b1,
-				 b3);
+				 b2);
 				fprintf(output, "b%d:\n",b1 );
 				codeCommandList(c->cmdIf );
 				i2 = codeCond(c->condExp);
 				fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
 				 i2,
 				 b1,
-				 b3);
-				fprintf(output, "b%d:\n",b3 );
+				 b2);
+				fprintf(output, "b%d:\n",b2 );
 				// leaveScope();
 			break;
 			case CIf:
@@ -384,7 +385,7 @@ void codeCommandList(CommandL* cl) {
 				fprintf(output, "b%d:\n",b3 );
 			break;
 			case CReturn:	
-				printf("cret\n");
+				//printf("cret\n");
 				currentFuncHasReturn = 1;
 				if(c->retExp == NULL) {
 					fprintf(output, "ret void\n");
@@ -406,7 +407,7 @@ void codeCommandList(CommandL* cl) {
 				 	tStr,i2,tStr,addr);
 			break;
 			case CBlock:
-				printf("cblock\n");
+				//printf("cblock\n");
 				codeBlock((Block*)c->block );
 				// leaveScope();
 			break;
@@ -584,7 +585,7 @@ int codeExpVar(Exp* e) {
 	char* tStr = stringForType(e->type);
 	if(e->var->declaration == NULL)
 	{
-		printf(";params\n");
+		//printf(";params\n");
 		Parameter* p = currentParameters;
 		int t=0;
 		while(p) {
@@ -731,7 +732,7 @@ char* addressOfVector(Exp* e) {
 	}
 }
 int codeAccessElemPtr(Exp* e) {
-	printf("getelementptr\n");
+	//printf("getelementptr\n");
 	int i1 = codeExp(e->access.indExp);
 	currentFunctionTIndex++;
 	fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
@@ -843,12 +844,34 @@ int codeExpNew(Exp* e) {
 // 	}
 // }
 
+int codeCondToValue(int t) {
+	currentFunctionTIndex++;
+	int b1 = currentBrIndex++;
+	int b2 = currentBrIndex++;
+	int b3 = currentBrIndex++;
+
+	fprintf(output, "br i1 %%t%d, label %%b%d, label %%b%d\n",
+		t,
+		b1,
+		b2);
+	fprintf(output, "b%d:\n", b1);
+	fprintf(output, "br label %%b%d\n",
+		b3);
+	fprintf(output, "b%d:\n", b2);
+	fprintf(output, "br label %%b%d\n",
+		b3);
+	fprintf(output, "b%d:\n", b3);
+	fprintf(output, "%%t%d = phi i32 [ 1, %%b%d ], [0, %%b%d]\n",
+	currentFunctionTIndex,
+	b1,
+	b2 );
+	return currentFunctionTIndex;
+}
 int codeExpCompare(Exp* e) {
 	int i1,i2;
 	i1 = codeExp(e->cmp.e1);
 	i2 = codeExp(e->cmp.e2);
 	currentFunctionTIndex++;
-	int l;
 	char oprStr[4] = "sgt";
 	switch(e->cmp.op) {
 		case GT:
@@ -871,15 +894,7 @@ int codeExpCompare(Exp* e) {
 			currentFunctionTIndex,
 			i1,
 			i2);
-			l = currentFunctionTIndex++;
-			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
-			currentFunctionTIndex,
-			l);
-			// l = currentFunctionTIndex++;
-			// fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
-			// currentFunctionTIndex,
-			// l);
-			return currentFunctionTIndex;
+			return codeCondToValue(currentFunctionTIndex);
 		break;
 		case AND:
 		fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
@@ -894,11 +909,7 @@ int codeExpCompare(Exp* e) {
 		currentFunctionTIndex,
 		i1,
 		i2 );
-		// l=currentFunctionTIndex++;
-		// fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
-		// 	currentFunctionTIndex,
-		// 	l);
-			return currentFunctionTIndex;
+		return codeCondToValue(currentFunctionTIndex);
 
 		break;
 	}
@@ -908,11 +919,8 @@ int codeExpCompare(Exp* e) {
 	oprStr,
 	i1,
 	i2 );
-	// int t = currentFunctionTIndex++;
-	// fprintf(output, "%%t%d = zext i1 %%t%d to i32\n", 
-	// 	currentFunctionTIndex,
-	// 	t);
-	return currentFunctionTIndex;
+
+	return codeCondToValue(currentFunctionTIndex);
 }
 
 int codeExp(Exp* e) {
