@@ -686,6 +686,10 @@ int codeExpCast(Exp* e) {
 			currentFunctionTIndex,
 			i1 );
 		}
+		else if(e->cast.e->type->b == e->type->b) {
+			fprintf(output, ";cast useless\n");
+			return i1;
+		}
 		else {
 			fprintf(output, ";cast not implemented\n");
 			return -1;

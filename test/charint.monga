@@ -1,0 +1,15 @@
+int main(){
+
+	char a,b,c;
+	int x,y,z;
+
+	x = 'a';
+	y = 'a' as char;
+	z = 12;
+	a = 'a';
+	b = '5' as char;
+	c = 12;
+	z= a;
+	b = y;
+	return 0;
+}

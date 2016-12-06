@@ -1,9 +1,15 @@
-int f();
+int f() {
+	return -1;
+}
 float ad (float[] vector) 
 {
 	int a;
 	/* int f; already declared */
 	a = -a;
 	vector = new float[f()];
-	return vector[0] + 1.0;
+	return vector[-1] + 1.0;
+}
+void main() {
+	float[] vector;
+	@ ad(vector);
 }

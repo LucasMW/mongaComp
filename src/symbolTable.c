@@ -40,16 +40,24 @@ static DefFunc* currentFunction = NULL;
 
 static int flagFunctionHasReturn = 0;
 
+int warningCount=0;
 
 void printSymbol(Symbol s);
 Type* getTypeOfExp(Exp* e);
 Type* typeOfConstant(Constant* c);
 int typeEquals(Type* t1, Type* t2);
+int typesBothIntegers(Type* t1,Type* t2);
+void PerformCastToType(Type* lt,Exp** right);
 int checkPrintability(Exp* e);
+
 DefFunc* findFuncInTree(const char* funcId);
 void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
 	exit(01);
+}
+void raiseWarning(const char* message) {
+	printf("Warning: %s\n",message);
+	warningCount++;
 }
 void generateStardardDeclares(progNode* prog) {
 	findFuncInTree("");
@@ -398,7 +406,14 @@ void typeCommandList(CommandL* cl ) {
 				typeExp(c->expLeft);
 				typeExp(c->expRight);
 				if(!typeEquals(c->expLeft->type,c->expRight->type)) {
-					typeError("Assigment left type differs from right type");
+					if(typesBothIntegers(c->expLeft->type, c->expRight->type)) {
+					PerformCastToType(
+						c->expLeft->type,
+						&(c->expRight));
+					}
+					else {
+						typeError("Assigment left type differs from right type");
+					}
 				}
 				
 			break;
@@ -423,6 +438,18 @@ void typeCommandList(CommandL* cl ) {
 		c = c->next;
 	}
 }
+void PerformCastToType(Type* lt,Exp** right) {
+	Exp* eCast = (Exp*)malloc(sizeof(Exp));
+	eCast->tag= ExpCast;
+	eCast->cast.e = *right;
+	eCast->cast.type = lt;
+	eCast->type = lt;
+	*right = eCast;
+}
+int typesBothIntegers(Type* t1,Type* t2) {
+	return ((t1->b == WChar) && (t2->b == WInt)) || 
+		((t1->b == WInt) && (t2->b == WChar));
+}
 int typeEquals(Type* t1, Type* t2) {
 	// printType(t1,3);
 	// printf("typeEqual\n");
@@ -431,12 +458,11 @@ int typeEquals(Type* t1, Type* t2) {
 	if(t1 == NULL || t2 == NULL) {
 		return t2 == NULL && t1 == NULL;
 	}
-	if(t1->tag == base) {
+	if(t1->tag == base && t2->tag == base) {
 		if(t1->b == t2->b) {
 			return 1;
 		}
-		return ((t1->b == WChar) && (t2->b == WInt)) || 
-		((t1->b == WInt) && (t2->b == WChar));
+		return 0;
 	}
 	if(t1->tag == array && t2->tag == array) {
 		return typeEquals(t1->of,t2->of);
@@ -689,9 +715,11 @@ void typeExp(Exp* e ) {
 				break;
 				case EqEq:
 					if(!typeEquals(e->cmp.e1->type,e->cmp.e2->type)) {
-						printType(e->cmp.e1->type,0);
-						printType(e->cmp.e2->type,0);
-						typeError("Not comparable types in ==");
+						if(!typesBothIntegers(e->cmp.e1->type,e->cmp.e2->type)) {
+							printType(e->cmp.e1->type,0);
+							printType(e->cmp.e2->type,0);
+							typeError("Not comparable types in ==");
+						}
 					}
 				break;
 			}
@@ -719,6 +747,9 @@ void typeExp(Exp* e ) {
 				// printType(e->cast.type,0);
 				// printType(e->cast.e->type,0);
 				typeError("Cast not avaible for these types");
+			}
+			if(typeEquals(e->cast.type,e->cast.e->type)){
+				raiseWarning("Cast to equal typing");
 			}
 			e->type = e->cast.type;
 		break;

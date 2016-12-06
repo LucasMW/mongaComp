@@ -8,7 +8,7 @@ testbin: comp
 	cat test/test1.monga |./comp -noTree
 	cat test/test2.monga |./comp -noTree
 	cat test/test3.monga |./comp -noTree
-	#cat test/test4.monga |./comp -noTree
+	cat test/test4.monga |./comp -noTree
 	cat test/test5.monga |./comp -noTree
 	cat test/test6.monga |./comp -noTree  
 	cat test/test7.monga |./comp -noTree 
