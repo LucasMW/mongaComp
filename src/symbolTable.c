@@ -47,7 +47,7 @@ Type* getTypeOfExp(Exp* e);
 Type* typeOfConstant(Constant* c);
 int typeEquals(Type* t1, Type* t2);
 int typesBothIntegers(Type* t1,Type* t2);
-void PerformCastToType(Type* lt,Exp** right);
+void performCastToType(Type* lt,Exp** right);
 int checkPrintability(Exp* e);
 
 DefFunc* findFuncInTree(const char* funcId);
@@ -407,7 +407,7 @@ void typeCommandList(CommandL* cl ) {
 				typeExp(c->expRight);
 				if(!typeEquals(c->expLeft->type,c->expRight->type)) {
 					if(typesBothIntegers(c->expLeft->type, c->expRight->type)) {
-					PerformCastToType(
+					performCastToType(
 						c->expLeft->type,
 						&(c->expRight));
 					}
@@ -438,7 +438,7 @@ void typeCommandList(CommandL* cl ) {
 		c = c->next;
 	}
 }
-void PerformCastToType(Type* lt,Exp** right) {
+void performCastToType(Type* lt,Exp** right) {
 	Exp* eCast = (Exp*)malloc(sizeof(Exp));
 	eCast->tag= ExpCast;
 	eCast->cast.e = *right;
@@ -474,9 +474,13 @@ Em qualquer expressão,
 uma variável char tem seu valor 
 automaticamente promovido para int.
 */
-void promoteType(Exp* e) {	
+void promoteType(Exp ** eptr) {
+	Exp* e = *eptr;
 	if(e->type->tag == base && e->type->b == WChar) {
-		e->type->b = WInt;
+		Type* t = (Type*)malloc(sizeof(Type));
+		t->tag = base;
+		t->b = WInt;
+		performCastToType(t,eptr);
 	}
 }
 BType BTypeOfArith(Exp* e1,Exp *e2) {
@@ -684,6 +688,7 @@ void typeExp(Exp* e ) {
 		break;
 		case ExpVar:
 			typeVar(e->var);
+			
 			e->type = e->var->type;
 		break;
 		case ExpUnary:
@@ -707,6 +712,8 @@ void typeExp(Exp* e ) {
 		case ExpCmp:
 			typeExp(e->cmp.e1);
 			typeExp(e->cmp.e2);
+			promoteType(&e->cmp.e1);
+			promoteType(&e->cmp.e2);
 			switch(e->cmp.op) {
 				default:
 					if(!checkTypeLogic(e->cmp.e1,e->cmp.e2)) {
@@ -722,6 +729,7 @@ void typeExp(Exp* e ) {
 						}
 					}
 				break;
+
 			}
 
 			

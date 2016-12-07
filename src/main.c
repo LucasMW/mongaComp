@@ -108,7 +108,8 @@ int main (int argc, char** argv)
 	}
 	if(!noBin)
 	{
-		system("clang a.ll");
+		int s = system("clang a.ll");
+		return s;
 	}
 }
 
