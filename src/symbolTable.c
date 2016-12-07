@@ -628,6 +628,13 @@ int checkAccess(Exp* e) {
 	}
 	return 0;
 }
+int checkAccessType(Exp* e) {
+	Exp* v = e->access.varExp;
+	if(v->type->tag == array) {
+		return 1;
+	}
+	return 0;
+}
 
 void typeExp(Exp* e ) {
 	if(!e)
@@ -688,7 +695,7 @@ void typeExp(Exp* e ) {
 		break;
 		case ExpVar:
 			typeVar(e->var);
-			
+
 			e->type = e->var->type;
 		break;
 		case ExpUnary:
@@ -744,6 +751,9 @@ void typeExp(Exp* e ) {
 			}
 			if(!checkAccess(e)) {
 				typeError("Access in something that is not an array, nor variable, nor function return");
+			}
+			if(!checkAccessType(e)) {
+				typeError("Access in something that does not have array typing");
 			}
 
 			e->type = e->access.varExp->type->of;
