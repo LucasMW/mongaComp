@@ -145,10 +145,10 @@ static void codeExtraDeclares() {
 	fprintf(output, "declare i8* @malloc(i32)\n" ); //malloc 
 	fprintf(output, "declare i32 @printf(i8* nocapture readonly, ...)\n" );
 	fprintf(output, "declare i32 @puts(i8* nocapture readonly)\n" );
-	fprintf(output, "@.intprintstr = private unnamed_addr constant [4 x i8] c\"%%d\\0A\\00\"\n" );
-	fprintf(output, "@.floatprintstr = private unnamed_addr constant [4 x i8] c\"%%f\\0A\\00\"\n" );
-	fprintf(output, "@.charprintstr = private unnamed_addr constant [4 x i8] c\"%%c\\0A\\00\"\n" );
-	fprintf(output, "@.strprintstr = private unnamed_addr constant [4 x i8] c\"%%s\\0A\\00\"\n" );
+	fprintf(output, "@.intprintstr = private unnamed_addr constant [3 x i8] c\"%%d\\00\"\n" );
+	fprintf(output, "@.floatprintstr = private unnamed_addr constant [3 x i8] c\"%%f\\00\"\n" );
+	fprintf(output, "@.charprintstr = private unnamed_addr constant [3 x i8] c\"%%c\\00\"\n" );
+	fprintf(output, "@.strprintstr = private unnamed_addr constant [3 x i8] c\"%%s\\00\"\n" );
 	fprintf(output, "; End of monga dependencies \n" );
 }
 
@@ -423,7 +423,7 @@ void codeCommandList(CommandL* cl) {
 				else if(c->printExp->type->tag == base) {
 					switch(c->printExp->type->b) {
 						case WInt:
-						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.intprintstr, i64 0, i64 0), i32 %%t%d)\n",
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprintstr, i64 0, i64 0), i32 %%t%d)\n",
 						i1 );
 						
 						break;
@@ -433,11 +433,11 @@ void codeCommandList(CommandL* cl) {
 							currentFunctionTIndex,
 							i1 );
 						 
-						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.floatprintstr, i64 0, i64 0), double %%t%d)\n",
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.floatprintstr, i64 0, i64 0), double %%t%d)\n",
 						currentFunctionTIndex );
 						break;
 						case WChar:
-						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.charprintstr, i64 0, i64 0), i8 %%t%d)\n",
+						fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.charprintstr, i64 0, i64 0), i8 %%t%d)\n",
 						i1 );
 						break;
 					}
@@ -523,20 +523,23 @@ int codeCallExp(Exp* e) {
 }
 char* stringForConstant(Constant* c) {
 	//char str[40] = "no string given";
-	char* str = (char*)malloc(40);
+	char* str;
 	double nd;
 	int exponent = 0;
 	if(!c)
 		return NULL;
 	switch(c->tag) {
 		case KInt:
+			str = (char*)malloc(40);
 			sprintf(str, "%d", c->u.i);
 		break;
 		case KFloat:
 			nd = frexp(c->u.d, &exponent);
+			str = (char*)malloc(40);
 			sprintf(str, "%f", c->u.d);
 		break;
 		case KStr:
+			str = (char*)malloc(strlen(c->u.str)+1);
 			sprintf(str, "%s", c->u.str);
 		break;
 	}
