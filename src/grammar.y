@@ -164,7 +164,9 @@ parameter : type ID {
     //printParams($$);
 }
 ;
-command : command1
+command : command1 {
+  $$=$1;
+}
 ;
 
 defVar : type nameList ';' {  //correct
