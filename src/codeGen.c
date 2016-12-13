@@ -81,22 +81,31 @@ char* stringForType(Type* t) {
 	}
 }
 
+static char* stringForDefaultValue(Type* t) {
+	if(!t) {
+		printf(";That's probably an error\n");
+		return "void";
+	}
+	if(t->tag == base) {
+		if(t->b == WInt || t->b == WChar) {
+			return "0";
+		}
+		else {
+			return "0.0";
+		}
+	} else {
+		return "null";
+	}
+
+}
 static void codeDefaultReturn(Type* t) {
 	if(!t) {
 		fprintf(output, "ret void\n");
 		return;
 	}
 	char* tStr = stringForType(t);
-	if(t->tag == base) {
-		if(t->b == WInt || t->b == WChar) {
-			fprintf(output, "ret %s 0\n", tStr);
-		}
-		else {
-			fprintf(output, "ret %s 0.0\n", tStr);
-		}
-	} else {
-		fprintf(output, "ret %s null\n", tStr);
-	}
+	char* value = stringForDefaultValue(t);
+	fprintf(output, "ret %s %s\n", tStr,value);
 }
 
 static void pushStringToDeclare(char* str) {
@@ -131,7 +140,7 @@ char* stringForVarAddress(const char* name,int scope) {
 		sprintf(string,"@g%s",name);
 	}
 	else {
-		sprintf(string,"l%d%s",scope,name);
+		sprintf(string,"%%l%d%s",scope,name);
 	}
 	
 	char* str = (char*)malloc(strlen(string)+1);
@@ -226,15 +235,28 @@ void codeDefList(Def* d) {
 }
 void codeNameList(NameL* nl,Type* t,int scope) {
 	char* tStr = stringForType(t);
+	char* vStr = stringForDefaultValue(t);
 	NameL* p = nl;
-	
-	while(p) {
-		char* string = stringForVarAddress(p->name,scope);
-		fprintf(output, "%%%s = alloca %s\n", 
-			string,  
-			tStr );
-		free(string);
-		p=p->next;
+	if(scope) {
+		while(p) {
+			char* string = stringForVarAddress(p->name,scope);
+			fprintf(output, "%s = alloca %s\n", 
+				string,  
+				tStr );
+			free(string);
+			p=p->next;
+		}
+	} else {
+		while(p) {
+			char* string = stringForVarAddress(p->name,scope);
+
+			fprintf(output, "%s = global %s %s \n", 
+				string,  
+				tStr,
+				vStr );
+			free(string);
+			p=p->next;
+		}
 	}
 }
 void codeType(Type* t);
@@ -293,7 +315,7 @@ char* adressOfLeftAssign(Exp* e) {
 				t++;
 			}
 			char * str = (char*)malloc(t/10+3);
-			sprintf(str,"t%d",t);
+			sprintf(str,"%%t%d",t);
 			return str;
 		}
 		else {
@@ -305,7 +327,7 @@ char* adressOfLeftAssign(Exp* e) {
 	else {
 		int i = codeAccessElemPtr(e); //received getElemPtr
 		char * str = (char*)malloc(i/10+3);
-		sprintf(str,"t%d",i);
+		sprintf(str,"%%t%d",i);
 		return str;
 	}
 	return NULL;
@@ -403,7 +425,7 @@ void codeCommandList(CommandL* cl) {
 				 //i1 = codeExp(c->expLeft);
 				 i2 = codeExp(c->expRight);
 
-				 fprintf(output, "store %s %%t%d, %s* %%%s \n",
+				 fprintf(output, "store %s %%t%d, %s* %s \n",
 				 	tStr,i2,tStr,addr);
 			break;
 			case CBlock:
@@ -604,13 +626,25 @@ int codeExpVar(Exp* e) {
 				 t);
 	}
 	else {
-	int scope = e->var->declaration->scope;
-	char* varAddr = stringForVarAddress(e->var->id,scope);
-	fprintf(output,"%%t%d = load %s, %s* %%%s\n", 
-				currentFunctionTIndex,
-				 tStr,
-				 tStr,
-				 varAddr);
+		int scope = e->var->declaration->scope;
+		if(scope == 0) {
+			char* varAddr = stringForVarAddress(e->var->id,scope);
+			fprintf(output,"%%t%d = load %s, %s* %s\n", 
+						currentFunctionTIndex,
+						 tStr,
+						 tStr,
+						 varAddr);
+			fprintf(output, ";gloabal\n");
+		} 
+		else {
+			char* varAddr = stringForVarAddress(e->var->id,scope);
+			fprintf(output,"%%t%d = load %s, %s* %s\n", 
+						currentFunctionTIndex,
+						 tStr,
+						 tStr,
+						 varAddr);
+			fprintf(output, ";scope not zero\n");
+		} 
 	}
 	return currentFunctionTIndex;
 }
@@ -710,7 +744,7 @@ char* adressOfParameter(const char* id) {
 			t++;
 		}
 		char * str = (char*)malloc(t/10+3);
-		sprintf(str,"t%d",t);
+		sprintf(str,"%%t%d",t);
 		return str;
 		
 }
@@ -743,11 +777,13 @@ int codeAccessElemPtr(Exp* e) {
 	char* tStr = stringForType(e->type);
 	int index = currentFunctionTIndex++;
 	char* str = addressOfVector(e->access.varExp);
-	fprintf(output, "%%t%d = load %s*, %s** %%%s\n",
+	
+	fprintf(output, "%%t%d = load %s*, %s** %s\n",
 	currentFunctionTIndex,
 	tStr,
 	tStr,
 	str );
+
 	int startArrayAddress = currentFunctionTIndex++;
 	fprintf(output, "%%t%d = getelementptr %s, %s* %%t%d, i64 %%t%d\n",
 	currentFunctionTIndex,
