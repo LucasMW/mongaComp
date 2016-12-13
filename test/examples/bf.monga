@@ -7,7 +7,7 @@ Lucas Menezes */
 
 int exit(int number);
 char getchar();
-void putchar(char c);
+void putchar(int c);
 
 void error(char[] errorString, int signal) {
 	@ errorString ;
@@ -31,34 +31,36 @@ void execute(char[] program)
 
 	while(program[prgIdx]) /*assume it finishes in null like a C String*/
 	{
+
 		if(program[prgIdx] == '>') {
 			memIdx = memIdx + 1;
-			if(memIdx > 30000) 
-				error("Access Violation",-1);
-		} else
-		if(program[prgIdx] == '<') {
+			if(memIdx >= 30000) 
+				error("Access Violation, no cell 30000",-1);
+		} 
+		else if(program[prgIdx] == '<') {
 			memIdx = memIdx - 1;
 			if(memIdx < 0) 
-				error("Access Violation",-1);
-		} else
-		if(program[prgIdx] == '+') {
+				error("Access Violation, no cell zero",-1);
+		}
+		else if(program[prgIdx] == '+') {
 			memory[memIdx] = (memory[memIdx] as int) + 1;
-		} else
-		if(program[prgIdx] == '-') {
+		} 
+		else if(program[prgIdx] == '-') {
 			memory[memIdx] = (memory[memIdx] as int) - 1;
-		} else
-		if(program[prgIdx] == ',') {
+		} 
+		else if(program[prgIdx] == ',') {
 			memory[memIdx] = getchar();
-		} else
-		if(program[prgIdx] == '.') {
-			putchar(memory[memIdx]);
-		} else
-		if(program[prgIdx] == '[') {
+		} 
+		else if(program[prgIdx] == '.') {
+			@ memory[memIdx];
+		} 
+		else if(program[prgIdx] == '[') {
 			if(memory[memIdx]){
 				loopStack[stackIdx] = prgIdx;
 				stackIdx = stackIdx + 1;
 			}
 			else {
+				
 				/*jump to next ]*/
 				prgIdx = prgIdx + 1;
 				internalLoopCount = 0;
@@ -78,8 +80,8 @@ void execute(char[] program)
 				}
 
 			}
-		} else
-		if(program[prgIdx] == ']') {
+		} 
+		else if(program[prgIdx] == ']') {
 
 			if(memory[memIdx]) {
 				prgIdx = loopStack[stackIdx];
@@ -92,10 +94,11 @@ void execute(char[] program)
 		}
 		prgIdx = prgIdx + 1;
 	}
+	
 }
 void main (int argc, char[][] argv) {
 	char[] programStr;
-	programStr =  ",[.,]";
+	programStr =  ">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]>++++++++[<++++>-]<.#>+++++++++++[<+++++>-]<.>++++++++[<+++>-]<.+++.------.--------.[-]>++++++++[<++++>-]<+.[-]++++++++++.";
 	execute(programStr);
 }
 

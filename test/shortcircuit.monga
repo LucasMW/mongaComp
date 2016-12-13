@@ -1,0 +1,15 @@
+int g() {
+	@"G";
+	return 0;
+}
+int f() {
+	@"F";
+	return 1;
+}
+int main() {
+	
+	int a,b;
+	a = f() || g();
+	b = f() && g(); 
+	return 0;
+}
