@@ -539,8 +539,7 @@ char* stringForConstant(Constant* c) {
 			sprintf(str, "%f", c->u.d);
 		break;
 		case KStr:
-			str = (char*)malloc(strlen(c->u.str)+1);
-			sprintf(str, "%s", c->u.str);
+			str = (char*)c->u.str;
 		break;
 	}
 	return &str[0];
@@ -893,7 +892,15 @@ int codeExpCompare(Exp* e) {
 			strcpy(oprStr,"eq");
 		break;
 		case OR:
-			fprintf(output, "%%t%d = or i32 %%t%d, %%t%d\n",
+			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			currentFunctionTIndex,
+			i1);
+			i1 = currentFunctionTIndex++;
+			fprintf(output, "%%t%d = icmp ne i32 %%t%d, 0\n",
+			currentFunctionTIndex,
+			i2);
+			i2 = currentFunctionTIndex++;
+			fprintf(output, "%%t%d = or i1 %%t%d, %%t%d\n",
 			currentFunctionTIndex,
 			i1,
 			i2);
