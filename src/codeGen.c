@@ -109,7 +109,7 @@ static void codeDefaultReturn(Type* t) {
 }
 
 static void pushStringToDeclare(char* str) {
-	printf("%s\n",str );
+	//printf("%s\n",str );
 	char* nstr = malloc(strlen(str)+1);
 	strcpy(nstr,str);
 	nstr[strlen(str)] = '\0';
@@ -419,14 +419,12 @@ void codeCommandList(CommandL* cl) {
 				}
 			break;
 			case CAssign:
-				 printf("CAssign\n");
+				 i1 = codeExp(c->expRight);
 				 char* tStr = stringForType(c->expLeft->type);
 				 char* addr = adressOfLeftAssign(c->expLeft);
-				 //i1 = codeExp(c->expLeft);
-				 i2 = codeExp(c->expRight);
-
+				 
 				 fprintf(output, "store %s %%t%d, %s* %s \n",
-				 	tStr,i2,tStr,addr);
+				 	tStr,i1,tStr,addr);
 			break;
 			case CBlock:
 				//printf("cblock\n");
@@ -434,7 +432,7 @@ void codeCommandList(CommandL* cl) {
 				// leaveScope();
 			break;
 			case CCall:
-				printf("ccall\n");
+				//printf("ccall\n");
 				codeExp(c->expRight);
 			break;
 			case CPrint:
@@ -749,13 +747,13 @@ char* adressOfParameter(const char* id) {
 		
 }
 char* addressOfVector(Exp* e) {
-	printf("addressOfVector\n");
+	//printf("addressOfVector\n");
 	if(e->tag == ExpAccess) {
-		printf("gacr\n");
+		//printf("gacr\n");
 		return addressOfVector(e->access.varExp);
 	}
 	else if(e->tag == ExpVar) {
-		printf("gVar\n");
+		//printf("gVar\n");
 
 		if(e->var->declaration == NULL)
 		{
@@ -768,12 +766,14 @@ char* addressOfVector(Exp* e) {
 	}
 }
 int codeAccessElemPtr(Exp* e) {
-	//printf("getelementptr\n");
+	fprintf(output,";getelementptr\n");
 	int i1 = codeExp(e->access.indExp);
 	currentFunctionTIndex++;
 	fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
 			currentFunctionTIndex,
 			i1 );
+	
+	char* aTStr = stringForType(e->access.varExp->type);
 	char* tStr = stringForType(e->type);
 	int index = currentFunctionTIndex++;
 	char* str = addressOfVector(e->access.varExp);
@@ -783,6 +783,7 @@ int codeAccessElemPtr(Exp* e) {
 	tStr,
 	tStr,
 	str );
+	fprintf(output,";mark1\n");
 
 	int startArrayAddress = currentFunctionTIndex++;
 	fprintf(output, "%%t%d = getelementptr %s, %s* %%t%d, i64 %%t%d\n",
@@ -794,7 +795,7 @@ int codeAccessElemPtr(Exp* e) {
 	return currentFunctionTIndex;
 }
 int codeExpAccess(Exp* e) {
-	printf("Exp Access\n");
+	fprintf(output,";Exp Access\n");
 	int i1;
 	i1 = codeAccessElemPtr(e);
 	char* tStr = stringForType(e->type);
