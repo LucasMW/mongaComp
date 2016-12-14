@@ -1,0 +1,88 @@
+int[][] MCopy(int[][] A, int m) {
+	int[][] C;
+
+	int i,j;
+	C = new int[][m];
+
+	i=0;
+	while(i<m) {
+		@"C";
+		C[i]=new int[m];
+		j=0;
+		while(j<m) {
+			C[i][j] = A[i][j];
+			j=j+1;
+		}
+		i=i+1;
+	}
+	return C;
+}
+
+void MPrint(int[][] M,int m) {
+	int i,j;
+	i=0;
+	while(i<m) {
+		j=0;
+		while(j<m) {
+			@M[i][j]; @" ";
+			
+		}
+		@"\n";
+		i=i+1;
+	}
+}
+int[][] MID(int m) {
+	int i,j;
+	int [][] C;
+	C = new int[][m];
+
+	i=0;
+	while(i<m) {
+		@ "as";
+		C[i] = new int[m];
+		j=0;
+		while(j<m) {
+			C[i][j] = 0;
+			if(i == j )
+				C[i][j] = 1;
+		}
+		i=i+1;
+	}
+	return C;
+}
+
+
+int[][] MProduct(int[][] A, int[][] B,int m) {
+	int[][] C;
+	int i,j,k;
+	C=MCopy(A,m);
+	
+	i=0;
+	while(i<m) {
+		j=0;
+		while(j<m) {
+			int sum;
+			k=0;
+			sum = 0;
+			while(k<m) {
+				sum = sum + A[i][k] * B[k][j];
+				k=k+1;
+			}
+			C[i][j] = sum;
+
+		}
+		i=i+1;
+	}
+	return C;
+
+}
+
+int main() {
+	int [][]A;
+	int [][]B;
+	A = MID(2);
+	B=MID(2);
+	A = MProduct(A,B,2);
+	MPrint(A,2);
+	return 0;
+}

@@ -1,6 +1,14 @@
 
+int[] f(int x) {
+	return new int[x];
+} 
+int g;
+int h;
 int main() {
+	int[][] m;
+	int i,j,x,a,b;
 	m[i][j] = f(x)[i];
-	(a+b)[i] = (a+b)[a*g/h];
-	a = (a/b)[i][j];
+	m[(a+b)][i] = m[(a+b)][a*g/h];
+	a = m[(a/b)][j];
+	return 0;
 }
