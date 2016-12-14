@@ -10,12 +10,20 @@ make
 
 program reads from standard input and outputs to a.ll, 
 then calls clang to generate a binary named a.out
-Usage example:
+Usage examples:
 
 cat test/helloWorld.monga | ./comp
 ./a.out
 
-the program accepts some arguments:
+cat test/test6.monga | ./comp
+./a.out -c 
+
+Usage Description:  
+<string input> | ./comp [options] [clangOptions]
+
+clangOptions list will be redirected to clang
+
+the program accepts some options:
 
 ./comp -noBin 
 won't call clang to generate a.out
