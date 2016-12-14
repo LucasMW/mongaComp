@@ -30,7 +30,7 @@
 #endif
 
 #include <string.h>
-
+#include <assert.h>
 Seminfo_t seminfo;
 int yy_lines=1; //save one for EOF
 
@@ -40,6 +40,39 @@ void lexError(const char* message, int ret)
 	fprintf(stderr,"ERROR: %s\t\t#line %d\n", message, yy_lines);
 	exit( ret ? ret : 1);
 }
+
+static char* mongaOptions[] = {
+	"-check",
+	"-syntax",
+	"-lex",
+	"-noTree",
+	"-noChecks",
+	"-noBin",
+	"-noCode"
+};
+static char mongaOptionsCount = 7;
+
+static char* handleClangOptions(int argc,char** argv) {
+	char* str = (char*)malloc(50*argc); //more than enough
+	char flag = 0;
+	for(int i=1;i<argc;i++) {
+		for(int j=0;j<mongaOptionsCount;j++) {
+			if(strcmp(argv[i],mongaOptions[j])==0) {
+				flag = 0;
+				break;
+			}
+			flag = 1;
+		}
+		if(flag == 1) {
+			assert(strlen(argv[i])<50);
+			strcat(str," ");
+			strcat(str,argv[i]);
+		}
+		flag = 0;
+	}
+	return str;
+
+}
 int main (int argc, char** argv)
 {
 	char noTree =0;
@@ -47,7 +80,7 @@ int main (int argc, char** argv)
 	char noCode = 0;
 	char noBin = 0;
 
-	if(argc == 2)
+	if(argc >= 2)
 	{
 		if(strcmp("-check",argv[1])==0)
 		{
@@ -100,15 +133,25 @@ int main (int argc, char** argv)
 	{
 		printTree();
 	}
+	char * llvm_name = "a.ll";
+	//char * bin_name = "a.out";
 	if(!noCode) 
-	{	FILE* llvm_ir_location = fopen("a.ll","wt");
+	{	FILE* llvm_ir_location = fopen(llvm_name,"wt");
 		setCodeOutput(llvm_ir_location);
 		codeTree();
 		fclose(llvm_ir_location);
 	}
 	if(!noBin)
 	{
-		int s = system("clang a.ll");
+		char* str = handleClangOptions(argc,argv);
+		char* buff = (char*)malloc(
+			strlen(str) + 
+			strlen("clang") + 
+			strlen(llvm_name)+1);
+		sprintf(buff,"clang %s %s",
+			str,
+			llvm_name);
+		int s = system(buff);
 		return s;
 	}
 }

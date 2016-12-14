@@ -10,10 +10,10 @@ testbin: comp
 	cat test/test3.monga |./comp -noTree
 	cat test/test4.monga |./comp -noTree
 	cat test/test5.monga |./comp -noTree
-	cat test/test6.monga |./comp -noTree  
-	cat test/test7.monga |./comp -noTree 
+	cat test/test6.monga |./comp -noTree -c  
+	cat test/test7.monga |./comp -noTree
 	cat test/test8.monga |./comp -noTree 
-	cat test/test9.monga |./comp -noTree 
+	cat test/test9.monga |./comp -noTree
 	cat test/examples/program1.monga |./comp -noTree
 
 testchecks: comp
@@ -51,6 +51,9 @@ clean:
 	rm -f grammar.output
 	rm -f *.out
 	rm -f *.ll
+	rm -f test/*.out
+	rm -f test/*.ll
+
 
 bin/comp: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o
 	ls temp
