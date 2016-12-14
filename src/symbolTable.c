@@ -416,7 +416,7 @@ void typeCommandList(CommandL* cl ) {
 						c->retExp->dbg_line);
 				}
 				if(!checkTypeReturn(c->retExp,currentFunction)) {
-					typeError("Return and func types mismatch");
+					raiseError("Return and func types mismatch",c->retExp->dbg_line);
 				}
 			break;
 			case CAssign:
