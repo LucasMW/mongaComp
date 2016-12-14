@@ -133,6 +133,7 @@ typedef struct Exp{
 		} print;
 	};
 	Type* type;
+	int dbg_line;
 } Exp;
 
 typedef struct ExpList
