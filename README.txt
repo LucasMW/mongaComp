@@ -1,5 +1,5 @@
 1310844
-Lucas Menezes, T5 1715
+Lucas Menezes, T6 1715
 —————————————————————
 
 Description of monga language:
@@ -45,7 +45,7 @@ To clean builds, use
 make clean
 
 To run the tests for the checks only, use
-make testcheks
+make testchecks
 
 To run the tests for the syntax only, use
 make testsyntax
