@@ -49,10 +49,15 @@ int typeEquals(Type* t1, Type* t2);
 int typesBothIntegers(Type* t1,Type* t2);
 void performCastToType(Type* lt,Exp** right);
 int checkPrintability(Exp* e);
+int checkTypeLogic(Exp* e);
 
 DefFunc* findFuncInTree(const char* funcId);
 void typeError(const char* message) {
 	printf("Typing error: %s\n",message);
+	exit(01);
+}
+void raiseError(const char* message,int line) {
+	printf("Error: %s\n# near line %d\n",message,line);
 	exit(01);
 }
 void raiseWarning(const char* message) {
@@ -372,18 +377,30 @@ void typeCommandList(CommandL* cl ) {
 			case CWhile:
 				
 				typeExp(c->condExp );
+				if(!checkTypeLogic(c->condExp)) {
+					raiseError("expression not suitble for condition",
+						c->condExp->dbg_line);
+				}
 				enterScope();
 				typeCommandList(c->cmdIf );
 				leaveScope();
 			break;
 			case CIf:
 				typeExp(c->condExp );
+				if(!checkTypeLogic(c->condExp)) {
+					raiseError("expression not suitble for condition",
+						c->condExp->dbg_line);
+				}
 				enterScope();
 				typeCommandList(c->cmdIf );
 				leaveScope();
 			break;
 			case CIfElse:
 				typeExp(c->condExp );
+				if(!checkTypeLogic(c->condExp)) {
+					raiseError("expression not suitble for condition",
+						c->condExp->dbg_line);
+				}
 				enterScope();
 				typeCommandList(c->cmdIf );
 				leaveScope();
@@ -395,7 +412,8 @@ void typeCommandList(CommandL* cl ) {
 				flagFunctionHasReturn = 1;
 				typeExp(c->retExp );
 				if(!currentFunction) {
-					typeError("Return not allowed outbounds");
+					raiseError("Return not allowed outbounds",
+						c->retExp->dbg_line);
 				}
 				if(!checkTypeReturn(c->retExp,currentFunction)) {
 					typeError("Return and func types mismatch");
@@ -412,7 +430,7 @@ void typeCommandList(CommandL* cl ) {
 						&(c->expRight));
 					}
 					else {
-						typeError("Assigment left type differs from right type");
+						raiseError("Assigment left type differs from right type",c->expLeft->dbg_line);
 					}
 				}
 				
@@ -425,13 +443,13 @@ void typeCommandList(CommandL* cl ) {
 			case CCall:
 				typeExp(c->expRight );
 				if(!checkCallability(c->expRight)) {
-					typeError("Expression is not callable");
+					raiseError("Expression is not callable",c->expRight->dbg_line);
 				}
 			break;
 			case CPrint:
 				typeExp(c->printExp);
 				if (!checkPrintability(c->printExp)) {
-					typeError("Expression is not printable");
+					raiseError("Expression is not printable",c->printExp->dbg_line);
 				}
 			break;
 		}
@@ -444,6 +462,7 @@ void performCastToType(Type* lt,Exp** right) {
 	eCast->cast.e = *right;
 	eCast->cast.type = lt;
 	eCast->type = lt;
+	eCast->dbg_line = (*right)->dbg_line;
 	*right = eCast;
 }
 int typesBothIntegers(Type* t1,Type* t2) {
@@ -560,8 +579,8 @@ int checkTypeUnary(Exp* e) {
 		return 0;
 	return t->tag == base && t->b == WInt;
 }
-int checkTypeLogic(Exp* left,Exp* right) {
-	if(left->type->tag == base && right->type->tag == base)
+int checkTypeLogic(Exp* e) {
+	if(e->type->tag == base)
 		return 1;
 	return 0;
 }
@@ -644,9 +663,10 @@ void typeExp(Exp* e ) {
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
 			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
-				printType(e->bin.e1->type,0);
-				printType(e->bin.e2->type,0);
-				typeError("Types in Add differs");
+				// printType(e->bin.e1->type,0);
+				// printType(e->bin.e2->type,0);
+				raiseError("Types in Add differs",
+					e->dbg_line);
 			}
 			e->type = arithType(e);
 		break;
@@ -654,9 +674,10 @@ void typeExp(Exp* e ) {
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
 			if(!checkTypeArtih(e->bin.e1,e->bin.e2)){
-				printType(e->bin.e1->type,0);
-				printType(e->bin.e2->type,0);
-				typeError("Types in Sub differs");
+				// printType(e->bin.e1->type,0);
+				// printType(e->bin.e2->type,0);
+				raiseError("Types in Sub differs",
+					e->dbg_line);
 			}
 			e->type = arithType(e);
 		break;
@@ -664,10 +685,10 @@ void typeExp(Exp* e ) {
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
 			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
-				printExp(e->bin.e1,0);
-				printExp(e->bin.e2,0);
-				printf("\n");
-				typeError("Types in Mul differs");
+				// printExp(e->bin.e1,0);
+				// printExp(e->bin.e2,0);
+				raiseError("Types in Mul differs.",
+					e->dbg_line);
 			}
 			e->type = arithType(e);
 		break;
@@ -675,9 +696,9 @@ void typeExp(Exp* e ) {
 			typeExp(e->bin.e1 );
 			typeExp(e->bin.e2 );
 			if(!checkTypeArtih(e->bin.e1,e->bin.e2)) {
-				printExp(e->bin.e1,0);
-				printExp(e->bin.e2,0);
-				typeError("Types in Div differs");
+				// printExp(e->bin.e1,0);
+				// printExp(e->bin.e2,0);
+				raiseError("Types in Div differs",e->dbg_line);
 			}
 			e->type = arithType(e);
 		break;
@@ -685,12 +706,12 @@ void typeExp(Exp* e ) {
 			typeExpList(e->call.expList);
 			e->type = typeOfCall(e);
 			if(!checkCallability(e)) {
-					printf("--%s--\n", e->call.id);
-					typeError("Expression is not callable");
+					//printf("--%s--\n", e->call.id);
+					raiseError("Expression is not callable",e->dbg_line);
 				}
 			if(!checkTypeCallParamsArgs(e)) {
 				printf("--%s--\n", e->call.id);
-				typeError("Params typing differs from arguments in call");
+				raiseError("Params typing differs from arguments in call",e->dbg_line);
 			}
 		break;
 		case ExpVar:
@@ -702,7 +723,8 @@ void typeExp(Exp* e ) {
 			typeExp(e->unary.e);
 			if(!checkTypeUnary(e->unary.e))
 			{
-				typeError("type of Unary not right");
+				raiseError("type of Unary not right",
+					e->dbg_line);
 			}
 			e->type = unaryType(e);
 		break;
@@ -712,7 +734,7 @@ void typeExp(Exp* e ) {
 		case ExpNew:
 			typeExp(e->eNew.e);
 			if(!checkTypeIndex(e->eNew.e)) {
-				typeError("Index of array is not an int");
+				raiseError("expression inside \"[]\" is not an int",e->dbg_line);
 			}
 			e->type = typeOfNew(e);
 		break;
@@ -723,16 +745,17 @@ void typeExp(Exp* e ) {
 			promoteType(&e->cmp.e2);
 			switch(e->cmp.op) {
 				default:
-					if(!checkTypeLogic(e->cmp.e1,e->cmp.e2)) {
-						typeError("Types not suitble for logic");
+					if(!checkTypeLogic(e->cmp.e1) ||
+					!checkTypeLogic(e->cmp.e2))  {
+						raiseError("Types not suitble for logic",e->dbg_line);
 					}
 				break;
 				case EqEq:
 					if(!typeEquals(e->cmp.e1->type,e->cmp.e2->type)) {
 						if(!typesBothIntegers(e->cmp.e1->type,e->cmp.e2->type)) {
-							printType(e->cmp.e1->type,0);
-							printType(e->cmp.e2->type,0);
-							typeError("Not comparable types in ==");
+							// printType(e->cmp.e1->type,0);
+							// printType(e->cmp.e2->type,0);
+							raiseError("Not comparable types in ==",e->dbg_line);
 						}
 					}
 				break;
@@ -747,13 +770,13 @@ void typeExp(Exp* e ) {
 			typeExp(e->access.varExp);
 			typeExp(e->access.indExp);
 			if(!checkTypeIndex(e->access.indExp)) {
-				typeError("Index of array is not an int");
+				raiseError("Index of array is not an int",e->dbg_line);
 			}
 			if(!checkAccess(e)) {
-				typeError("Access in something that is not an array, nor variable, nor function return");
+				raiseError("Access in something that is not an array, nor variable, nor function return",e->dbg_line);
 			}
 			if(!checkAccessType(e)) {
-				typeError("Access in something that does not have array typing");
+				raiseError("Access in something that does not have array typing",e->dbg_line);
 			}
 
 			e->type = e->access.varExp->type->of;
@@ -764,7 +787,7 @@ void typeExp(Exp* e ) {
 				// printType(e->type,0);
 				// printType(e->cast.type,0);
 				// printType(e->cast.e->type,0);
-				typeError("Cast not avaible for these types");
+				raiseError("Cast not avaible for these types",e->dbg_line);
 			}
 			if(typeEquals(e->cast.type,e->cast.e->type)){
 				raiseWarning("Cast to equal typing");

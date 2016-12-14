@@ -306,9 +306,11 @@ command1: TK_WRETURN  ';' {
 //exps
 exp: expNew {
   $$ = $1;
+  $$->dbg_line = yy_lines;
 } 
  | expCast {
       $$=$1;
+      $$->dbg_line = yy_lines;
     }
 ;
 
@@ -327,6 +329,7 @@ expCall: TK_VAR '(' expList ')' {
   $$->tag = ExpCall;
   $$->call.id = $1;
   $$->call.expList = $3;
+  $$->dbg_line = yy_lines;
 }
 ;
 expList: {
@@ -429,12 +432,14 @@ expAdd: expAdd '+' expMul {
         $$->tag = ExpAdd; //<
         $$->bin.e1 = $1;
         $$->bin.e2 = $3;
+        $$->dbg_line = yy_lines;
 }
       | expAdd '-' expMul { 
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpSub;
         $$->bin.e1 = $1;
         $$->bin.e2 = $3;
+        $$->dbg_line = yy_lines;
       }
       | expMul {
         $$=$1;
@@ -445,12 +450,14 @@ expMul: expMul '*' expUnary {
         $$->tag = ExpMul; //<
         $$->bin.e1 = $1;
         $$->bin.e2 = $3;
+        $$->dbg_line = yy_lines;
 }
       | expMul '/' expUnary {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpDiv; //<
         $$->bin.e1 = $1;
         $$->bin.e2 = $3;
+        $$->dbg_line = yy_lines;
       }
       | expUnary {
         $$=$1;
@@ -461,12 +468,14 @@ expUnary: '!' expVar {
         $$->tag = ExpUnary;
         $$->unary.op = NOT;
         $$->unary.e = $2;
+        $$->dbg_line = yy_lines;
          } //!(exp) = 
       | '-' expVar {  //-(exp) = (0 - exp)
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpUnary;
         $$->unary.op = MINUS;
         $$->unary.e = $2;
+        $$->dbg_line = yy_lines;
       }
       | expVar  {
         $$=$1;
@@ -478,6 +487,7 @@ expVar: expVar '[' exp ']' {
         $$->tag = ExpAccess; 
         $$->access.varExp = $1;
         $$->access.indExp = $3;
+        $$->dbg_line = yy_lines;
 
 
 }
@@ -487,6 +497,7 @@ expVar: expVar '[' exp ']' {
         $$->var = (Var*)malloc(sizeof(Var));
         $$->var->id = $1;
         $$->var->declaration = NULL;
+        $$->dbg_line = yy_lines;
       }
       | primary {
         $$ = $1;
