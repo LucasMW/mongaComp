@@ -9,7 +9,17 @@ void setV1(int i,int val) {
 void setV2(int i,int j,int val) {
 	v2[i][j] = val;
 }
+void setVV2(int i,int[] v) {
+	v2[i] = v;
+}
+
 
 void setV3(int i,int j,int k,int val) {
 	v3[i][j][k] = val;
+}
+void setVV3(int i,int j,int[] v) {
+	v3[i][j] = v;
+}
+void setVVV3(int i,int[][] vv) {
+	v3[i] = vv;
 }

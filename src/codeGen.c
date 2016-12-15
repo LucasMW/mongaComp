@@ -324,11 +324,14 @@ char* adressOfLeftAssign(Exp* e) {
 			return varAddr;
 		}
 	}
-	else {
-		int i = codeAccessElemPtr(e); //received getElemPtr
-		char * str = (char*)malloc(i/10+3);
-		sprintf(str,"%%t%d",i);
+	else if(e->tag == ExpAccess) {
+		int i1 = codeExpAccess(e->access.varExp); //received getElemPtr
+		char * str = (char*)malloc(i1/10+3);
+		sprintf(str,"%%t%d",i1);
 		return str;
+	}
+	else {
+		fprintf(output, ";SevereError\n");
 	}
 	return NULL;
 }
