@@ -1,0 +1,15 @@
+int[] v1;
+int[][] v2;
+int[][][] v3;
+
+void setV1(int i,int val) {
+	v1[i] = val;
+}
+
+void setV2(int i,int j,int val) {
+	v2[i][j] = val;
+}
+
+void setV3(int i,int j,int k,int val) {
+	v3[i][j][k] = val;
+}

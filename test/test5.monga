@@ -7,11 +7,15 @@ int main (int argc,char[] argv)
 {
 	int a,b;
 	vector = new char[][10];
+	@"after new";
 	a = 0; b= 10;
 	while(a<b) {
+		@"before while new";
 		vector[a] = new char[b];
+		@"after new";
 		a=a+1;
 		vector[a][0] = 8 as char;
+		@"after as char";
 	}
 	@"sd";
 	return f(vector[f(vector[b])+f(vector[a])]);

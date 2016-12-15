@@ -1,0 +1,24 @@
+int[] v1;
+int[][] v2;
+int[][][] v3;
+
+int fromV1(int i) {
+	return v1[i];
+}
+
+int fromV2(int i,int j) {
+	return v2[i][j];
+}
+int[] VfromV2(int i) {
+	return v2[i];
+}
+
+int fromV3(int i,int j,int k) {
+	return v3[i][j][k];
+}
+int[] VfromV3(int i,int j) {
+	return v3[i][j];
+}
+int[][] VVfromV3(int i) {
+	return v3[i];
+}
