@@ -325,7 +325,7 @@ char* adressOfLeftAssign(Exp* e) {
 		}
 	}
 	else if(e->tag == ExpAccess) {
-		int i1 = codeExpAccess(e->access.varExp); //received getElemPtr
+		int i1 = codeExpAccess(e)-1;  //received getElemPtr
 		char * str = (char*)malloc(i1/10+3);
 		sprintf(str,"%%t%d",i1);
 		return str;
