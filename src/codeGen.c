@@ -632,7 +632,7 @@ int codeExpVar(Exp* e) {
 						 tStr,
 						 tStr,
 						 varAddr);
-			fprintf(output, ";gloabal\n");
+			fprintf(output, ";global\n");
 		} 
 		else {
 			char* varAddr = stringForVarAddress(e->var->id,scope);
@@ -641,8 +641,10 @@ int codeExpVar(Exp* e) {
 						 tStr,
 						 tStr,
 						 varAddr);
+
 			fprintf(output, ";scope not zero\n");
 		} 
+		//printType(e->type,0);
 	}
 	return currentFunctionTIndex;
 }
@@ -765,6 +767,17 @@ char* addressOfVector(Exp* e) {
 		return "%%SevereError";
 	}
 }
+int codeGetElemPtr(Type* type,int arrayTemp,int indexTemp) {
+	currentFunctionTIndex++;
+	char* tStr = stringForType(type);
+	fprintf(output, "%%t%d = getelementptr %s, %s* %%t%d, i64 %%t%d\n",
+	currentFunctionTIndex,
+	tStr,
+	tStr,
+	arrayTemp,
+	indexTemp);
+	return currentFunctionTIndex;
+}
 int codeAccessElemPtr(Exp* e) {
 	fprintf(output,";getelementptr\n");
 	int i1 = codeExp(e->access.indExp);
@@ -783,7 +796,7 @@ int codeAccessElemPtr(Exp* e) {
 	tStr,
 	tStr,
 	str );
-	fprintf(output,";mark1\n");
+	fprintf(output,"; %s mark1\n",stringForType(e->type));
 
 	int startArrayAddress = currentFunctionTIndex++;
 	fprintf(output, "%%t%d = getelementptr %s, %s* %%t%d, i64 %%t%d\n",
@@ -796,15 +809,57 @@ int codeAccessElemPtr(Exp* e) {
 }
 int codeExpAccess(Exp* e) {
 	fprintf(output,";Exp Access\n");
-	int i1;
-	i1 = codeAccessElemPtr(e);
-	char* tStr = stringForType(e->type);
-	currentFunctionTIndex++;
-	fprintf(output, "%%t%d = load %s, %s* %%t%d\n",
-	currentFunctionTIndex,
-	tStr,
-	tStr,
-	i1);
+
+	int i1,i2;
+	char* tStr;
+	int access;
+	switch (e->tag) {
+		case ExpAccess :
+		i1 = codeExp(e->access.indExp);
+		currentFunctionTIndex++;
+		fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
+			currentFunctionTIndex,
+			i1 );
+		char* aTStr = stringForType(e->access.varExp->type);
+		tStr = stringForType(e->type);
+		int index = currentFunctionTIndex++;
+		access = codeExp(e->access.varExp);
+		currentFunctionTIndex++;
+
+		i2 =  codeGetElemPtr(e->type,
+			access,
+			index);
+		// char* str = stringForVarAddress(e->access.varExp);
+		currentFunctionTIndex++;
+		fprintf(output, "%%t%d = load %s, %s* %%t%d\n",
+		currentFunctionTIndex,
+		tStr,
+		tStr,
+		i2 );
+		
+		return currentFunctionTIndex;
+		break;
+		default:
+		fprintf(output, ";default reached\n" );
+		tStr = stringForType(e->type);
+		char* str = addressOfVector(e);
+		currentFunctionTIndex++;
+		fprintf(output, "%%t%d = load %s, %s* %s\n",
+		currentFunctionTIndex,
+		tStr,
+		tStr,
+		str );
+		return currentFunctionTIndex;
+		break;
+	}
+	// i1 = codeAccessElemPtr(e);
+	// char* tStr = stringForType(e->type);
+	// currentFunctionTIndex++;
+	// fprintf(output, "%%t%d = load %s, %s* %%t%d\n",
+	// currentFunctionTIndex,
+	// tStr,
+	// tStr,
+	// i1);
 	return currentFunctionTIndex;	
 }
 int sizeOfType(Type* t) {
