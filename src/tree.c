@@ -281,11 +281,12 @@ void printExp(Exp* e,int x) {
 			printDepthLevel("[]",x);
 			printExp(e->access.varExp,x+1);
 			printExp(e->access.indExp,x+1);
+			printType(e->type,x+1);printf("<-");
 		break;
 		case ExpCast:
 			printDepthLevel("cast",x);
 			printExp(e->cast.e,x+1);
-			printType(e->cast.type,x+1);
+			printType(e->cast.type,x+1); 
 		break;
 	}
 }

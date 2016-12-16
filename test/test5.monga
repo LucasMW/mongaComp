@@ -5,7 +5,8 @@ int f(char[] a) {
 }
 int main (int argc,char[] argv)
 {
-	int a,b;
+	int a;
+	int b;
 	vector = new char[][10];
 	@"after new";
 	a = 0; b= 10;
@@ -13,10 +14,18 @@ int main (int argc,char[] argv)
 		@"before while new";
 		vector[a] = new char[b];
 		@"after new";
-		a=a+1;
-		vector[a][0] = 8 as char;
+		vector[a][0] = (2 as char);
 		@"after as char";
+		a=a+1;
 	}
-	@"sd";
-	return f(vector[f(vector[b])+f(vector[a])]);
+	a=a-1;
+	vector[0][0] = 2;
+
+	@f(vector[b-1]); @f(vector[a]);
+	@"\n";
+	return f(
+		vector[
+			f(vector[b-1]) + f(vector[a])
+			]
+		);
 }

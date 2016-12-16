@@ -47,10 +47,12 @@ executable: a.out.
 
 ./a.out can be executed
 
-These tests aren't automated
 
 To clean builds, use
 make clean
+
+To run the generalTests run 
+make test
 
 To run the tests for the checks only, use
 make testchecks
@@ -83,13 +85,13 @@ lex.c is generated form rules.lex by using flex.
 grammar.c & grammar.h are generated using bison
 
 test/ contains test suites. Each folder is a collection of test cases.
-For instance, take the simple folder which contains most of the tests
+For instance, take the checks folder which contains most of the tests
 Each test have a name and consist of two files: name.monga and name.answer
-name.monga is the input the lexical analyzer receives and name.answer, the expected output.
-They are compared textually. If they are equal, the test is OK. 
+name.monga is the input the compiler receives and name.answer, the expected output.
+The result and the answer are compared textually. If they are equal, the test is OK. 
 If they are different, the difference is shown on console
 
-the test script is found at test/script.sh .
+Each test suite has its own script .
 
-temp/ is a folder for between compilation and is not currently used
+temp/ is a folder for temporary files during a compilation
 

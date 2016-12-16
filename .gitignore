@@ -15,4 +15,5 @@ e.txt
 codeExamples
 *.c
 temp/
-comp.dSYM/
+*.dSYM/
+*.o
