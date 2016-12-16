@@ -789,7 +789,6 @@ int codeAccessElemPtr(Exp* e) {
 			currentFunctionTIndex,
 			i1 );
 	
-	char* aTStr = stringForType(e->access.varExp->type);
 	char* tStr = stringForType(e->type);
 	int index = currentFunctionTIndex++;
 	char* str = addressOfVector(e->access.varExp);
@@ -823,7 +822,6 @@ int codeExpAccess(Exp* e) {
 		fprintf(output, "%%t%d = sext i32 %%t%d to i64\n",
 			currentFunctionTIndex,
 			i1 );
-		char* aTStr = stringForType(e->access.varExp->type);
 		tStr = stringForType(e->type);
 		int index = currentFunctionTIndex++;
 		access = codeExp(e->access.varExp);

@@ -44,7 +44,7 @@ clean:
 	mkdir bin
 	rm -r temp
 	mkdir temp
-	rm -rf comp.dSYM
+	rm -rf *.dSYM
 	rm -f test/*/*.output
 	rm -f va.txt
 	rm -f val.out
@@ -53,6 +53,7 @@ clean:
 	rm -f *.ll
 	rm -f test/*.out
 	rm -f test/*.ll
+	rm -rf *.o
 
 
 bin/comp: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o
