@@ -54,6 +54,7 @@ clean:
 	rm -f test/*.out
 	rm -f test/*.ll
 	rm -rf *.o
+	rm comp
 
 
 bin/comp: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o
