@@ -1,0 +1,151 @@
+int[][] MCopy(int[][] A, int m) {
+	int[][] C;
+
+	int i,j;
+	C = new int[][m];
+
+	i=0;
+	while(i<m) {
+		C[i]=new int[m];
+		j=0;
+		while(j<m) {
+			C[i][j] = A[i][j];
+			j=j+1;
+		}
+		i=i+1;
+	}
+	return C;
+}
+
+void MPrint(int[][] M,int m) {
+	int i,j;
+	i=0;
+	while(i<m) {
+		j=0;
+		while(j<m) {
+			@M[i][j]; @' ' as char;
+			j=j+1;
+		}
+		@'\n' as char;
+		i=i+1;
+	}
+}
+int[][] MZero(int m) {
+	int i,j,k;
+	int [][]M;
+	M = new int[][m];
+	i=0;
+	while(i<m) {
+		M[i] = new int[m];
+		j=0;
+		while(j<m) {
+			M[i][j] = 0;
+			j=j+1;
+		}
+		i=i+1;
+	}
+	return M;
+}
+int[][] MID(int m) {
+	int i,j;
+	int [][] C;
+	C = new int[][m];
+
+	i=0;
+	while(i<m) {
+		C[i] = new int[m];
+		j=0;
+		while(j<m) {
+			C[i][j] = 0;
+			if(i == j ) {
+				C[i][j] = 1;
+			}
+			j=j+1;
+		}
+		i=i+1;
+	}
+	return C;
+}
+
+
+int[][] MProduct(int[][] A, int[][] B,int m) {
+	int[][] C;
+	int i,j,k;
+	C=MCopy(A,m);
+	
+	i=0;
+	while(i<m) {
+		j=0;
+		while(j<m) {
+			int sum;
+			k=0;
+			sum = 0;
+			while(k<m) {
+				sum = sum + A[i][k] * B[k][j];
+				k=k+1;
+			}
+			C[i][j] = sum;
+			j=j+1;
+		}
+		i=i+1;
+	}
+	return C;
+
+}
+void simpleLoop(int m) {
+	int i,j,k;
+	i=0;
+	while(i<m) {
+		j=0;
+		while(j<m) {
+			k=0;
+			while(k<m) {
+				@'<' as char;
+				@i; @' ' as char;
+				@j; @' ' as char;
+				@k; @' ' as char;
+				@'>' as char;
+				@"";
+				k=k+1;
+			}
+			j=j+1;
+		}
+		i=i+1;
+	}
+}
+
+
+
+int main() {
+	int [][]A;
+	int [][]B;
+	int MSize;
+	int i;
+	MSize = 30;
+	/*simpleLoop(MSize);*/
+	A = MZero(MSize);
+
+	A = MID(MSize);
+	A[0][0] = 1; 
+	A[0][1] = 3;
+	A[1][0] = -2;
+	A[1][1] = -4;
+	@"A:";
+	MPrint(A,MSize);
+	B = MID(MSize);
+
+	B[0][0] = 7; 
+	B[0][1] = -3;
+	B[1][0] = 9;
+	B[1][1] = -10;
+	@"B:";
+	MPrint(B,MSize);
+	@"MProduct";
+	i=0;
+	while(i<5000) { 
+		A = MProduct(A,B,MSize);
+		i=i+1;
+	}
+	MPrint(A,MSize);
+	return 0;
+}
