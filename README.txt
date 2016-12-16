@@ -51,8 +51,11 @@ executable: a.out.
 To clean builds, use
 make clean
 
-To run the generalTests run 
+To run the tests use
 make test
+
+To run the tests for binary compilation only, use
+make testbin
 
 To run the tests for the checks only, use
 make testchecks
