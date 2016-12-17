@@ -467,8 +467,9 @@ void codeCommandList(CommandL* cl) {
 				}
 				else if(c->printExp->type->of->tag == base &&
 					c->printExp->type->of->b == WChar) {
-
-					fprintf(output, "tail call i32 @puts(i8* %%t%d)\n", i1);
+					fprintf(output, "tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strprintstr, i64 0, i64 0), i8* %%t%d)\n",
+						i1 );
+					//fprintf(output, "tail call i32 @puts(i8* %%t%d)\n", i1);
 					
 				}
 				else {
@@ -544,6 +545,22 @@ int codeCallExp(Exp* e) {
 	fprintf(output, ")\n" );
 	return toCall;		
 }
+char* hexaStringForFloat(float c) {
+	double f = (double)c;
+	int i;
+	unsigned char buff[sizeof(double)];
+	memcpy(buff,&f,sizeof(double));
+
+	char* string = (char*)malloc(sizeof(double)+3);
+	char temp[3] = "0x";
+	strcpy(string,temp);
+	for(i = sizeof(double)-1;i >= 0;i--){
+        sprintf(temp,"%02X",buff[i]);
+        strcat(string,temp);
+    }
+    return string;
+
+}
 char* stringForConstant(Constant* c) {
 	//char str[40] = "no string given";
 	char* str;
@@ -558,8 +575,7 @@ char* stringForConstant(Constant* c) {
 		break;
 		case KFloat:
 			nd = frexp(c->u.d, &exponent);
-			str = (char*)malloc(40);
-			sprintf(str, "%f", c->u.d);
+			str = hexaStringForFloat(c->u.d);
 		break;
 		case KStr:
 			str = (char*)c->u.str;
@@ -900,44 +916,85 @@ int codeExpNew(Exp* e) {
 	tStr );
 	return currentFunctionTIndex;
 }
-// void codeBranches(Exp* e, int lt,int lf) {
-// 	switch(e->cmp.op) {
-// 		case OR:
-// 		int ln = currentBrIndex++;
-// 		codeBranches(e->e1,lt,ln);
-// 		codeLabel(ln);
-// 		codeBranches(e->e2,lt,lf);
-// 		break;
-// 		case AND:
-// 		int ln = currentBrIndex++;
-// 		codeBranches(e->e1,lf,ln);
-// 		codeLabel(ln);
-// 		codeBranches(e->e2,lt,lf);
-// 		break;
-// 		case NOT:
-// 		codeBranches(e->e1,lf,lt);
-// 		break;
-// 		case LS:
-// 		int r1 = codeExp(e->e1);
-// 		int r2 = condExp(e->e2);
-// 		int t = currentFunctionTIndex++;
-// 		fprintf("%%t%d = icmp lt i32 %%t%d, %%t%d",
-// 			t,
-// 			r1,
-// 			r2);
-// 		fprintf(output, "br i1 %%t%d label %%b%d, %%b%d\n",
-// 		t,
-// 		lt,
-// 		lf );
-// 		break;
-// 		default:
-// 		int nt = currentFunctionTIndex++;
-// 		int te = condExp(e);
-// 		fprintf(output, "%nt = icmp eq i32 %te, 0\n", );
-// 		fprintf(output, "br i1 %nt label lt, lf\n", );
-// 		break;
-// 	}
-// }
+void codeLabel(int label) {
+	fprintf(output, "b%d:\n",label);
+}
+void codeBranches(Exp* e, int lt,int lf) {
+	int ln;
+	int te,nt;
+	switch(e->cmp.op) {
+		case OR:
+		ln = currentBrIndex++;
+		codeBranches(e->cmp.e1,lt,ln);
+		codeLabel(ln);
+		codeBranches(e->cmp.e2,lt,lf);
+		break;
+		case AND:
+		ln = currentBrIndex++;
+		codeBranches(e->cmp.e1,lf,ln);
+		codeLabel(ln);
+		codeBranches(e->cmp.e2,lt,lf);
+		break;
+		case NOT:
+		codeBranches(e->cmp.e1,lf,lt);
+		break;
+		case LS:
+		break;
+		default:
+		
+		te = codeExp(e);
+		nt = currentFunctionTIndex++;
+		fprintf(output, "%%t%d = icmp eq i32 %%t%d, 0\n", 
+			nt,
+			te);
+		fprintf(output, "br i1 %%t%d label l%d, l%d\n", 
+			nt,
+			lt,
+			lf);
+		break;
+	}
+}
+
+int codeCond2(Exp* e) {
+	currentFunctionTIndex++;
+	// int b1 = currentBrIndex++;
+	// int b2 = currentBrIndex++;
+	// int b3 = currentBrIndex++;
+	int i1,i2;
+	i1 = codeExp(e->cmp.e1);
+	i2 = codeExp(e->cmp.e2);
+	char oprStr[4] = "sgt";
+	switch(e->cmp.op) {
+		case GT:
+			strcpy(oprStr,"sgt");
+		break;
+		case GTE:
+			strcpy(oprStr,"sge");
+		break;
+		case LS:
+			strcpy(oprStr,"slt");
+		break;
+		case LSE:
+			strcpy(oprStr,"sle");
+		break;
+		case EqEq:
+			strcpy(oprStr,"eq");
+		break;
+		case OR:
+			
+		break;
+		case AND:
+		
+		break;
+	}
+	oprStr[3] = '\0';
+	fprintf(output, "%%t%d = icmp %s i32 %%t%d, %%t%d\n",
+	currentFunctionTIndex,
+	oprStr,
+	i1,
+	i2 );	
+	return currentFunctionTIndex;
+}
 
 int codeCondToValue(int t) {
 	currentFunctionTIndex++;
