@@ -4,7 +4,7 @@ Copyright 25/10/16
 Modified  13/11/16
 Lucas Menezes */
 
-
+int sleep(int t);
 int exit(int number);
 char getchar();
 void putchar(int c);
@@ -31,7 +31,8 @@ void execute(char[] program)
 
 	while(program[prgIdx]) /*assume it finishes in null like a C String*/
 	{
-
+		/*@program[prgIdx];*/
+		
 		if(program[prgIdx] == '>') {
 			memIdx = memIdx + 1;
 			if(memIdx >= 30000) 
@@ -55,16 +56,26 @@ void execute(char[] program)
 			@ memory[memIdx];
 		} 
 		else if(program[prgIdx] == '[') {
+			
+			/*@"Will begin loop? "; 
+			@memory[memIdx] as int; @"\n";*/
 			if(memory[memIdx]){
-				loopStack[stackIdx] = prgIdx;
+				/*@"Entered Loop\n";*/
 				stackIdx = stackIdx + 1;
+				loopStack[stackIdx] = prgIdx;
+				/*@stackIdx; @"\n";*/
 			}
 			else {
-				
 				/*jump to next ]*/
+				/*@"Won't enter loop\n";*/
 				prgIdx = prgIdx + 1;
 				internalLoopCount = 0;
-				while(!(program[prgIdx] == ']' && internalLoopCount == 0)) 
+				while(!(
+					(program[prgIdx] == ']') && 
+					(internalLoopCount == 0))) 
+					/*@"Inside While: "; 
+				@"memIdx "; @memIdx; 
+				@"\n"; */
 				/* while not match stop requirements*/
 				{
 					if(program[prgIdx] == '[')
@@ -82,17 +93,24 @@ void execute(char[] program)
 			}
 		} 
 		else if(program[prgIdx] == ']') {
-
+			
+			/*@"Will exit loop? "; 
+			@memory[memIdx] as int; 
+			@"\n";*/
 			if(memory[memIdx]) {
+				/*@"continue looping\n";*/
 				prgIdx = loopStack[stackIdx];
 			}
 			else {
+				/*@"exit loop\n";*/
 				stackIdx = stackIdx - 1;
+				/*@stackIdx; @"\n";*/
 			}
 		} else {
 
 		}
 		prgIdx = prgIdx + 1;
+		/*@"prgIdx "; @prgIdx; @"\n";*/
 	}
 	
 }
