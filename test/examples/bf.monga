@@ -1,7 +1,7 @@
 
 /* BF INTERPRETER IN MONGA
 Copyright 25/10/16 
-Modified  13/11/16
+Modified  17/12/16
 Lucas Menezes */
 
 int sleep(int t);
@@ -9,10 +9,38 @@ int exit(int number);
 char getchar();
 void putchar(int c);
 
+char[] readFile(char[] filename);
+
+
+char[] newCharArrayZeroed(int n) {
+	int i;
+	char[] array;
+	array = new char[n];
+	i=0;
+	while(i<n) {
+		array[i] = 0;
+		i=i+1;
+	}
+	return array;
+}
+int[] newIntArrayZeroed(int n) {
+	int i;
+	int[] array;
+	array = new int[n];
+	i=0;
+	while(i<n) {
+		array[i] = 0;
+		i=i+1;
+	}
+	return array;
+}
+
 void error(char[] errorString, int signal) {
 	@ errorString ;
 	exit(signal);
 }
+
+
 void execute(char[] program)
 {
 	/*does array contains its size? */
@@ -23,10 +51,10 @@ void execute(char[] program)
 	int[] loopStack;
 	int stackIdx;
 	int internalLoopCount;
-	memory = new char[30000];
+	memory = newCharArrayZeroed(30000);
 	prgIdx = 0;
 	memIdx = 0;
-	loopStack = new int[500]; 
+	loopStack = newIntArrayZeroed(500); 
 	stackIdx = 0;
 
 	while(program[prgIdx]) /*assume it finishes in null like a C String*/
@@ -116,9 +144,15 @@ void execute(char[] program)
 }
 void main (int argc, char[][] argv) {
 	char[] programStr;
-	programStr =  ">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]>++++++++[<++++>-]<.#>+++++++++++[<+++++>-]<.>++++++++[<+++>-]<.+++.------.--------.[-]>++++++++[<++++>-]<+.[-]++++++++++.";
+	if(argc == 2) {
+		programStr = readFile(argv[1]);
+	}
+	else {
+		programStr =  ">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]>++++++++[<++++>-]<.#>+++++++++++[<+++++>-]<.>++++++++[<+++>-]<.+++.------.--------.[-]>++++++++[<++++>-]<+.[-]++++++++++.";
+	}	
 	execute(programStr);
 }
+
 
 
 
