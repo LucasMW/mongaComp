@@ -68,7 +68,7 @@ int yylex(void);
 %type <def> definitionList  definition 
 %type <dVar> defVar 
 %type <dFunc> defFunc
-%type <exp> expUnary expVar expLogic expCmp  expMul expAdd expCall expCast expNew exp primary
+%type <exp> expUnary expVar  expOr expLogic expCmp  expMul expAdd expCall expCast expNew exp primary
 %type <type> type;
 %type <namelist> idList idList2 nameList
 %type <int_val> baseType 
@@ -363,14 +363,19 @@ expNew: TK_WNEW type '[' exp ']' {
       }
 ;
 
-expLogic : expCmp TK_AND expCmp {
+
+expLogic : expLogic TK_AND expCmp {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //&&
         $$->cmp.e1 = $1;
         $$->cmp.e2 = $3;
         $$->cmp.op = AND;
       }
-      | expCmp TK_OR expCmp {
+      | expOr {
+        $$=$1;
+      }
+;    
+expOr : expOr TK_OR expCmp {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //||
         $$->cmp.e1 = $1;
@@ -380,6 +385,7 @@ expLogic : expCmp TK_AND expCmp {
       | expCmp {
         $$ = $1;
       }
+;
 
 expCmp: expCmp TK_EQEQ expAdd {
         $$ = (Exp*)malloc(sizeof(Exp));
