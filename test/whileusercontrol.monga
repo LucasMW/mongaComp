@@ -3,7 +3,7 @@ int getchar();
 int main() {
 	int c;
 	c = 'A';
-	while(c<'Z' && !c) {
+	while(c<'Z' && c) {
 	int i;
 	i = c+1;
 	putchar(i);

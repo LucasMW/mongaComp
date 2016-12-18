@@ -68,7 +68,7 @@ int yylex(void);
 %type <def> definitionList  definition 
 %type <dVar> defVar 
 %type <dFunc> defFunc
-%type <exp> expUnary expVar expAnd expCmp expOr expMul expAdd expCall expCast expNew exp primary
+%type <exp> expUnary expVar expLogic expCmp  expMul expAdd expCall expCast expNew exp primary
 %type <type> type;
 %type <namelist> idList idList2 nameList
 %type <int_val> baseType 
@@ -358,41 +358,58 @@ expNew: TK_WNEW type '[' exp ']' {
       $$->eNew.t = $2;
       $$->eNew.e = $4;
 }
-      | expCmp {
+      | expLogic {
         $$ = $1;
       }
 ;
 
+expLogic : expCmp TK_AND expCmp {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpCmp; //&&
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = AND;
+      }
+      | expCmp TK_OR expCmp {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpCmp; //||
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = OR;
+      }
+      | expCmp {
+        $$ = $1;
+      }
 
-expCmp: expCmp TK_EQEQ expAnd {
-      $$ = (Exp*)malloc(sizeof(Exp));
-      $$->tag = ExpCmp;
-      $$->cmp.e1 = $1;
-      $$->cmp.e2 = $3;
-      $$->cmp.op = EqEq;
-}
-      | expCmp TK_GE expAnd {
+expCmp: expCmp TK_EQEQ expAdd {
+        $$ = (Exp*)malloc(sizeof(Exp));
+        $$->tag = ExpCmp;
+        $$->cmp.e1 = $1;
+        $$->cmp.e2 = $3;
+        $$->cmp.op = EqEq;
+      }
+      | expCmp TK_GE expAdd {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //>=
         $$->cmp.e1 = $1;
         $$->cmp.e2 = $3;
         $$->cmp.op = GTE;
       }
-      | expCmp TK_LE expAnd {
+      | expCmp TK_LE expAdd {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //<=
         $$->cmp.e1 = $1;
         $$->cmp.e2 = $3;
         $$->cmp.op = LSE;
       }
-      | expCmp '>' expAnd {
+      | expCmp '>' expAdd {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //>
         $$->cmp.e1 = $1;
         $$->cmp.e2 = $3;
         $$->cmp.op = GT;
       }
-      | expCmp '<' expAnd {
+      | expCmp '<' expAdd {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //<
         $$->cmp.e1 = $1;
@@ -400,32 +417,11 @@ expCmp: expCmp TK_EQEQ expAnd {
         $$->cmp.op = LS;
 
       }
-      | expAnd {
-        $$=$1;
-      }
-;
-expAnd: expAnd TK_AND expOr {
-        $$ = (Exp*)malloc(sizeof(Exp));
-        $$->tag = ExpCmp; //<
-        $$->cmp.e1 = $1;
-        $$->cmp.e2 = $3;
-        $$->cmp.op = AND;
-}
-      | expOr {
-        $$=$1;
-      }
-;
-expOr: expOr TK_OR expAdd {
-        $$ = (Exp*)malloc(sizeof(Exp));
-        $$->tag = ExpCmp; //<
-        $$->cmp.e1 = $1;
-        $$->cmp.e2 = $3;
-        $$->cmp.op = OR;
-}
       | expAdd {
-        $$ =$1;
+        $$=$1;
       }
 ;
+
 //arith
 expAdd: expAdd '+' expMul { 
         $$ = (Exp*)malloc(sizeof(Exp));

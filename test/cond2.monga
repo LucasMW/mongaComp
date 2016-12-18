@@ -1,44 +1,44 @@
-int false()  {return 0;}
+int false() {return 0;}
 int true() {return 1;}
 void main() {
 	int a,b,c;
 
-	a = true() || true(); @a;@" ";
-	a = false() || true(); @a;@" ";
-	a = true() || false(); @a;@" ";
-	a = false() || false(); @a;@" ";
+	a = true() || true(); @a;@"\n";
+	a = false() || true(); @a;@"\n";
+	a = true() || false(); @a;@"\n";
+	a = false() || false(); @a;@"\n";
 
-	a = true() && true(); @a;@" ";
-	a = false() && true(); @a;@" ";
-	a = true() && false(); @a;@" ";
-	a = false() && false(); @a;@" ";
+	a = true() && true(); @a;@"\n";
+	a = false() && true(); @a;@"\n";
+	a = true() && false(); @a;@"\n";
+	a = false() && false(); @a;@"\n";
 
-	a = !false(); @a;@" ";
-	a = !true(); @a;@" ";
+	a = !false(); @a;@"\n";
+	a = !true(); @a;@"\n";
 
-	@"dbg";
-	@!(true() == false() && true() == 0); @" "; 
-	@ true() == false() && true() == 0; @" "; 
-	@ true() == false(); @" ";
-	@ true() == 0; @" ";
-	@ (false() == true()) && false(); @" "; 
-	@"Combining";
+	@"dbg\n";
+	@!(true() == false() && true() == 0); @"\n"; 
+	@ true() == false() && true() == 0; @"\n"; 
+	@ true() == false(); @"\n";
+	@ true() == 0; @"\n";
+	 @(false() == true()) && false(); @"\n"; 
+	@"Combining\n";
 	b=1;c=1;a=1;
-	a = !(a == b && c == 0); @a;@" "; 
+	a = !(a == b && c == 0); @a;@"\n"; 
 	b=0;c=1;a=1;
-	a = !(a == b && c == 0); @a;@" "; /* should be true */
+	a = !(a == b && c == 0); @a;@"\n"; /* should be true */
 	b=1;c=0;a=1;
-	a = !(a == b && c == 0); @a;@" "; /* false*/
+	a = !(a == b && c == 0); @a;@"\n"; /* false*/
 	b=0;c=0;a=1;
-	a = !(a == b && c == 0); @a;@" ";  /* should be true*/
+	a = !(a == b && c == 0); @a;@"\n";  /* should be true*/
 
 	b=1;c=1;a=0;
-	a = !(a == b && c == 0); @a;@" ";
+	a = !(a == b && c == 0); @a;@"\n";
 	b=0;c=1;a=0;
-	a = !(a == b && c == 0); @a;@" ";
+	a = !(a == b && c == 0); @a;@"\n";
 	b=1;c=0;a=0;
-	a = !(a == b && c == 0); @a;@" ";
+	a = !(a == b && c == 0); @a;@"\n";
 	b=0;c=0;a=0;
-	a = !(a == b && c == 0); @a;@" ";
+	a = !(a == b && c == 0); @a;@"\n";
 
 }
