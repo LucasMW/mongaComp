@@ -1,0 +1,13 @@
+int g() {
+	@"G\n";
+	return 0;
+}
+int f() {
+	@"F\n";
+	return 1;
+}
+void main() {
+	int a;
+	a = g() && f () && f(); @"\n";
+	a = f() || g () || g(); @"\n";
+}

@@ -1,15 +1,19 @@
 int g() {
-	@"G";
+	@"G\n";
 	return 0;
 }
 int f() {
-	@"F";
+	@"F\n";
 	return 1;
 }
 int main() {
 	
-	int a,b;
-	a = f() || g();
-	b = f() && g(); 
+	int a,b,c,d;
+	a = f() || g(); @"\n";
+	b = f() && g(); @"\n";
+	c = g() && f(); @"\n";
+	d = g() || f(); @"\n";
+	a = (g() || f()) || g() ; @"\n";
+	a = ((g() || g()) || (g() || g())) || (f() || g()) ; @"\n";
 	return 0;
 }
