@@ -375,7 +375,7 @@ expLogic : expLogic TK_AND expCmp {
         $$=$1;
       }
 ;    
-expOr : expOr TK_OR expCmp {
+expOr : expLogic TK_OR expCmp {
         $$ = (Exp*)malloc(sizeof(Exp));
         $$->tag = ExpCmp; //||
         $$->cmp.e1 = $1;
