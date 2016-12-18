@@ -128,7 +128,7 @@ int main() {
 	A[0][1] = 3;
 	A[1][0] = -2;
 	A[1][1] = -4;
-	@"A:";
+	@"A:\n";
 	MPrint(A,MSize);
 	B = MID(MSize);
 
@@ -136,9 +136,9 @@ int main() {
 	B[0][1] = -3;
 	B[1][0] = 9;
 	B[1][1] = -10;
-	@"B:";
+	@"B:\n";
 	MPrint(B,MSize);
-	@"MProduct";
+	@"MProduct\n";
 	A = MProduct(A,B,MSize);
 	MPrint(A,MSize);
 	return 0;
