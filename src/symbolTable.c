@@ -514,10 +514,7 @@ Type* arithType(Exp* e) {
 	return t;
 }
 Type* unaryType(Exp* e) {
-	Type* t = (Type*)malloc(sizeof(Type));
-	t->tag = base;
-	t->b = WInt;
-	return t;
+	return e->unary.e->type;
 }
 Type* CmpType(Exp* e) {
 	Type* t = (Type*)malloc(sizeof(Type));
@@ -571,6 +568,12 @@ int checkTypeArtih(Exp* left,Exp *right) {
 		}
 	}
 	return 0;
+}
+int chekTypeMinusUnary(Exp* e) {
+	Type* t = e->type;
+	if(!t)
+		return 0;
+	return t->tag == base;
 }
 //receives exp inside unary
 int checkTypeUnary(Exp* e) {
@@ -721,11 +724,20 @@ void typeExp(Exp* e ) {
 		break;
 		case ExpUnary:
 			typeExp(e->unary.e);
-			if(!checkTypeUnary(e->unary.e))
-			{
-				raiseError("type of Unary not right",
-					e->dbg_line);
+			if(e->unary.op == MINUS) {
+				if(!chekTypeMinusUnary(e->unary.e))
+				{
+					raiseError("type of -(exp) not right",
+						e->dbg_line);
+				}
 			}
+			else {
+				if(!checkTypeUnary(e->unary.e))
+				{
+					raiseError("type of !(exp) not right",
+						e->dbg_line);
+				}
+			}	
 			e->type = unaryType(e);
 		break;
 		case ExpPrim:
