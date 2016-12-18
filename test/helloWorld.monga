@@ -1,4 +1,4 @@
 int main() {
-	@ "Hello World!";
+	@ "Hello World!\n";
 	return 0;
 }

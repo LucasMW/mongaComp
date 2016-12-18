@@ -13,6 +13,7 @@ do
 	if(clang $name.ll -c -o $name.out) then
 		rm $f.output
 		rm $name.ll
+		rm $name.out
 		echo "OK"
 		let OK=OK+1
 	else

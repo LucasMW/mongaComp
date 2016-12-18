@@ -8,5 +8,6 @@ int main() {
 	v[index] = 'b';
 	v[index] = 'c';
 	@ v[index] as char;
+	@ "\n";
 	return v[index];
 }

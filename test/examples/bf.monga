@@ -36,7 +36,7 @@ int[] newIntArrayZeroed(int n) {
 }
 
 void error(char[] errorString, int signal) {
-	@ errorString ;
+	@ errorString ; @"\n";
 	exit(signal);
 }
 
