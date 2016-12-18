@@ -6,8 +6,17 @@ int f() {
 	@"F\n";
 	return 1;
 }
+int id(int x){
+	@x;@"\n";
+	return x;
+}
 void main() {
 	int a;
 	a = g() && f () && f(); @"\n";
 	a = f() || g () || g(); @"\n";
+	a = f() && g() || f(); @"\n";
+	a = f() || g() && f(); @"\n";
+	a = id(1) && id(2) || id(3); @"\n";
+	a = id(1) && id(2) && id(3); @"\n";
+	a = id(1) || id(2) || id(3); @"\n";
 }
