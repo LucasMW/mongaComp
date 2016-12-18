@@ -98,9 +98,8 @@ void execute(char[] program)
 				/*@"Won't enter loop\n";*/
 				prgIdx = prgIdx + 1;
 				internalLoopCount = 0;
-				while(!(
-					(program[prgIdx] == ']') && 
-					(internalLoopCount == 0))) 
+				while(!(program[prgIdx] == ']' && 
+					internalLoopCount == 0)) 
 					/*@"Inside While: "; 
 				@"memIdx "; @memIdx; 
 				@"\n"; */
