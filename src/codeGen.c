@@ -651,7 +651,7 @@ int codeExpVar(Exp* e) {
 						 tStr,
 						 tStr,
 						 varAddr);
-			fprintf(output, ";global\n");
+			//fprintf(output, ";global\n");
 		} 
 		else {
 			char* varAddr = stringForVarAddress(e->var->id,scope);
@@ -661,7 +661,7 @@ int codeExpVar(Exp* e) {
 						 tStr,
 						 varAddr);
 
-			fprintf(output, ";scope not zero\n");
+			//fprintf(output, ";scope not zero\n");
 		} 
 		//printType(e->type,0);
 	}
@@ -857,7 +857,7 @@ int codeExpAccess(Exp* e) {
 		return currentFunctionTIndex;
 		break;
 		default:
-		fprintf(output, ";default reached\n" );
+		//fprintf(output, ";default reached\n" );
 		tStr = stringForType(e->type);
 		char* str = addressOfVector(e);
 		currentFunctionTIndex++;
