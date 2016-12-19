@@ -1,10 +1,10 @@
 int main(int argc,char[][] argv) {
 	int i;
 	i=0;
-	@"Arguments received:";
+	@"Arguments received:\n";
 	while(i<argc)
 	{
-		@argv[i];
+		@argv[i];@"\n";
 		i = i+ 1;
 	}
 	return 0;
