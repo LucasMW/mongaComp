@@ -1,0 +1,35 @@
+int g() {
+	@"G\n";
+	return 0;
+}
+int f() {
+	@"F\n";
+	return 1;
+}
+int main() {
+	
+	int a,b,c,d;
+	if(f() || g()) {
+		@"OK\n";
+	}
+	if(f() && g()) {
+		@"Not OK\n";
+	}
+	else {
+		@"OK\n";
+	}
+	if(g() || g() || g() || g()){
+		@"Not OK\n";	
+	}
+	else {
+		@"OK\n";
+	}
+	if(g() && g() && g() && g()){
+		@"Not OK\n";
+	}
+	else {
+		@"OK\n";
+	}
+	
+	return 0;
+}
