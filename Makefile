@@ -4,8 +4,7 @@ test/comp: src/main.c src/lex.c src/grammar.c
 
 test: testlexical testsyntax testchecks testbin
 
-temp/zip: 
-	zip src/ test/ README.txt Makefile
+
 testbin: comp
 	cat test/test1.monga |./comp -noTree
 	cat test/test2.monga |./comp -noTree
@@ -58,11 +57,11 @@ clean:
 	rm -rf *.o
 	rm -f comp
 
+#always generate zip
 zip:
 	rm -rf zipfolder
 	zip -r zipfolder.zip src test README.txt Makefile
-	mv zipfolder.zip mongaComp.zip
-	rm -rf zipfolder
+	mv zipfolder.zip ../mongaComp.zip
 
 bin/comp: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o
 	ls temp
