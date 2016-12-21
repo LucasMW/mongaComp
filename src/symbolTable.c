@@ -645,7 +645,7 @@ int checkPrintability(Exp* e) {
 }
 int checkAccess(Exp* e) {
 	Exp* v = e->access.varExp;
-	if(v->tag == ExpAccess | v->tag == ExpVar | v->tag == ExpCall) {
+	if(v->tag == ExpAccess || v->tag == ExpVar || v->tag == ExpCall) {
 		return 1;
 	}
 	return 0;
