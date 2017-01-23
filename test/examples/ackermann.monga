@@ -1,0 +1,47 @@
+/* Ackermann Function in Monga
+Copyright 21/12/16 
+Modified  21/12/16
+Lucas Menezes */
+
+int atoi(char[] str);
+
+void printAck(int m,int n) 
+{
+    @"A(";@m;@",";@n;@")"; 
+}
+int readInt() {
+    return #int;
+}
+int ackermann(int m, int n)
+{   int r;
+		
+        if (!m) { 
+        	printAck(m,n);@" = ";@n+1; @"\n";
+        	return n + 1;
+        }
+        if (!n) { 
+        	printAck(m,n); @" = "; printAck(m-1,1); @"\n";
+         return ackermann(m - 1, 1);
+        }
+        printAck(m,n);@" = ";@"A(";@m;@",A(";@m;@",";@n-1;@"))\n"; 
+        r = ackermann(m - 1, ackermann(m, n - 1));
+        return r;
+}
+ 
+int main(int argc, char[][] argv)
+{
+	int m, n;
+	int r;
+	if(argc>=3) {
+		m = atoi(argv[1]);
+		n = atoi(argv[2]);
+	}
+	else {
+		m = 1; n = 10;
+	}
+    r = ackermann(m, n);
+    @"Threfore:\n";
+    printAck(m,n);@" = ";@r;@"\n"; 
+ 
+    return 0;
+}
