@@ -528,7 +528,7 @@ Type* typeOfCall(Exp* e) {
 
 	if(index < 0) {
 		printf("--func %s--\n",e->call.id);
-		typeError("No such func in scope");
+		raiseError("No such func in scope",e->dbg_line);
 	}
 	return variables[index].type;
 }
@@ -545,7 +545,7 @@ Type* typeOfAccess(Exp* e) {
 
 	if(index < 0) {
 		printf("--func %s--\n",e->call.id);
-		typeError("No such func in scope");
+		raiseError("No such func in scope",e->dbg_line);
 	}
 	return variables[index].type;
 }
@@ -657,6 +657,7 @@ int checkAccessType(Exp* e) {
 	}
 	return 0;
 }
+
 
 void typeExp(Exp* e ) {
 	if(!e)
@@ -806,6 +807,7 @@ void typeExp(Exp* e ) {
 			}
 			e->type = e->cast.type;
 		break;
+		
 	}
 	//printExp(e,10);
 }
