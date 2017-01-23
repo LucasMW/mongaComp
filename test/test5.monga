@@ -23,9 +23,5 @@ int main (int argc,char[] argv)
 
 	@f(vector[b-1]); @f(vector[a]);
 	@"\n";
-	return f(
-		vector[
-			f(vector[b-1]) + f(vector[a])
-			]
-		);
+	return f(vector[f(vector[b-1]) + f(vector[a])]);
 }

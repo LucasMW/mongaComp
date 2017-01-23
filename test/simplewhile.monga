@@ -2,7 +2,7 @@ void putchar(int c);
 int main() {
 	int i;
 	int tam;
-	i = 'a';
+	i = 0;
 	tam = 'z';
 	while(i<tam) {
 	putchar(i);
