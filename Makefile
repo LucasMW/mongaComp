@@ -1,6 +1,8 @@
+CFLAGS = -Wall -std=c99
+OUTFILE = comp
 #always compiles when using just make
 test/comp: src/main.c src/lex.c src/grammar.c
-	cc -Wall -o comp src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
+	cc $(CFLAGS) -o comp src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
 
 test: testlexical testsyntax testchecks testbin
 
