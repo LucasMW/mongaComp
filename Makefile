@@ -1,5 +1,6 @@
 CFLAGS = -Wall -std=c99
 OUTFILE = comp
+SOURCES = src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
 #always compiles when using just make
 test/comp: src/main.c src/lex.c src/grammar.c
 	cc $(CFLAGS) -o comp src/main.c src/lex.c src/grammar.c src/tree.c src/lextest.c src/symbolTable.c src/codeGen.c
@@ -64,6 +65,17 @@ zip:
 	rm -rf zipfolder
 	zip -r zipfolder.zip src test README.txt Makefile
 	mv zipfolder.zip ../mongaComp.zip
+
+windows: $(SOURCES)
+	rm -rf windows_release
+	mkdir windows_release
+	i686-w64-mingw32-gcc $(CFLAGS) -o windows_release/comp.exe $(SOURCES)
+
+linux: $(SOURCES)
+	rm -rf linux_release
+	mkdir linux_release
+	x86_64-linux-musl-cc -static $(CFLAGS) -o linux_release/comp $(SOURCES)
+
 
 bin/comp: temp/codeGen.o temp/symbolTable.o temp/grammar.o temp/tree.o temp/main.o temp/lex.o temp/lextest.o
 	ls temp
