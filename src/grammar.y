@@ -1,7 +1,7 @@
 /* The grammar for monga*/
 /* grammar.y */
 
-%error-verbose /* instruct bison to generate verbose error messages*/
+%define parse.error verbose /* instruct bison to generate verbose error messages*/
 
 %{
 #include "lex.h"

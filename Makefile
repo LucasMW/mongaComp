@@ -33,9 +33,9 @@ testleaks: comp
 	tail val.out
 	rm -f val.out prog.out
 src/grammar.c: src/grammar.y
-	bison -d src/grammar.y
-	mv grammar.tab.c src/grammar.c
-	mv grammar.tab.h src/grammar.h
+	bison -d src/grammar.y --output grammar.c
+	mv grammar.c src/grammar.c
+	mv grammar.h src/grammar.h
 src/lex.c: src/rules.lex src/grammar.c
 	flex src/rules.lex
 	mv lex.yy.c src/lex.c
