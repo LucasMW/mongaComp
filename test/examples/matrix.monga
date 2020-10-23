@@ -71,13 +71,12 @@ int[][] MID(int m) {
 int[][] MProduct(int[][] A, int[][] B,int m) {
 	int[][] C;
 	int i,j,k;
+	int sum;
 	C=MCopy(A,m);
-	
 	i=0;
 	while(i<m) {
 		j=0;
 		while(j<m) {
-			int sum;
 			k=0;
 			sum = 0;
 			while(k<m) {
