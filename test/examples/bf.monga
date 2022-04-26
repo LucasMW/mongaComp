@@ -8,8 +8,10 @@ int sleep(int t);
 int exit(int number);
 char getchar();
 void putchar(int c);
+int isNull(char[] str);
 
 char[] readFile(char[] filename);
+char[] readFileFast(char[] filename);
 
 
 char[] newCharArrayZeroed(int n) {
@@ -144,7 +146,11 @@ void execute(char[] program)
 void main (int argc, char[][] argv) {
 	char[] programStr;
 	if(argc == 2) {
-		programStr = readFile(argv[1]);
+		programStr = readFileFast(argv[1]);
+		if(isNull(programStr)){
+			@"Couldn't read file "; @"'" @argv[1]; @"\n";
+			exit(01);
+		}
 	}
 	else {
 		programStr =  ">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]>++++++++[<++++>-]<.#>+++++++++++[<+++++>-]<.>++++++++[<+++>-]<.+++.------.--------.[-]>++++++++[<++++>-]<+.[-]++++++++++.";
